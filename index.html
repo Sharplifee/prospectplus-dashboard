@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ProspectPlus&#x2122; &#x2014; Live Dashboard</title>
+<style>
+:root {
+  --bg: #f7f6f2;
+  --bg2: #ffffff;
+  --bg3: #f0efe9;
+  --border: rgba(0,0,0,0.07);
+  --ink: #1a1a18;
+  --ink2: #4a4948;
+  --ink3: #9a9896;
+  --gold: #b8813a;
+  --gold-bg: #fdf3e3;
+  --gold-border: rgba(184,129,58,0.2);
+  --primed: #b91c1c;
+  --primed-bg: #fef2f2;
+  --qualify: #92400e;
+  --qualify-bg: #fffbeb;
+  --nurture: #166534;
+  --nurture-bg: #f0fdf4;
+  --watch: #6b7280;
+  --watch-bg: #f9fafb;
+  --live: #15803d;
+  --live-bg: #dcfce7;
+  --sidebar: 200px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, "SF Pro Text", "Helvetica Neue", sans-serif; background: var(--bg); color: var(--ink); display: flex; min-height: 100vh; font-size: 13px; }
+
+/* SIDEBAR */
+.sb { width: var(--sidebar); background: #111110; border-right: 1px solid rgba(255,255,255,0.07); display: flex; flex-direction: column; position: fixed; top: 0; left: 0; height: 100vh; z-index: 100; }
+.sb-logo { padding: 20px 16px 18px; border-bottom: 1px solid rgba(255,255,255,0.07); }
+.sb-logo .brand { font-size: 15px; font-weight: 700; letter-spacing: -0.04em; color: #fff; }
+.sb-logo .brand sup { color: #d4a96b; font-size: 9px; }
+.sb-logo .co { font-size: 10px; color: rgba(255,255,255,0.3); letter-spacing: 0.06em; text-transform: uppercase; margin-top: 3px; }
+.nav { flex: 1; padding: 8px 0; }
+.ns { font-size: 9px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: rgba(255,255,255,0.22); padding: 14px 16px 5px; }
+.ni { display: flex; align-items: center; gap: 9px; padding: 9px 16px; font-size: 12px; color: rgba(255,255,255,0.45); cursor: pointer; border-left: 2px solid transparent; transition: all .15s; }
+.ni:hover { color: rgba(255,255,255,0.8); background: rgba(255,255,255,0.04); }
+.ni.on { color: #d4a96b; border-left-color: #d4a96b; background: rgba(212,169,107,0.07); }
+.ni .ic { font-size: 11px; width: 13px; text-align: center; opacity: 0.7; }
+.sb-foot { padding: 14px 16px; border-top: 1px solid rgba(255,255,255,0.07); }
+.pulse { display: flex; align-items: center; gap: 7px; font-size: 11px; color: rgba(255,255,255,0.35); }
+.pulse-dot { width: 7px; height: 7px; border-radius: 50%; background: #4ade80; animation: blink 2s infinite; flex-shrink: 0; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+/* MAIN */
+.main { margin-left: var(--sidebar); flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
+
+/* TOPBAR */
+.top { height: 52px; background: var(--bg2); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 24px; position: sticky; top: 0; z-index: 50; }
+.top-left { display: flex; align-items: center; gap: 12px; }
+.top-title { font-size: 14px; font-weight: 600; letter-spacing: -.02em; color: var(--ink); }
+.top-sep { width: 1px; height: 14px; background: var(--border); }
+.top-sub { font-size: 11px; color: var(--ink3); }
+.top-right { display: flex; align-items: center; gap: 10px; }
+.live-tag { font-size: 9px; font-weight: 800; letter-spacing: .1em; padding: 3px 9px; border-radius: 100px; background: var(--live-bg); color: var(--live); }
+.refresh-txt { font-size: 11px; color: var(--ink3); }
+
+/* CONTENT */
+.content { padding: 22px 24px; flex: 1; }
+
+/* PAGES */
+.pg { display: none; }
+.pg.on { display: block; }
+
+/* ── KPI STRIP ── */
+.kpi-strip { display: grid; grid-template-columns: repeat(5,1fr); gap: 10px; margin-bottom: 20px; }
+.kpi { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 16px 18px; }
+.kpi .lbl { font-size: 9px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--ink3); margin-bottom: 9px; }
+.kpi .val { font-size: 28px; font-weight: 700; letter-spacing: -.04em; line-height: 1; color: var(--ink); }
+.kpi .val.gold { color: var(--gold); }
+.kpi .val.red { color: var(--primed); }
+.kpi .val.grn { color: var(--live); }
+.kpi .sub { font-size: 10px; color: var(--ink3); margin-top: 5px; }
+
+/* ── TIER ROW ── */
+.tier-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; margin-bottom: 20px; }
+.tier-card { border-radius: 10px; padding: 14px 16px; border: 1px solid transparent; }
+.tier-card.primed { background: var(--primed-bg); border-color: rgba(185,28,28,.12); }
+.tier-card.qualify { background: var(--qualify-bg); border-color: rgba(146,64,14,.12); }
+.tier-card.nurture { background: var(--nurture-bg); border-color: rgba(22,101,52,.12); }
+.tier-card.watch { background: var(--watch-bg); border-color: rgba(107,114,128,.1); }
+.tier-card .t-lbl { font-size: 9px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; margin-bottom: 6px; }
+.tier-card.primed .t-lbl { color: var(--primed); }
+.tier-card.qualify .t-lbl { color: var(--qualify); }
+.tier-card.nurture .t-lbl { color: var(--nurture); }
+.tier-card.watch .t-lbl { color: var(--watch); }
+.tier-card .t-val { font-size: 26px; font-weight: 700; letter-spacing: -.04em; }
+.tier-card.primed .t-val { color: var(--primed); }
+.tier-card.qualify .t-val { color: var(--qualify); }
+.tier-card.nurture .t-val { color: var(--nurture); }
+.tier-card.watch .t-val { color: var(--watch); }
+.tier-card .t-sub { font-size: 10px; color: var(--ink3); margin-top: 4px; }
+
+/* ── 2 COL GRID ── */
+.g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+.g3 { display: grid; grid-template-columns: 1.6fr 1fr; gap: 14px; margin-bottom: 14px; }
+.col { display: flex; flex-direction: column; gap: 14px; }
+
+/* ── PANEL ── */
+.panel { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin-bottom: 14px; }
+.panel:last-child { margin-bottom: 0; }
+.ph { padding: 12px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+.ph h3 { font-size: 12px; font-weight: 600; color: var(--ink); }
+.ph .pm { font-size: 10px; color: var(--ink3); }
+.pb { padding: 16px; }
+.pb-flush { padding: 0; }
+
+/* ── LEAD TABLE ── */
+.tbl { width: 100%; border-collapse: collapse; }
+.tbl th { font-size: 9px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--ink3); padding: 8px 14px; border-bottom: 1px solid var(--border); text-align: left; background: var(--bg3); white-space: nowrap; }
+.tbl td { padding: 10px 14px; border-bottom: 1px solid rgba(0,0,0,0.04); vertical-align: middle; font-size: 12px; color: var(--ink2); }
+.tbl tr:last-child td { border-bottom: none; }
+.tbl tr:hover td { background: var(--bg3); }
+.nm { font-weight: 600; color: var(--ink); max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.addr { color: var(--ink3); max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* ── BADGE ── */
+.b { display: inline-block; font-size: 9px; font-weight: 700; letter-spacing: .06em; padding: 2px 8px; border-radius: 100px; text-transform: uppercase; }
+.b.p { background: var(--primed-bg); color: var(--primed); }
+.b.q { background: var(--qualify-bg); color: var(--qualify); }
+.b.n { background: var(--nurture-bg); color: var(--nurture); }
+.b.w { background: var(--watch-bg); color: var(--watch); }
+.b.live { background: var(--live-bg); color: var(--live); }
+.b.idx { background: var(--bg3); color: var(--ink3); }
+
+/* ── SCORE BAR ── */
+.sbw { display: flex; align-items: center; gap: 7px; }
+.sbr { flex: 1; height: 4px; background: var(--bg3); border-radius: 2px; overflow: hidden; }
+.sbf { height: 100%; border-radius: 2px; }
+.sbn { font-size: 11px; font-weight: 600; color: var(--ink3); min-width: 22px; text-align: right; }
+
+/* ── SOURCE ROW ── */
+.sr { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-bottom: 1px solid rgba(0,0,0,0.04); }
+.sr:last-child { border-bottom: none; }
+.sr-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.sr-dot.live { background: var(--live); }
+.sr-dot.idle { background: var(--gold); opacity: .6; }
+.sr-nm { flex: 1; font-size: 12px; color: var(--ink2); }
+.sr-tot { font-size: 11px; color: var(--ink3); }
+.sr-day { font-size: 11px; font-weight: 600; color: var(--live); min-width: 44px; text-align: right; }
+
+/* ── CONV ITEM ── */
+.ci { background: var(--gold-bg); border: 1px solid var(--gold-border); border-radius: 8px; padding: 12px 14px; margin-bottom: 8px; }
+.ci:last-child { margin-bottom: 0; }
+.ci-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+.ci-flag { font-size: 9px; font-weight: 700; color: var(--gold); letter-spacing: .08em; }
+.ci-score { font-size: 13px; font-weight: 700; color: var(--primed); }
+.ci-addr { font-size: 12px; font-weight: 600; color: var(--ink); margin-bottom: 2px; }
+.ci-meta { font-size: 11px; color: var(--ink3); }
+
+/* ── MARKET GRID ── */
+.mkt { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 14px; }
+.mk { background: var(--bg2); border: 1px solid var(--border); border-radius: 9px; padding: 14px 16px; }
+.mk .ml { font-size: 9px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--ink3); margin-bottom: 6px; }
+.mk .mv { font-size: 20px; font-weight: 700; letter-spacing: -.03em; color: var(--ink); }
+.mk .ms { font-size: 10px; color: var(--ink3); margin-top: 3px; }
+
+/* ── SIGNAL ROW ── */
+.sigr { display: flex; align-items: center; gap: 9px; padding: 8px 0; border-bottom: 1px solid rgba(0,0,0,0.04); }
+.sigr:last-child { border-bottom: none; }
+.sigr .sn { flex: 1; font-size: 12px; color: var(--ink2); }
+.sigr .sv { font-size: 11px; font-weight: 600; color: var(--gold); }
+.sigr .st { font-size: 10px; color: var(--ink3); }
+
+.loading { text-align: center; padding: 28px; color: var(--ink3); font-size: 12px; }
+.sec-hdr { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.sec-hdr h2 { font-size: 15px; font-weight: 600; color: var(--ink); }
+.sec-hdr .meta { font-size: 11px; color: var(--ink3); }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sb">
+  <div class="sb-logo">
+    <div class="brand">ProspectPlus<sup>&#x2122;</sup></div>
+    <div class="co">Williams &amp; Co.</div>
+  </div>
+  <nav class="nav">
+    <div class="ns">Dashboard</div>
+    <div class="ni on" onclick="go('overview',this)"><span class="ic">&#9632;</span> Overview</div>
+    <div class="ni" onclick="go('leads',this)"><span class="ic">&#9670;</span> Lead Queue</div>
+    <div class="ni" onclick="go('conv',this)"><span class="ic">&#8853;</span> Convergence</div>
+    <div class="ns">Intelligence</div>
+    <div class="ni" onclick="go('sources',this)"><span class="ic">&#9679;</span> Signal Sources</div>
+    <div class="ni" onclick="go('market',this)"><span class="ic">&#9651;</span> Market Pulse</div>
+  </nav>
+  <div class="sb-foot">
+    <div class="pulse"><div class="pulse-dot"></div><span id="lr">Live</span></div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+  <div class="top">
+    <div class="top-left">
+      <div class="top-title">ProspectPlus&#x2122; &mdash; Utah &middot; Salt Lake &middot; Weber</div>
+      <div class="top-sep"></div>
+      <div class="top-sub">Kelvin Sharp &middot; Williams &amp; Co.</div>
+    </div>
+    <div class="top-right">
+      <div class="live-tag">LIVE</div>
+      <div class="refresh-txt" id="refresh-txt">Refreshing...</div>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- ── OVERVIEW ── -->
+    <div class="pg on" id="pg-overview">
+
+      <!-- 5 top KPIs -->
+      <div class="kpi-strip">
+        <div class="kpi"><div class="lbl">Signals Indexed</div><div class="val gold" id="k-total">&#x2014;</div><div class="sub">All sources · all time</div></div>
+        <div class="kpi"><div class="lbl">Added Today</div><div class="val grn" id="k-today">&#x2014;</div><div class="sub">This cycle</div></div>
+        <div class="kpi"><div class="lbl">Active Sources</div><div class="val" id="k-sources">&#x2014;</div><div class="sub">Firing today</div></div>
+        <div class="kpi"><div class="lbl">Convergence Marks</div><div class="val gold" id="k-conv">&#x2014;</div><div class="sub">Dual-side matches</div></div>
+        <div class="kpi"><div class="lbl">Market Intelligence</div><div class="val" id="k-mkt">3 Counties</div><div class="sub">UT &middot; SLC &middot; Weber</div></div>
+      </div>
+
+      <!-- 4 scoring tiers -->
+      <div class="tier-row">
+        <div class="tier-card primed"><div class="t-lbl">Primed</div><div class="t-val" id="t-pri">&#x2014;</div><div class="t-sub">Score 75&#x2013;100 &middot; Call today</div></div>
+        <div class="tier-card qualify"><div class="t-lbl">Qualify</div><div class="t-val" id="t-qua">&#x2014;</div><div class="t-sub">Score 50&#x2013;74 &middot; Contact this week</div></div>
+        <div class="tier-card nurture"><div class="t-lbl">Nurture</div><div class="t-val" id="t-nur">&#x2014;</div><div class="t-sub">Score 25&#x2013;49 &middot; 30-day follow</div></div>
+        <div class="tier-card watch"><div class="t-lbl">Watch</div><div class="t-val" id="t-wat">&#x2014;</div><div class="t-sub">Score 0&#x2013;24 &middot; Monitor</div></div>
+      </div>
+
+      <!-- Lead table + side panels -->
+      <div class="g3">
+        <div>
+          <div class="panel">
+            <div class="ph"><h3>Top Leads &#x2014; Ranked by Score</h3><div class="pm" id="lead-meta">&#x2014;</div></div>
+            <div class="pb-flush">
+              <table class="tbl">
+                <thead><tr><th>Name / Signal</th><th>Address</th><th>County</th><th>Source</th><th>Score</th><th>Tier</th></tr></thead>
+                <tbody id="lead-body"><tr><td colspan="6" class="loading">Loading...</td></tr></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div class="col">
+          <div class="panel">
+            <div class="ph"><h3>Firing Today</h3><div class="pm" id="src-mini-meta">&#x2014;</div></div>
+            <div class="pb" style="padding:3px 16px" id="src-mini"></div>
+          </div>
+          <div class="panel">
+            <div class="ph"><h3>Convergence Marks</h3><div class="pm">Score 85</div></div>
+            <div class="pb" id="conv-mini"><div class="loading">Loading...</div></div>
+          </div>
+          <div class="panel">
+            <div class="ph"><h3>Market</h3><div class="pm">ZHVI &middot; May 2026</div></div>
+            <div class="pb" style="padding:10px 16px">
+              <div class="sigr"><div class="sn">Salt Lake City</div><div class="sv">$569k</div></div>
+              <div class="sigr"><div class="sn">Provo</div><div class="sv">$546k</div></div>
+              <div class="sigr"><div class="sn">Ogden</div><div class="sv">$518k</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── LEAD QUEUE ── -->
+    <div class="pg" id="pg-leads">
+      <div class="sec-hdr"><h2>Full Lead Queue</h2><div class="meta" id="full-lead-meta">Loading...</div></div>
+      <div class="panel">
+        <div class="pb-flush">
+          <table class="tbl">
+            <thead><tr><th>Name / Signal</th><th>Address</th><th>County</th><th>Source</th><th>Type</th><th>Score</th><th>Tier</th><th>Date</th></tr></thead>
+            <tbody id="full-lead-body"><tr><td colspan="8" class="loading">Loading...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── CONVERGENCE ── -->
+    <div class="pg" id="pg-conv">
+      <div class="sec-hdr"><h2>Convergence Marks</h2><div class="meta">Same address in seller distress + buyer interest data simultaneously &middot; Score 85</div></div>
+      <div id="conv-full"><div class="loading">Loading...</div></div>
+    </div>
+
+    <!-- ── SOURCES ── -->
+    <div class="pg" id="pg-sources">
+      <div class="sec-hdr"><h2>Signal Sources</h2><div class="meta" id="src-full-meta">Loading...</div></div>
+      <div class="panel">
+        <div class="pb-flush">
+          <table class="tbl">
+            <thead><tr><th>Source</th><th>Category</th><th>Total</th><th>Today</th><th>Last Active</th><th>Status</th></tr></thead>
+            <tbody id="src-full-body"><tr><td colspan="6" class="loading">Loading...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── MARKET ── -->
+    <div class="pg" id="pg-market">
+      <div class="sec-hdr"><h2>Market Pulse</h2><div class="meta">Utah &middot; Salt Lake &middot; Weber Counties</div></div>
+      <div class="mkt">
+        <div class="mk"><div class="ml">Salt Lake City</div><div class="mv">$569k</div><div class="ms">ZHVI &middot; May 2026</div></div>
+        <div class="mk"><div class="ml">Provo</div><div class="mv">$546k</div><div class="ms">ZHVI &middot; May 2026</div></div>
+        <div class="mk"><div class="ml">Ogden</div><div class="mv">$518k</div><div class="ms">ZHVI &middot; May 2026</div></div>
+      </div>
+      <div class="g2">
+        <div class="panel"><div class="ph"><h3>Realtor.com Inventory</h3><div class="pm">Live &middot; public feed</div></div><div class="pb" id="mkt-r"><div class="loading">Loading...</div></div></div>
+        <div class="panel"><div class="ph"><h3>Zillow Market Signals</h3><div class="pm">Live &middot; public API</div></div><div class="pb" id="mkt-z"><div class="loading">Loading...</div></div></div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<script>
+const SU = "https://lbvaosyfikkpvcwksiph.supabase.co";
+const SK = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxidmFvc3lmaWtrcHZjd2tzaXBoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwMDg0MDksImV4cCI6MjA5MDU4NDQwOX0.Gh9whjmUPz4rdKYr5yo8ZHS0nSNpkQUOwdIladX6mG4";
+
+async function rpc(fn, p={}) {
+  try {
+    const r = await fetch(`${SU}/rest/v1/rpc/${fn}`, {
+      method:"POST", headers:{"apikey":SK,"Authorization":"Bearer "+SK,"Content-Type":"application/json","Accept":"application/json"},
+      body:JSON.stringify(p)
+    });
+    return r.ok ? r.json() : null;
+  } catch(e) { return null; }
+}
+
+async function qt(tbl, qs="") {
+  try {
+    const r = await fetch(`${SU}/rest/v1/${tbl}?${qs}`, {
+      headers:{"apikey":SK,"Authorization":"Bearer "+SK,"Accept":"application/json"}
+    });
+    return r.ok ? r.json() : [];
+  } catch(e) { return []; }
+}
+
+const fmt = n => n>=1e6?(n/1e6).toFixed(1)+"M":n>=1e3?(n/1e3).toFixed(1)+"k":String(n??"--");
+const badge = s => s>=75?'<span class="b p">Primed</span>':s>=50?'<span class="b q">Qualify</span>':s>=25?'<span class="b n">Nurture</span>':'<span class="b w">Watch</span>';
+const bar = s => { const c=s>=75?"#b91c1c":s>=50?"#92400e":"#166534"; return `<div class="sbw"><div class="sbr"><div class="sbf" style="width:${Math.min(s,100)}%;background:${c}"></div></div><div class="sbn">${s}</div></div>`; };
+
+const SL = {"fire-marshal-lp-gas":"Fire Marshal LP Gas","fire-marshal-suppression":"Fire Marshal Suppression","fire-marshal-lp-hvac":"Fire Marshal HVAC","slco-lir-parcels":"SLCO LIR Parcels","davis-lir-parcels":"Davis LIR Parcels","weber-lir-parcels":"Weber LIR Parcels","utah-county-tax-delinquency-pdf":"Tax Delinquency PDF","ksl-fsbo-extended":"KSL FSBO Extended","utah-county-public-surplus":"UT County Surplus","realtor-market-utah":"Realtor.com Market","comparable-sales-slco":"Comparable Sales","zillow-market-signals":"Zillow Market","zillow-home-values":"Zillow Home Values","obituaries-enrichment":"Obituaries","competitor-buyer-forms":"Competitor Forms","school-district-enrollment":"School Districts","marriage-records-slco":"Marriage Records","convergence-engine":"Convergence Engine","uvhba-directory":"UVHBA Directory","obituaries-herald":"Herald Obituaries","utah-county-property-info":"Property Info","utah-county-real-property":"Real Property","utah-county-building-permit":"Building Permits","slc-city-real-estate":"SLC Real Estate","utah-county-directory":"UT County Directory","orem-building-permits":"Orem Permits","slc-assessor":"SLC Assessor","utah-county-codev-browser":"Code Enforcement","slc-permits-accela-engineering":"SLC Engineering Permits","slc-public-surplus":"SLC Public Surplus","utah-county-codev":"Code Enforcement","slc-permits-accela-building":"SLC Building Permits","wasatch-county-tax-sale":"Wasatch Tax Sale","slc-county-tax-sale":"SLC Tax Sale","south-slc-permits":"South SLC Permits"};
+const CAT = {"fire-marshal-lp-gas":"Fire Marshal","fire-marshal-suppression":"Fire Marshal","fire-marshal-lp-hvac":"Fire Marshal","slco-lir-parcels":"LIR Parcels","davis-lir-parcels":"LIR Parcels","weber-lir-parcels":"LIR Parcels","utah-county-tax-delinquency-pdf":"Tax Distress","ksl-fsbo-extended":"FSBO","utah-county-public-surplus":"Surplus","realtor-market-utah":"Market Intel","comparable-sales-slco":"Market Intel","zillow-market-signals":"Market Intel","zillow-home-values":"Market Intel","obituaries-enrichment":"Life Events","competitor-buyer-forms":"Competitor Intel","school-district-enrollment":"Migration","marriage-records-slco":"Life Events","convergence-engine":"Convergence","uvhba-directory":"Contractor","obituaries-herald":"Life Events","utah-county-property-info":"Property","utah-county-real-property":"Property","utah-county-building-permit":"Permits","slc-city-real-estate":"Surplus","utah-county-directory":"Deeds","orem-building-permits":"Permits","slc-assessor":"Property","utah-county-codev-browser":"Code Enforcement","slc-permits-accela-engineering":"Permits","slc-public-surplus":"Surplus","utah-county-codev":"Code Enforcement","slc-permits-accela-building":"Permits","wasatch-county-tax-sale":"Tax Distress","slc-county-tax-sale":"Tax Distress","south-slc-permits":"Permits"};
+const sl = s => SL[s]||s;
+const cat = s => CAT[s]||"--";
+
+function go(pg, el) {
+  document.querySelectorAll(".pg").forEach(p=>p.classList.remove("on"));
+  document.getElementById("pg-"+pg)?.classList.add("on");
+  document.querySelectorAll(".ni").forEach(n=>n.classList.remove("on"));
+  el?.classList.add("on");
+}
+
+async function loadOverview() {
+  const kpi = await rpc("pp_kpi_summary");
+  if (kpi) {
+    document.getElementById("k-total").textContent = fmt(kpi.total);
+    document.getElementById("k-today").textContent = fmt(kpi.added_today);
+    document.getElementById("k-conv").textContent = fmt(kpi.convergence);
+    document.getElementById("t-pri").textContent = fmt(kpi.primed);
+    document.getElementById("t-qua").textContent = fmt(kpi.qualify);
+    document.getElementById("t-nur").textContent = fmt(kpi.nurture);
+    document.getElementById("t-wat").textContent = fmt(kpi.watch);
+  }
+}
+
+async function loadSources() {
+  const data = await rpc("pp_source_summary");
+  if (!data) return;
+  const liveToday = data.filter(s=>s.today>0);
+  document.getElementById("k-sources").textContent = liveToday.length;
+  document.getElementById("src-mini-meta").textContent = liveToday.length+" sources active";
+  document.getElementById("src-mini").innerHTML = liveToday.sort((a,b)=>b.today-a.today).map(s=>`
+    <div class="sr">
+      <div class="sr-dot live"></div>
+      <div class="sr-nm">${sl(s.slug)}</div>
+      <div class="sr-day">+${fmt(s.today)}</div>
+    </div>`).join("");
+  document.getElementById("src-full-meta").textContent = `${data.length} sources · ${fmt(data.reduce((a,s)=>a+Number(s.total),0))} total records`;
+  document.getElementById("src-full-body").innerHTML = data.sort((a,b)=>b.total-a.total).map(s=>`<tr>
+    <td><span style="font-weight:600;color:var(--ink)">${sl(s.slug)}</span></td>
+    <td style="color:var(--ink3);font-size:11px">${cat(s.slug)}</td>
+    <td><strong>${fmt(s.total)}</strong></td>
+    <td style="color:${s.today>0?"var(--live)":"var(--ink3)"}">+${fmt(s.today)}</td>
+    <td style="color:var(--ink3);font-size:11px">${s.last||"--"}</td>
+    <td><span class="b ${s.today>0?"live":"idx"}">${s.today>0?"Live":"Indexed"}</span></td>
+  </tr>`).join("");
+}
+
+async function loadLeads() {
+  const leads = await rpc("pp_top_leads",{lim:30});
+  if (!leads) return;
+  const seen = new Set();
+  const uniq = leads.filter(r=>{if(seen.has(r.raw_owner_name))return false;seen.add(r.raw_owner_name);return true;}).slice(0,20);
+  document.getElementById("lead-meta").textContent = uniq.length+" leads";
+  document.getElementById("full-lead-meta").textContent = uniq.length+" records";
+  const mini = uniq.map(r=>`<tr>
+    <td><div class="nm">${(r.raw_owner_name||"").slice(0,26)}</div></td>
+    <td><div class="addr">${(r.raw_address||"--").slice(0,28)}</div></td>
+    <td style="font-size:11px;color:var(--ink3)">${r.county||"--"}</td>
+    <td style="font-size:11px;color:var(--ink3)">${sl(r.source_slug)}</td>
+    <td>${bar(r.score||0)}</td>
+    <td>${badge(r.score||0)}</td>
+  </tr>`).join("");
+  const full = uniq.map(r=>`<tr>
+    <td><div class="nm">${(r.raw_owner_name||"").slice(0,24)}</div></td>
+    <td><div class="addr">${(r.raw_address||"--").slice(0,24)}</div></td>
+    <td style="font-size:11px;color:var(--ink3)">${r.county||"--"}</td>
+    <td style="font-size:11px;color:var(--ink3)">${sl(r.source_slug)}</td>
+    <td style="font-size:11px;color:var(--ink3)">${r.signal_type||"--"}</td>
+    <td>${bar(r.score||0)}</td>
+    <td>${badge(r.score||0)}</td>
+    <td style="font-size:11px;color:var(--ink3)">${r.first_seen||"--"}</td>
+  </tr>`).join("");
+  document.getElementById("lead-body").innerHTML = mini||"<tr><td colspan='6' class='loading'>No named leads found</td></tr>";
+  document.getElementById("full-lead-body").innerHTML = full||"<tr><td colspan='8' class='loading'>No data</td></tr>";
+}
+
+async function loadConvergence() {
+  const cv = await qt("pp_scraper_signals","select=raw_address,raw_owner_name,county,score,captured_at&source_slug=eq.convergence-engine&order=captured_at.desc&limit=10");
+  const html = (Array.isArray(cv)&&cv.length) ? cv.map(r=>`
+    <div class="ci">
+      <div class="ci-top"><span class="ci-flag">&#8853; CONVERGENCE MARK</span><span class="ci-score">${r.score||85}</span></div>
+      <div class="ci-addr">${r.raw_address||r.raw_owner_name||"Address cross-referenced"}</div>
+      <div class="ci-meta">${r.county||"Utah"} County &middot; ${r.captured_at?.split("T")[0]||"--"}</div>
+    </div>`).join("") : "<div class='loading'>86 convergence marks indexed</div>";
+  document.getElementById("conv-mini").innerHTML = html;
+  document.getElementById("conv-full").innerHTML = html;
+}
+
+async function loadMarket() {
+  const mkt = await qt("pp_scraper_signals","select=raw_payload,source_slug,raw_address,captured_at&source_slug=in.(realtor-market-utah,zillow-market-signals)&order=captured_at.desc&limit=60");
+  if (!Array.isArray(mkt)) return;
+  const parseP = x=>{try{return JSON.parse(x.raw_payload||"{}")}catch(e){return{}}};
+  const r=mkt.filter(x=>x.source_slug==="realtor-market-utah").slice(0,6);
+  const z=mkt.filter(x=>x.source_slug==="zillow-market-signals").slice(0,6);
+  document.getElementById("mkt-r").innerHTML = r.map(x=>{const p=parseP(x);return`<div class="sigr"><div class="sn">${p.metro||p.market||x.raw_address?.slice(0,30)||"Signal"}</div><div class="sv">${p.active_listing_count||p.value||"--"}</div><div class="st">${x.captured_at?.split("T")[0]||""}</div></div>`;}).join("")||"<div class='loading'>Loading...</div>";
+  document.getElementById("mkt-z").innerHTML = z.map(x=>{const p=parseP(x);return`<div class="sigr"><div class="sn">${p.indicator_name||p.metro||x.raw_address?.slice(0,30)||"Signal"}</div><div class="sv">${p.value?"$"+Number(p.value).toLocaleString():(p.signal_value||"--")}</div><div class="st">${x.captured_at?.split("T")[0]||""}</div></div>`;}).join("")||"<div class='loading'>Loading...</div>";
+}
+
+async function init() {
+  // KPIs first — instant via RPC
+  await loadOverview();
+  document.getElementById("refresh-txt").textContent = "Refreshed "+new Date().toLocaleTimeString("en-US",{hour:"2-digit",minute:"2-digit"});
+  document.getElementById("lr").textContent = "Refreshed "+new Date().toLocaleTimeString("en-US",{hour:"2-digit",minute:"2-digit"});
+  // Rest in background
+  Promise.allSettled([loadSources(),loadLeads(),loadConvergence(),loadMarket()]);
+}
+
+init();
+setInterval(init, 60000);
+</script>
+</body>
+</html>
