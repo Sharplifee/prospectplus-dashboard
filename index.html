@@ -6,159 +6,453 @@
 <title>ProspectPlus™ — Live Dashboard</title>
 <style>
 :root {
-  --bg:#f5f4f0; --bg2:#ffffff; --bg3:#eeede8; --bg4:#e8e7e1;
-  --border:rgba(0,0,0,0.07); --border2:rgba(0,0,0,0.04);
-  --ink:#18180f; --ink2:#4a4940; --ink3:#9a9888;
-  --gold:#b8813a; --gold-lt:#fdf3e3; --gold-bd:rgba(184,129,58,0.18);
-  --primed:#b91c1c; --primed-lt:#fef2f2; --primed-bd:rgba(185,28,28,0.1);
-  --qualify:#92400e; --qualify-lt:#fffbeb; --qualify-bd:rgba(146,64,14,0.1);
-  --nurture:#166534; --nurture-lt:#f0fdf4; --nurture-bd:rgba(22,101,52,0.1);
-  --watch:#5a5a5a; --watch-lt:#f4f4f4;
-  --live:#15803d; --live-lt:#dcfce7;
-  --sb:196px;
+  --bg: #f5f4f0;
+  --white: #ffffff;
+  --border: rgba(0,0,0,0.08);
+  --border2: rgba(0,0,0,0.05);
+  --ink: #1a1a18;
+  --ink2: #5a5a54;
+  --ink3: #a0a090;
+  --gold: #b8813a;
+  --gold-lt: #fdf6ec;
+  --primed: #c0392b;
+  --primed-lt: #fef5f5;
+  --qualify: #b07d2a;
+  --qualify-lt: #fefaef;
+  --nurture: #2d7a4f;
+  --nurture-lt: #f2faf5;
+  --watch: #6b7280;
+  --watch-lt: #f9f9f9;
+  --live: #22c55e;
+  --live-dk: #166534;
+  --sb: 210px;
+  --radius: 12px;
 }
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,"SF Pro Text","Helvetica Neue",sans-serif;background:var(--bg);color:var(--ink);display:flex;min-height:100vh;font-size:13px;line-height:1.4}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, "SF Pro Display", "Helvetica Neue", sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  display: flex;
+  min-height: 100vh;
+  font-size: 14px;
+  line-height: 1.5;
+}
 
-/* ── SIDEBAR ── */
-.sb{width:var(--sb);background:#111110;border-right:1px solid rgba(255,255,255,0.06);display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:100;overflow-y:auto}
-.sb-logo{padding:18px 16px 16px;border-bottom:1px solid rgba(255,255,255,0.06)}
-.sb-logo .brand{font-size:15px;font-weight:700;letter-spacing:-.04em;color:#fff}
-.sb-logo .brand sup{color:#d4a96b;font-size:9px;vertical-align:super}
-.sb-logo .co{font-size:10px;color:rgba(255,255,255,0.28);letter-spacing:.06em;text-transform:uppercase;margin-top:2px}
-.sb-logo .agent{font-size:11px;color:rgba(255,255,255,0.45);margin-top:6px}
-.nav{flex:1;padding:6px 0}
-.ns{font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,0.2);padding:14px 16px 4px}
-.ni{display:flex;align-items:center;gap:8px;padding:8px 16px;font-size:12px;color:rgba(255,255,255,0.42);cursor:pointer;border-left:2px solid transparent;transition:all .12s;user-select:none}
-.ni:hover{color:rgba(255,255,255,0.78);background:rgba(255,255,255,0.04)}
-.ni.on{color:#d4a96b;border-left-color:#d4a96b;background:rgba(212,169,107,0.07)}
-.ni .ic{font-size:10px;width:12px;text-align:center;opacity:.8}
-.sb-foot{padding:12px 16px;border-top:1px solid rgba(255,255,255,0.06)}
-.pulse{display:flex;align-items:center;gap:7px;font-size:11px;color:rgba(255,255,255,0.3)}
-.pdot{width:6px;height:6px;border-radius:50%;background:#4ade80;flex-shrink:0;animation:blink 2s infinite}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
+/* ── SIDEBAR ─────────────────────────────── */
+.sb {
+  width: var(--sb);
+  background: #0f0f0e;
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0; left: 0;
+  height: 100vh;
+  z-index: 100;
+  overflow-y: auto;
+}
 
-/* ── MAIN ── */
-.main{margin-left:var(--sb);flex:1;display:flex;flex-direction:column;min-height:100vh}
+.sb-logo {
+  padding: 24px 20px 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+}
+.sb-logo .brand {
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  color: #fff;
+}
+.sb-logo .brand sup { color: #d4a96b; font-size: 10px; }
+.sb-logo .co {
+  font-size: 11px;
+  color: rgba(255,255,255,0.35);
+  margin-top: 3px;
+  letter-spacing: 0.02em;
+}
+.sb-logo .agent {
+  font-size: 12px;
+  color: rgba(255,255,255,0.55);
+  margin-top: 8px;
+  font-weight: 500;
+}
 
-/* ── TOPBAR ── */
-.topbar{height:50px;background:var(--bg2);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 22px;position:sticky;top:0;z-index:50}
-.t-left{display:flex;align-items:center;gap:10px}
-.t-title{font-size:13px;font-weight:600;letter-spacing:-.02em;color:var(--ink)}
-.t-div{width:1px;height:13px;background:var(--border)}
-.t-sub{font-size:11px;color:var(--ink3)}
-.t-right{display:flex;align-items:center;gap:9px}
-.live-pill{font-size:9px;font-weight:800;letter-spacing:.1em;padding:3px 9px;border-radius:100px;background:var(--live-lt);color:var(--live)}
-.t-refresh{font-size:11px;color:var(--ink3)}
+.nav { flex: 1; padding: 10px 0 20px; }
 
-/* ── CONTENT ── */
-.content{padding:20px 22px;flex:1}
-.pg{display:none}.pg.on{display:block}
+.nav-section {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.22);
+  padding: 16px 20px 6px;
+}
 
-/* ── SECTION LABEL ── */
-.sec-label{font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--ink3);margin-bottom:10px}
+.nav-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 20px;
+  cursor: pointer;
+  border-left: 3px solid transparent;
+  transition: all 0.12s;
+  margin-bottom: 1px;
+}
+.nav-item:hover {
+  background: rgba(255,255,255,0.05);
+}
+.nav-item.on {
+  background: rgba(212,169,107,0.1);
+  border-left-color: #d4a96b;
+}
+.nav-item .nav-icon {
+  font-size: 13px;
+  margin-top: 1px;
+  opacity: 0.6;
+  flex-shrink: 0;
+}
+.nav-item.on .nav-icon { opacity: 1; }
+.nav-item .nav-text {}
+.nav-item .nav-title {
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(255,255,255,0.45);
+  line-height: 1.3;
+}
+.nav-item.on .nav-title { color: #d4a96b; }
+.nav-item:hover .nav-title { color: rgba(255,255,255,0.8); }
+.nav-item .nav-desc {
+  font-size: 10px;
+  color: rgba(255,255,255,0.22);
+  margin-top: 1px;
+  line-height: 1.3;
+}
+.nav-item.on .nav-desc { color: rgba(212,169,107,0.55); }
 
-/* ── SUMMARY BAR — top level numbers ── */
-.summary-bar{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-bottom:8px}
-.sb-card{background:var(--bg2);border:1px solid var(--border);border-radius:9px;padding:13px 15px}
-.sb-card .sl{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);margin-bottom:7px}
-.sb-card .sv{font-size:24px;font-weight:700;letter-spacing:-.04em;line-height:1;color:var(--ink)}
-.sb-card .sv.gold{color:var(--gold)}
-.sb-card .sv.grn{color:var(--live)}
-.sb-card .sd{font-size:10px;color:var(--ink3);margin-top:4px}
+.sb-foot {
+  padding: 16px 20px;
+  border-top: 1px solid rgba(255,255,255,0.07);
+}
+.pulse-row {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 11px;
+  color: rgba(255,255,255,0.3);
+}
+.pdot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: #4ade80;
+  flex-shrink: 0;
+  animation: blink 2s infinite;
+}
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.25} }
 
-/* ── TIER CARDS ── */
-.tier-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:18px}
-.tc{border-radius:9px;padding:13px 15px;border:1px solid transparent}
-.tc.p{background:var(--primed-lt);border-color:var(--primed-bd)}
-.tc.q{background:var(--qualify-lt);border-color:var(--qualify-bd)}
-.tc.n{background:var(--nurture-lt);border-color:var(--nurture-bd)}
-.tc.w{background:var(--watch-lt);border-color:rgba(0,0,0,.06)}
-.tc .tl{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:5px}
-.tc.p .tl{color:var(--primed)}.tc.q .tl{color:var(--qualify)}.tc.n .tl{color:var(--nurture)}.tc.w .tl{color:var(--watch)}
-.tc .tv{font-size:24px;font-weight:700;letter-spacing:-.04em;line-height:1}
-.tc.p .tv{color:var(--primed)}.tc.q .tv{color:var(--qualify)}.tc.n .tv{color:var(--nurture)}.tc.w .tv{color:var(--watch)}
-.tc .td{font-size:10px;color:var(--ink3);margin-top:4px}
+/* ── MAIN ────────────────────────────────── */
+.main {
+  margin-left: var(--sb);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
 
-/* ── GRID LAYOUTS ── */
-.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
-.g3l{display:grid;grid-template-columns:1.65fr 1fr;gap:12px;margin-bottom:12px}
-.g3r{display:grid;grid-template-columns:1fr 1.65fr;gap:12px;margin-bottom:12px}
-.col{display:flex;flex-direction:column;gap:12px}
+/* TOPBAR */
+.topbar {
+  height: 56px;
+  background: var(--white);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 28px;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+.topbar-left { display: flex; align-items: center; gap: 12px; }
+.topbar-title { font-size: 15px; font-weight: 600; letter-spacing: -0.02em; }
+.topbar-sep { width: 1px; height: 14px; background: var(--border); }
+.topbar-sub { font-size: 12px; color: var(--ink3); }
+.topbar-right { display: flex; align-items: center; gap: 10px; }
+.live-pill {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  padding: 4px 10px;
+  border-radius: 100px;
+  background: #dcfce7;
+  color: var(--live-dk);
+}
+.refresh-txt { font-size: 12px; color: var(--ink3); }
 
-/* ── PANEL ── */
-.panel{background:var(--bg2);border:1px solid var(--border);border-radius:9px;overflow:hidden;margin-bottom:12px}
-.panel:last-child{margin-bottom:0}
-.ph{padding:11px 15px;border-bottom:1px solid var(--border2);display:flex;align-items:center;justify-content:space-between;background:var(--bg2)}
-.ph h3{font-size:12px;font-weight:600;color:var(--ink)}
-.ph .pm{font-size:10px;color:var(--ink3)}
-.pb{padding:14px}
+/* CONTENT */
+.content { padding: 28px; flex: 1; }
+.pg { display: none; }
+.pg.on { display: block; }
 
-/* ── TABLE ── */
-.tbl{width:100%;border-collapse:collapse}
-.tbl th{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);padding:8px 14px;border-bottom:1px solid var(--border);text-align:left;background:var(--bg3);white-space:nowrap}
-.tbl td{padding:9px 14px;border-bottom:1px solid var(--border2);vertical-align:middle;font-size:12px;color:var(--ink2)}
-.tbl tr:last-child td{border-bottom:none}
-.tbl tr:hover td{background:var(--bg3)}
-.nm{font-weight:600;color:var(--ink);max-width:155px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.addr{color:var(--ink3);max-width:135px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px}
+/* PAGE HEADER */
+.pg-hdr { margin-bottom: 24px; }
+.pg-hdr h1 { font-size: 20px; font-weight: 700; letter-spacing: -0.03em; color: var(--ink); }
+.pg-hdr p { font-size: 13px; color: var(--ink3); margin-top: 4px; }
 
-/* ── BADGE ── */
-.b{display:inline-block;font-size:9px;font-weight:700;letter-spacing:.06em;padding:2px 8px;border-radius:100px;text-transform:uppercase;white-space:nowrap}
-.b.p{background:var(--primed-lt);color:var(--primed)}
-.b.q{background:var(--qualify-lt);color:var(--qualify)}
-.b.n{background:var(--nurture-lt);color:var(--nurture)}
-.b.w{background:var(--watch-lt);color:var(--watch)}
-.b.live{background:var(--live-lt);color:var(--live)}
-.b.idle{background:var(--bg3);color:var(--ink3)}
+/* ── KPI CARDS ───────────────────────────── */
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 14px;
+}
+.kpi-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px 22px;
+}
+.kpi-card .kl {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink3);
+  margin-bottom: 10px;
+}
+.kpi-card .kv {
+  font-size: 36px;
+  font-weight: 700;
+  letter-spacing: -0.05em;
+  line-height: 1;
+  color: var(--ink);
+}
+.kpi-card .kv.gold { color: var(--gold); }
+.kpi-card .kv.green { color: var(--live-dk); }
+.kpi-card .kd {
+  font-size: 12px;
+  color: var(--ink3);
+  margin-top: 6px;
+}
 
-/* ── SCORE BAR ── */
-.sbw{display:flex;align-items:center;gap:7px}
-.sbr{flex:1;height:3px;background:var(--bg3);border-radius:2px;overflow:hidden}
-.sbf{height:100%;border-radius:2px}
-.sbn{font-size:11px;font-weight:600;color:var(--ink3);min-width:22px;text-align:right}
+/* ── TIER CARDS ──────────────────────────── */
+.tier-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 28px;
+}
+.tier-card {
+  border-radius: var(--radius);
+  padding: 20px 22px;
+  border: 1px solid transparent;
+}
+.tier-card.primed { background: var(--primed-lt); border-color: rgba(192,57,43,0.12); }
+.tier-card.qualify { background: var(--qualify-lt); border-color: rgba(176,125,42,0.12); }
+.tier-card.nurture { background: var(--nurture-lt); border-color: rgba(45,122,79,0.12); }
+.tier-card.watch   { background: var(--watch-lt);   border-color: rgba(107,114,128,0.1); }
 
-/* ── SOURCE ROW ── */
-.sr{display:flex;align-items:center;gap:9px;padding:8px 0;border-bottom:1px solid var(--border2)}
-.sr:last-child{border-bottom:none}
-.srd{width:6px;height:6px;border-radius:50%;flex-shrink:0}
-.srd.live{background:var(--live)}.srd.idle{background:var(--ink3);opacity:.3}
-.srn{flex:1;font-size:12px;color:var(--ink2)}
-.src-cat{font-size:10px;color:var(--ink3);margin-right:4px}
-.srt{font-size:11px;color:var(--ink3);min-width:44px;text-align:right}
-.srd-today{font-size:11px;font-weight:600;color:var(--live);min-width:44px;text-align:right}
+.tier-card .tl {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.tier-card.primed .tl { color: var(--primed); }
+.tier-card.qualify .tl { color: var(--qualify); }
+.tier-card.nurture .tl { color: var(--nurture); }
+.tier-card.watch   .tl { color: var(--watch); }
 
-/* ── CONV ITEM ── */
-.ci{background:var(--gold-lt);border:1px solid var(--gold-bd);border-radius:8px;padding:11px 13px;margin-bottom:8px}
-.ci:last-child{margin-bottom:0}
-.ci-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:3px}
-.ci-flag{font-size:9px;font-weight:700;color:var(--gold);letter-spacing:.08em}
-.ci-score{font-size:13px;font-weight:700;color:var(--primed)}
-.ci-addr{font-size:12px;font-weight:600;color:var(--ink);margin-bottom:1px}
-.ci-meta{font-size:10px;color:var(--ink3)}
+.tier-card .tv {
+  font-size: 36px;
+  font-weight: 700;
+  letter-spacing: -0.05em;
+  line-height: 1;
+}
+.tier-card.primed .tv { color: var(--primed); }
+.tier-card.qualify .tv { color: var(--qualify); }
+.tier-card.nurture .tv { color: var(--nurture); }
+.tier-card.watch   .tv { color: var(--watch); }
 
-/* ── MARKET ROW ── */
-.mr{display:flex;align-items:baseline;gap:8px;padding:8px 0;border-bottom:1px solid var(--border2)}
-.mr:last-child{border-bottom:none}
-.mr-city{flex:1;font-size:12px;color:var(--ink2)}
-.mr-val{font-size:14px;font-weight:700;letter-spacing:-.02em;color:var(--ink)}
-.mr-sub{font-size:10px;color:var(--ink3)}
+.tier-card .td {
+  font-size: 12px;
+  color: var(--ink3);
+  margin-top: 6px;
+}
+.tier-card .action {
+  font-size: 11px;
+  font-weight: 600;
+  margin-top: 10px;
+  padding: 4px 0;
+}
+.tier-card.primed .action { color: var(--primed); }
+.tier-card.qualify .action { color: var(--qualify); }
+.tier-card.nurture .action { color: var(--nurture); }
+.tier-card.watch   .action { color: var(--watch); }
 
-/* ── SIGNAL ROW ── */
-.sigr{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border2)}
-.sigr:last-child{border-bottom:none}
-.sigr .sn{flex:1;font-size:12px;color:var(--ink2)}
-.sigr .sv{font-size:12px;font-weight:600;color:var(--gold)}
-.sigr .st{font-size:10px;color:var(--ink3)}
+/* ── PANELS ──────────────────────────────── */
+.panel {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin-bottom: 14px;
+}
+.panel:last-child { margin-bottom: 0; }
+.ph {
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border2);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.ph h3 { font-size: 14px; font-weight: 600; color: var(--ink); }
+.ph .pm { font-size: 12px; color: var(--ink3); }
+.pb { padding: 18px 20px; }
 
-/* ── TODAY STRIP — compact firing sources ── */
-.today-strip{display:flex;flex-wrap:wrap;gap:5px;padding:12px 14px}
-.ts-item{display:flex;align-items:center;gap:5px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:5px 9px;font-size:11px;color:var(--ink2)}
-.ts-dot{width:5px;height:5px;border-radius:50%;background:var(--live);flex-shrink:0}
-.ts-count{font-weight:700;color:var(--live);margin-left:2px}
+/* ── GRID ────────────────────────────────── */
+.g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+.g3l { display: grid; grid-template-columns: 1.7fr 1fr; gap: 14px; margin-bottom: 14px; }
+.col { display: flex; flex-direction: column; gap: 14px; }
 
-.loading{text-align:center;padding:28px;color:var(--ink3);font-size:12px}
-.divider{height:1px;background:var(--border);margin:16px 0}
+/* ── TABLE ───────────────────────────────── */
+.tbl { width: 100%; border-collapse: collapse; }
+.tbl th {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink3);
+  padding: 10px 20px;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+  background: #fafaf8;
+  white-space: nowrap;
+}
+.tbl td {
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--border2);
+  vertical-align: middle;
+  font-size: 13px;
+  color: var(--ink2);
+}
+.tbl tr:last-child td { border-bottom: none; }
+.tbl tr:hover td { background: #fafaf8; }
+.tbl .name-cell { font-weight: 600; color: var(--ink); max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tbl .addr-cell { color: var(--ink3); max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; }
+
+/* ── BADGES ──────────────────────────────── */
+.badge {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  padding: 3px 9px;
+  border-radius: 100px;
+  text-transform: uppercase;
+}
+.badge.primed { background: var(--primed-lt); color: var(--primed); }
+.badge.qualify { background: var(--qualify-lt); color: var(--qualify); }
+.badge.nurture { background: var(--nurture-lt); color: var(--nurture); }
+.badge.watch   { background: var(--watch-lt); color: var(--watch); }
+.badge.live    { background: #dcfce7; color: var(--live-dk); }
+.badge.idle    { background: #f4f4f4; color: var(--ink3); }
+
+/* ── SCORE BAR ───────────────────────────── */
+.score-wrap { display: flex; align-items: center; gap: 8px; }
+.score-bar { flex: 1; height: 4px; background: #eeede8; border-radius: 2px; overflow: hidden; max-width: 80px; }
+.score-fill { height: 100%; border-radius: 2px; }
+.score-num { font-size: 12px; font-weight: 600; color: var(--ink3); min-width: 24px; }
+
+/* ── SOURCE ROW ──────────────────────────── */
+.src-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border2);
+}
+.src-row:last-child { border-bottom: none; }
+.src-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.src-dot.live { background: var(--live); }
+.src-dot.idle { background: #d1d5db; }
+.src-name { flex: 1; font-size: 13px; color: var(--ink2); font-weight: 500; }
+.src-cat  { font-size: 11px; color: var(--ink3); }
+.src-count { font-size: 13px; font-weight: 700; color: var(--live-dk); }
+
+/* ── CONVERGENCE CARD ────────────────────── */
+.conv-card {
+  background: var(--gold-lt);
+  border: 1px solid rgba(184,129,58,0.18);
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin-bottom: 10px;
+}
+.conv-card:last-child { margin-bottom: 0; }
+.conv-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px; }
+.conv-label { font-size: 10px; font-weight: 700; color: var(--gold); letter-spacing: 0.08em; text-transform: uppercase; }
+.conv-score { font-size: 15px; font-weight: 700; color: var(--primed); }
+.conv-addr { font-size: 13px; font-weight: 600; color: var(--ink); margin-bottom: 3px; }
+.conv-meta { font-size: 11px; color: var(--ink3); }
+
+/* ── MARKET ROW ──────────────────────────── */
+.mkt-row {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border2);
+}
+.mkt-row:last-child { border-bottom: none; }
+.mkt-city { flex: 1; font-size: 13px; color: var(--ink2); font-weight: 500; }
+.mkt-val { font-size: 18px; font-weight: 700; letter-spacing: -0.03em; color: var(--ink); }
+.mkt-sub { font-size: 11px; color: var(--ink3); }
+
+/* ── SIGNAL ROW ──────────────────────────── */
+.sig-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--border2);
+}
+.sig-row:last-child { border-bottom: none; }
+.sig-name { flex: 1; font-size: 13px; color: var(--ink2); }
+.sig-val  { font-size: 13px; font-weight: 600; color: var(--gold); }
+.sig-date { font-size: 11px; color: var(--ink3); }
+
+/* ── TODAY CHIPS ─────────────────────────── */
+.chips { display: flex; flex-wrap: wrap; gap: 7px; padding: 16px 20px; }
+.chip {
+  display: flex; align-items: center; gap: 6px;
+  background: #f0fdf4; border: 1px solid rgba(34,197,94,0.2);
+  border-radius: 8px; padding: 6px 11px; font-size: 12px; font-weight: 500; color: var(--ink2);
+}
+.chip-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--live); flex-shrink: 0; }
+.chip-count { font-weight: 700; color: var(--live-dk); margin-left: 2px; }
+
+/* ── FILTER BUTTONS ──────────────────────── */
+.filter-row { display: flex; gap: 8px; margin-bottom: 18px; flex-wrap: wrap; }
+.filter-btn {
+  background: var(--white); border: 1px solid var(--border);
+  border-radius: 8px; padding: 7px 14px; font-size: 12px;
+  font-weight: 600; cursor: pointer; color: var(--ink2); transition: all .12s;
+}
+.filter-btn:hover { background: #f5f4f0; }
+.filter-btn.on { background: var(--ink); color: #fff; border-color: var(--ink); }
+.filter-btn.primed.on { background: var(--primed); border-color: var(--primed); }
+.filter-btn.qualify.on { background: var(--qualify); border-color: var(--qualify); }
+.filter-btn.nurture.on { background: var(--nurture); border-color: var(--nurture); }
+
+.loading { text-align: center; padding: 32px; color: var(--ink3); font-size: 13px; }
+
+/* ── STAT MINI ───────────────────────────── */
+.stat-mini {
+  display: flex; align-items: baseline; gap: 6px;
+  padding: 10px 0; border-bottom: 1px solid var(--border2);
+}
+.stat-mini:last-child { border-bottom: none; }
+.stat-label { flex: 1; font-size: 13px; color: var(--ink2); }
+.stat-val { font-size: 15px; font-weight: 700; color: var(--ink); letter-spacing: -0.02em; }
+.stat-sub { font-size: 11px; color: var(--ink3); }
 </style>
 </head>
 <body>
@@ -166,140 +460,176 @@ body{font-family:-apple-system,"SF Pro Text","Helvetica Neue",sans-serif;backgro
 <!-- SIDEBAR -->
 <aside class="sb">
   <div class="sb-logo">
-    <div class="brand">ProspectPlus<sup>&#x2122;</sup></div>
+    <div class="brand">ProspectPlus<sup>™</sup></div>
     <div class="co">Williams &amp; Co. System</div>
     <div class="agent">Kelvin Sharp</div>
   </div>
+
   <nav class="nav">
-    <div class="ns">Dashboard</div>
-    <div class="ni on" onclick="go('overview',this)"><span class="ic">&#9632;</span> Overview</div>
-    <div class="ni" onclick="go('leads',this)"><span class="ic">&#9670;</span> Lead Queue</div>
-    <div class="ni" onclick="go('conv',this)"><span class="ic">&#10753;</span> Convergence Marks</div>
-    <div class="ns">Intelligence</div>
-    <div class="ni" onclick="go('sources',this)"><span class="ic">&#9679;</span> Signal Sources</div>
-    <div class="ni" onclick="go('market',this)"><span class="ic">&#9651;</span> Market Pulse</div>
+    <div class="nav-section">Dashboard</div>
+
+    <div class="nav-item on" onclick="go('overview',this)">
+      <div class="nav-icon">⬛</div>
+      <div class="nav-text">
+        <div class="nav-title">Overview</div>
+        <div class="nav-desc">Live snapshot of the entire system</div>
+      </div>
+    </div>
+
+    <div class="nav-item" onclick="go('leads',this)">
+      <div class="nav-icon">◆</div>
+      <div class="nav-text">
+        <div class="nav-title">All Leads</div>
+        <div class="nav-desc">Every lead ranked &amp; ready to contact</div>
+      </div>
+    </div>
+
+    <div class="nav-item" onclick="go('conv',this)">
+      <div class="nav-icon">⊕</div>
+      <div class="nav-text">
+        <div class="nav-title">Convergence Marks</div>
+        <div class="nav-desc">Same property on both sides — call first</div>
+      </div>
+    </div>
+
+    <div class="nav-section">Intelligence</div>
+
+    <div class="nav-item" onclick="go('sources',this)">
+      <div class="nav-icon">●</div>
+      <div class="nav-text">
+        <div class="nav-title">Signal Sources</div>
+        <div class="nav-desc">Every data source &amp; what it's pulling</div>
+      </div>
+    </div>
+
+    <div class="nav-item" onclick="go('market',this)">
+      <div class="nav-icon">△</div>
+      <div class="nav-text">
+        <div class="nav-title">Market Pulse</div>
+        <div class="nav-desc">Home values, inventory &amp; market trends</div>
+      </div>
+    </div>
   </nav>
+
   <div class="sb-foot">
-    <div class="pulse">
+    <div class="pulse-row">
       <div class="pdot"></div>
-      <span id="lr-foot">Live · 60s refresh</span>
+      <span id="lr-foot">Live · refreshing every 60s</span>
     </div>
   </div>
 </aside>
 
-<!-- MAIN -->
+<!-- MAIN CONTENT -->
 <main class="main">
+
   <div class="topbar">
-    <div class="t-left">
-      <div class="t-title">ProspectPlus&#x2122; &mdash; Seller &amp; Buyer Intelligence</div>
-      <div class="t-div"></div>
-      <div class="t-sub">Utah &middot; Salt Lake &middot; Weber Counties</div>
+    <div class="topbar-left">
+      <div class="topbar-title">ProspectPlus™</div>
+      <div class="topbar-sep"></div>
+      <div class="topbar-sub">Utah · Salt Lake · Weber Counties</div>
     </div>
-    <div class="t-right">
+    <div class="topbar-right">
       <div class="live-pill">LIVE</div>
-      <div class="t-refresh" id="t-refresh">Loading...</div>
+      <div class="refresh-txt" id="t-refresh">Loading...</div>
     </div>
   </div>
 
   <div class="content">
 
-    <!-- ══════════════════════════════════════════
+    <!-- ══════════════════════
          OVERVIEW
-    ══════════════════════════════════════════ -->
+    ══════════════════════ -->
     <div class="pg on" id="pg-overview">
 
-      <!-- ROW 1: System-wide totals -->
-      <div class="sec-label">System Overview</div>
-      <div class="summary-bar" style="margin-bottom:18px">
-        <div class="sb-card">
-          <div class="sl">Total Signals</div>
-          <div class="sv gold" id="k-total">&#x2014;</div>
-          <div class="sd">All sources · all time</div>
+      <div class="pg-hdr">
+        <h1>Good morning, Kelvin.</h1>
+        <p>Here's what the system found overnight and this morning across all three counties.</p>
+      </div>
+
+      <!-- Top KPIs: system-wide totals -->
+      <div class="kpi-row" style="margin-bottom:14px">
+        <div class="kpi-card">
+          <div class="kl">Total Signals Indexed</div>
+          <div class="kv gold" id="k-total">—</div>
+          <div class="kd">All sources · all time</div>
         </div>
-        <div class="sb-card">
-          <div class="sl">Added Today</div>
-          <div class="sv grn" id="k-today">&#x2014;</div>
-          <div class="sd">This cycle</div>
+        <div class="kpi-card">
+          <div class="kl">Added This Cycle</div>
+          <div class="kv green" id="k-today">—</div>
+          <div class="kd">Since last run</div>
         </div>
-        <div class="sb-card">
-          <div class="sl">Sources Active</div>
-          <div class="sv" id="k-sources">&#x2014;</div>
-          <div class="sd">Firing today</div>
+        <div class="kpi-card">
+          <div class="kl">Sources Running</div>
+          <div class="kv" id="k-sources">—</div>
+          <div class="kd">Live today</div>
         </div>
-        <div class="sb-card">
-          <div class="sl">Convergence Marks</div>
-          <div class="sv gold" id="k-conv">&#x2014;</div>
-          <div class="sd">Dual-side · Score 85</div>
-        </div>
-        <div class="sb-card">
-          <div class="sl">Market Coverage</div>
-          <div class="sv" style="font-size:16px;padding-top:4px">3 Counties</div>
-          <div class="sd">UT · SLC · Weber</div>
-        </div>
-        <div class="sb-card">
-          <div class="sl">Last Cycle</div>
-          <div class="sv" style="font-size:16px;padding-top:4px" id="k-cycle">&#x2014;</div>
-          <div class="sd">4× daily · every 6 hrs</div>
+        <div class="kpi-card">
+          <div class="kl">Convergence Marks</div>
+          <div class="kv gold" id="k-conv">—</div>
+          <div class="kd">Buyer + seller · same address</div>
         </div>
       </div>
 
-      <!-- ROW 2: Scoring tiers — actionable queue -->
-      <div class="sec-label">Lead Queue by Tier</div>
-      <div class="tier-bar">
-        <div class="tc p">
+      <!-- Scoring tiers: the action queue -->
+      <div class="tier-row">
+        <div class="tier-card primed">
           <div class="tl">Primed</div>
-          <div class="tv" id="t-pri">&#x2014;</div>
-          <div class="td">Score 75–100 · Call today</div>
+          <div class="tv" id="t-pri">—</div>
+          <div class="td">Score 75–100</div>
+          <div class="action">→ Call today</div>
         </div>
-        <div class="tc q">
+        <div class="tier-card qualify">
           <div class="tl">Qualify</div>
-          <div class="tv" id="t-qua">&#x2014;</div>
-          <div class="td">Score 50–74 · Contact this week</div>
+          <div class="tv" id="t-qua">—</div>
+          <div class="td">Score 50–74</div>
+          <div class="action">→ Reach out this week</div>
         </div>
-        <div class="tc n">
+        <div class="tier-card nurture">
           <div class="tl">Nurture</div>
-          <div class="tv" id="t-nur">&#x2014;</div>
-          <div class="td">Score 25–49 · 30-day follow</div>
+          <div class="tv" id="t-nur">—</div>
+          <div class="td">Score 25–49</div>
+          <div class="action">→ 30-day follow sequence</div>
         </div>
-        <div class="tc w">
+        <div class="tier-card watch">
           <div class="tl">Watch</div>
-          <div class="tv" id="t-wat">&#x2014;</div>
-          <div class="td">Score 0–24 · Monitor</div>
+          <div class="tv" id="t-wat">—</div>
+          <div class="td">Score 0–24</div>
+          <div class="action">→ Keep monitoring</div>
         </div>
       </div>
 
-      <!-- ROW 3: Leads + Right column -->
+      <!-- Lead table + side panels -->
       <div class="g3l">
 
-        <!-- Left: Lead table -->
-        <div class="panel">
-          <div class="ph">
-            <h3>Top Leads &mdash; Ranked by Score</h3>
-            <div class="pm" id="lead-meta">&#x2014;</div>
+        <div>
+          <div class="panel">
+            <div class="ph">
+              <h3>Recent High-Priority Leads</h3>
+              <div class="pm" id="lead-meta">Loading...</div>
+            </div>
+            <table class="tbl">
+              <thead><tr>
+                <th>Owner</th>
+                <th>Address</th>
+                <th>County</th>
+                <th>Source</th>
+                <th>Score</th>
+                <th>Priority</th>
+              </tr></thead>
+              <tbody id="lead-body">
+                <tr><td colspan="6" class="loading">Loading leads...</td></tr>
+              </tbody>
+            </table>
           </div>
-          <table class="tbl">
-            <thead><tr>
-              <th>Name</th>
-              <th>Address</th>
-              <th>County</th>
-              <th>Source</th>
-              <th>Score</th>
-              <th>Tier</th>
-            </tr></thead>
-            <tbody id="lead-body">
-              <tr><td colspan="6" class="loading">Loading leads...</td></tr>
-            </tbody>
-          </table>
         </div>
 
-        <!-- Right: Convergence + Market stacked -->
         <div class="col">
 
           <!-- Convergence marks -->
           <div class="panel">
             <div class="ph">
               <h3>Convergence Marks</h3>
-              <div class="pm">Score 85 · dual-side</div>
+              <div class="pm">Call these first</div>
             </div>
             <div class="pb" id="conv-mini">
               <div class="loading">Loading...</div>
@@ -308,95 +638,118 @@ body{font-family:-apple-system,"SF Pro Text","Helvetica Neue",sans-serif;backgro
 
           <!-- Home values -->
           <div class="panel">
-            <div class="ph"><h3>Home Values</h3><div class="pm">ZHVI · May 2026</div></div>
+            <div class="ph"><h3>Home Values</h3><div class="pm">Zillow · May 2026</div></div>
             <div class="pb">
-              <div class="mr"><div class="mr-city">Salt Lake City</div><div class="mr-val">$569k</div></div>
-              <div class="mr"><div class="mr-city">Provo</div><div class="mr-val">$546k</div></div>
-              <div class="mr"><div class="mr-city">Ogden</div><div class="mr-val">$518k</div></div>
+              <div class="mkt-row"><div class="mkt-city">Salt Lake City</div><div class="mkt-val">$569k</div></div>
+              <div class="mkt-row"><div class="mkt-city">Provo</div><div class="mkt-val">$546k</div></div>
+              <div class="mkt-row"><div class="mkt-city">Ogden</div><div class="mkt-val">$518k</div></div>
             </div>
           </div>
 
         </div>
       </div>
 
-      <!-- ROW 4: Sources firing today (compact chips) -->
-      <div class="sec-label" style="margin-top:4px">Sources Firing Today</div>
+      <!-- Sources firing today -->
       <div class="panel" style="margin-bottom:0">
-        <div class="today-strip" id="today-strip">
+        <div class="ph">
+          <h3>Sources Active Right Now</h3>
+          <div class="pm" id="chip-meta">Loading...</div>
+        </div>
+        <div class="chips" id="chips">
           <div class="loading">Loading...</div>
         </div>
       </div>
 
     </div>
 
-    <!-- ══════════════════════════════════════════
-         LEAD QUEUE
-    ══════════════════════════════════════════ -->
+    <!-- ══════════════════════
+         ALL LEADS
+    ══════════════════════ -->
     <div class="pg" id="pg-leads">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
-        <div>
-          <div style="font-size:15px;font-weight:600;color:var(--ink)">Lead Queue</div>
-          <div style="font-size:11px;color:var(--ink3);margin-top:2px">All tiers · seller &amp; buyer signals combined · ranked by score</div>
-        </div>
-        <div style="font-size:11px;color:var(--ink3)" id="full-lead-meta">Loading...</div>
+
+      <div class="pg-hdr">
+        <h1>All Leads</h1>
+        <p>Every lead the system has found — seller &amp; buyer signals combined — ranked by score. Filter by tier to see exactly who to contact next.</p>
       </div>
 
-      <!-- Tier filter pills -->
-      <div style="display:flex;gap:6px;margin-bottom:14px">
-        <button class="tier-filter on" onclick="filterLeads('all',this)">All</button>
-        <button class="tier-filter" onclick="filterLeads('primed',this)" style="color:var(--primed)">Primed</button>
-        <button class="tier-filter" onclick="filterLeads('qualify',this)" style="color:var(--qualify)">Qualify</button>
-        <button class="tier-filter" onclick="filterLeads('nurture',this)" style="color:var(--nurture)">Nurture</button>
-        <button class="tier-filter" onclick="filterLeads('watch',this)" style="color:var(--watch)">Watch</button>
+      <div class="filter-row">
+        <button class="filter-btn on" onclick="filterLeads('all',this)">All Leads</button>
+        <button class="filter-btn primed" onclick="filterLeads('primed',this)">Primed — Call Today</button>
+        <button class="filter-btn qualify" onclick="filterLeads('qualify',this)">Qualify — This Week</button>
+        <button class="filter-btn nurture" onclick="filterLeads('nurture',this)">Nurture — 30 Days</button>
+        <button class="filter-btn" onclick="filterLeads('watch',this)">Watch</button>
       </div>
 
       <div class="panel">
         <table class="tbl">
           <thead><tr>
-            <th>Name</th>
+            <th>Owner</th>
             <th>Address</th>
             <th>County</th>
             <th>Source</th>
-            <th>Signal Type</th>
+            <th>Signal</th>
             <th>Score</th>
-            <th>Tier</th>
-            <th>Date</th>
+            <th>Priority</th>
+            <th>Date Found</th>
           </tr></thead>
           <tbody id="full-lead-body">
             <tr><td colspan="8" class="loading">Loading...</td></tr>
           </tbody>
         </table>
       </div>
+
     </div>
 
-    <!-- ══════════════════════════════════════════
-         CONVERGENCE
-    ══════════════════════════════════════════ -->
+    <!-- ══════════════════════
+         CONVERGENCE MARKS
+    ══════════════════════ -->
     <div class="pg" id="pg-conv">
-      <div style="margin-bottom:16px">
-        <div style="font-size:15px;font-weight:600;color:var(--ink)">Convergence Marks</div>
-        <div style="font-size:11px;color:var(--ink3);margin-top:3px">Same property address appearing in both seller distress data and buyer interest signals simultaneously &middot; Score 85 &middot; Highest priority in system</div>
+
+      <div class="pg-hdr">
+        <h1>Convergence Marks</h1>
+        <p>These are the highest-priority opportunities in the system. The same property address showed up in both seller distress data and buyer interest signals at the same time — that means a motivated seller with active buyer attention on the same address. Score 85. These are the calls you make first.</p>
       </div>
-      <div id="conv-full"><div class="loading">Loading...</div></div>
+
+      <div id="conv-full">
+        <div class="loading">Loading...</div>
+      </div>
+
     </div>
 
-    <!-- ══════════════════════════════════════════
+    <!-- ══════════════════════
          SIGNAL SOURCES
-    ══════════════════════════════════════════ -->
+    ══════════════════════ -->
     <div class="pg" id="pg-sources">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
-        <div>
-          <div style="font-size:15px;font-weight:600;color:var(--ink)">Signal Sources</div>
-          <div style="font-size:11px;color:var(--ink3);margin-top:2px">All seller &amp; buyer sources · combined pipeline</div>
-        </div>
-        <div style="font-size:11px;color:var(--ink3)" id="src-meta">Loading...</div>
+
+      <div class="pg-hdr">
+        <h1>Signal Sources</h1>
+        <p>Every data source the system is monitoring — seller distress, buyer intent, market intelligence, life events, and competitor activity. Green means it pulled data today.</p>
       </div>
+
+      <div class="kpi-row" style="grid-template-columns:repeat(3,1fr);margin-bottom:24px">
+        <div class="kpi-card">
+          <div class="kl">Total Records Indexed</div>
+          <div class="kv gold" id="src-total">—</div>
+          <div class="kd">All sources combined</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kl">Sources Active Today</div>
+          <div class="kv green" id="src-active">—</div>
+          <div class="kd">Pulled data this cycle</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kl">Total Sources Wired</div>
+          <div class="kv" id="src-wired">—</div>
+          <div class="kd">Seller + buyer pipeline</div>
+        </div>
+      </div>
+
       <div class="panel">
         <table class="tbl">
           <thead><tr>
-            <th>Source</th>
+            <th>Source Name</th>
             <th>Category</th>
-            <th>Total Indexed</th>
+            <th>Total Records</th>
             <th>Added Today</th>
             <th>Last Active</th>
             <th>Status</th>
@@ -406,62 +759,52 @@ body{font-family:-apple-system,"SF Pro Text","Helvetica Neue",sans-serif;backgro
           </tbody>
         </table>
       </div>
+
     </div>
 
-    <!-- ══════════════════════════════════════════
+    <!-- ══════════════════════
          MARKET PULSE
-    ══════════════════════════════════════════ -->
+    ══════════════════════ -->
     <div class="pg" id="pg-market">
-      <div style="margin-bottom:16px">
-        <div style="font-size:15px;font-weight:600;color:var(--ink)">Market Pulse</div>
-        <div style="font-size:11px;color:var(--ink3);margin-top:2px">Live market intelligence · Utah · Salt Lake · Weber Counties</div>
+
+      <div class="pg-hdr">
+        <h1>Market Pulse</h1>
+        <p>Live market intelligence across Utah, Salt Lake, and Weber Counties — home values, inventory levels, price trends, and market signals from Zillow and Realtor.com.</p>
       </div>
 
-      <!-- Home values strip -->
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px">
-        <div class="panel" style="margin-bottom:0">
-          <div class="pb">
-            <div style="font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);margin-bottom:8px">Salt Lake City</div>
-            <div style="font-size:26px;font-weight:700;letter-spacing:-.04em;color:var(--ink)">$569k</div>
-            <div style="font-size:10px;color:var(--ink3);margin-top:4px">ZHVI · May 2026</div>
-          </div>
+      <div class="kpi-row" style="grid-template-columns:repeat(3,1fr);margin-bottom:24px">
+        <div class="kpi-card">
+          <div class="kl">Salt Lake City</div>
+          <div class="kv">$569k</div>
+          <div class="kd">Zillow Home Value Index</div>
         </div>
-        <div class="panel" style="margin-bottom:0">
-          <div class="pb">
-            <div style="font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);margin-bottom:8px">Provo</div>
-            <div style="font-size:26px;font-weight:700;letter-spacing:-.04em;color:var(--ink)">$546k</div>
-            <div style="font-size:10px;color:var(--ink3);margin-top:4px">ZHVI · May 2026</div>
-          </div>
+        <div class="kpi-card">
+          <div class="kl">Provo</div>
+          <div class="kv">$546k</div>
+          <div class="kd">Zillow Home Value Index</div>
         </div>
-        <div class="panel" style="margin-bottom:0">
-          <div class="pb">
-            <div style="font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);margin-bottom:8px">Ogden</div>
-            <div style="font-size:26px;font-weight:700;letter-spacing:-.04em;color:var(--ink)">$518k</div>
-            <div style="font-size:10px;color:var(--ink3);margin-top:4px">ZHVI · May 2026</div>
-          </div>
+        <div class="kpi-card">
+          <div class="kl">Ogden</div>
+          <div class="kv">$518k</div>
+          <div class="kd">Zillow Home Value Index</div>
         </div>
       </div>
 
       <div class="g2">
         <div class="panel">
-          <div class="ph"><h3>Realtor.com Inventory Signals</h3><div class="pm">Live · public data feed</div></div>
+          <div class="ph"><h3>Realtor.com Inventory Signals</h3><div class="pm">Live feed</div></div>
           <div class="pb" id="mkt-r"><div class="loading">Loading...</div></div>
         </div>
         <div class="panel">
-          <div class="ph"><h3>Zillow Market Signals</h3><div class="pm">Live · public API</div></div>
+          <div class="ph"><h3>Zillow Market Signals</h3><div class="pm">Live feed</div></div>
           <div class="pb" id="mkt-z"><div class="loading">Loading...</div></div>
         </div>
       </div>
+
     </div>
 
   </div><!-- /content -->
 </main>
-
-<style>
-.tier-filter{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:5px 12px;font-size:11px;font-weight:600;cursor:pointer;color:var(--ink2);transition:all .12s}
-.tier-filter:hover{background:var(--bg4)}
-.tier-filter.on{background:var(--ink);color:#fff;border-color:var(--ink)}
-</style>
 
 <script>
 const SU = "https://lbvaosyfikkpvcwksiph.supabase.co";
@@ -487,19 +830,27 @@ async function qt(tbl, qs="") {
   } catch(e) { return []; }
 }
 
-// Format numbers cleanly — no random big numbers
 const fmt = n => {
-  if (n == null) return "--";
+  if (n == null || n === "") return "—";
+  n = Number(n);
   if (n >= 1000000) return (n/1000000).toFixed(1).replace(/\.0$/,"") + "M";
   if (n >= 1000) return (n/1000).toFixed(1).replace(/\.0$/,"") + "k";
-  return Number(n).toLocaleString();
+  return n.toLocaleString();
 };
 
-const badge = s => s>=75?'<span class="b p">Primed</span>':s>=50?'<span class="b q">Qualify</span>':s>=25?'<span class="b n">Nurture</span>':'<span class="b w">Watch</span>';
+const badge = s => {
+  if (s >= 75) return '<span class="badge primed">Primed</span>';
+  if (s >= 50) return '<span class="badge qualify">Qualify</span>';
+  if (s >= 25) return '<span class="badge nurture">Nurture</span>';
+  return '<span class="badge watch">Watch</span>';
+};
 
-const bar = s => {
-  const c = s>=75?"#b91c1c":s>=50?"#92400e":"#166534";
-  return `<div class="sbw"><div class="sbr"><div class="sbf" style="width:${Math.min(s,100)}%;background:${c}"></div></div><div class="sbn">${s}</div></div>`;
+const scoreBar = s => {
+  const c = s>=75?"#c0392b":s>=50?"#b07d2a":"#2d7a4f";
+  return `<div class="score-wrap">
+    <div class="score-bar"><div class="score-fill" style="width:${Math.min(s,100)}%;background:${c}"></div></div>
+    <div class="score-num">${s}</div>
+  </div>`;
 };
 
 const SL = {
@@ -507,13 +858,13 @@ const SL = {
   "fire-marshal-lp-hvac":"Fire Marshal HVAC","slco-lir-parcels":"SLCO LIR Parcels",
   "davis-lir-parcels":"Davis LIR Parcels","weber-lir-parcels":"Weber LIR Parcels",
   "utah-county-tax-delinquency-pdf":"Tax Delinquency PDF","ksl-fsbo-extended":"KSL FSBO",
-  "utah-county-public-surplus":"UT County Surplus","realtor-market-utah":"Realtor.com Market",
+  "utah-county-public-surplus":"UT County Surplus","realtor-market-utah":"Realtor.com",
   "comparable-sales-slco":"Comparable Sales","zillow-market-signals":"Zillow Market",
   "zillow-home-values":"Zillow Home Values","obituaries-enrichment":"Obituaries",
   "competitor-buyer-forms":"Competitor Forms","school-district-enrollment":"School Districts",
   "marriage-records-slco":"Marriage Records","convergence-engine":"Convergence Engine",
   "uvhba-directory":"UVHBA Directory","obituaries-herald":"Herald Obituaries",
-  "utah-county-property-info":"Property Info","utah-county-real-property":"Real Property",
+  "utah-county-property-info":"UT County Property","utah-county-real-property":"UT Real Property",
   "utah-county-building-permit":"Building Permits","slc-city-real-estate":"SLC Real Estate",
   "utah-county-directory":"UT County Directory","orem-building-permits":"Orem Permits",
   "slc-assessor":"SLC Assessor","utah-county-codev-browser":"Code Enforcement",
@@ -523,8 +874,9 @@ const SL = {
   "south-slc-permits":"South SLC Permits"
 };
 const CAT = {
-  "fire-marshal-lp-gas":"Fire Marshal","fire-marshal-suppression":"Fire Marshal","fire-marshal-lp-hvac":"Fire Marshal",
-  "slco-lir-parcels":"LIR Parcels","davis-lir-parcels":"LIR Parcels","weber-lir-parcels":"LIR Parcels",
+  "fire-marshal-lp-gas":"Fire Marshal","fire-marshal-suppression":"Fire Marshal",
+  "fire-marshal-lp-hvac":"Fire Marshal","slco-lir-parcels":"LIR Parcels",
+  "davis-lir-parcels":"LIR Parcels","weber-lir-parcels":"LIR Parcels",
   "utah-county-tax-delinquency-pdf":"Tax Distress","ksl-fsbo-extended":"FSBO",
   "utah-county-public-surplus":"Surplus","realtor-market-utah":"Market Intel",
   "comparable-sales-slco":"Market Intel","zillow-market-signals":"Market Intel",
@@ -542,58 +894,57 @@ const CAT = {
   "south-slc-permits":"Permits"
 };
 const sl = s => SL[s]||s;
-const cat = s => CAT[s]||"--";
+const cat = s => CAT[s]||"—";
 
-// Navigation
+// Nav
 function go(pg, el) {
   document.querySelectorAll(".pg").forEach(p=>p.classList.remove("on"));
   document.getElementById("pg-"+pg)?.classList.add("on");
-  document.querySelectorAll(".ni").forEach(n=>n.classList.remove("on"));
+  document.querySelectorAll(".nav-item").forEach(n=>n.classList.remove("on"));
   el?.classList.add("on");
 }
 
 // Lead filter
-let allLeads = [];
+let _allLeads = [];
 function filterLeads(tier, btn) {
-  document.querySelectorAll(".tier-filter").forEach(b=>b.classList.remove("on"));
+  document.querySelectorAll(".filter-btn").forEach(b=>b.classList.remove("on"));
   btn.classList.add("on");
-  const filtered = tier === "all" ? allLeads : allLeads.filter(r => {
-    if (tier==="primed") return r.score>=75;
-    if (tier==="qualify") return r.score>=50 && r.score<75;
-    if (tier==="nurture") return r.score>=25 && r.score<50;
-    if (tier==="watch") return r.score<25;
+  const f = tier==="all" ? _allLeads : _allLeads.filter(r=>{
+    if(tier==="primed")  return r.score>=75;
+    if(tier==="qualify") return r.score>=50&&r.score<75;
+    if(tier==="nurture") return r.score>=25&&r.score<50;
+    if(tier==="watch")   return r.score<25;
     return true;
   });
-  document.getElementById("full-lead-body").innerHTML = renderFullLeads(filtered);
+  document.getElementById("full-lead-body").innerHTML = renderRows(f);
 }
 
-function renderFullLeads(leads) {
+function renderRows(leads) {
   if (!leads.length) return "<tr><td colspan='8' class='loading'>No leads in this tier</td></tr>";
   return leads.map(r=>`<tr>
-    <td><div class="nm">${(r.raw_owner_name||"").slice(0,26)}</div></td>
-    <td><div class="addr">${(r.raw_address||"--").slice(0,28)}</div></td>
-    <td style="font-size:11px;color:var(--ink3)">${r.county||"--"}</td>
-    <td style="font-size:11px;color:var(--ink3)">${sl(r.source_slug)}</td>
-    <td style="font-size:11px;color:var(--ink3)">${r.signal_type||"--"}</td>
-    <td>${bar(r.score||0)}</td>
+    <td><div class="name-cell">${(r.raw_owner_name||"").slice(0,28)}</div></td>
+    <td><div class="addr-cell">${(r.raw_address||"—").slice(0,30)}</div></td>
+    <td style="font-size:12px;color:var(--ink3)">${r.county||"—"}</td>
+    <td style="font-size:12px;color:var(--ink3)">${sl(r.source_slug)}</td>
+    <td style="font-size:12px;color:var(--ink3)">${r.signal_type||"—"}</td>
+    <td>${scoreBar(r.score||0)}</td>
     <td>${badge(r.score||0)}</td>
-    <td style="font-size:11px;color:var(--ink3)">${r.first_seen||"--"}</td>
+    <td style="font-size:12px;color:var(--ink3)">${r.first_seen||"—"}</td>
   </tr>`).join("");
 }
 
-// ── DATA LOADERS ──────────────────────────────────────────
+// ── LOADERS ────────────────────────────────────
 
 async function loadKPIs() {
   const d = await rpc("pp_kpi_summary");
   if (!d) return;
   document.getElementById("k-total").textContent = fmt(d.total);
   document.getElementById("k-today").textContent = fmt(d.added_today);
-  document.getElementById("k-conv").textContent = fmt(d.convergence);
-  document.getElementById("t-pri").textContent = fmt(d.primed);
-  document.getElementById("t-qua").textContent = fmt(d.qualify);
-  document.getElementById("t-nur").textContent = fmt(d.nurture);
-  document.getElementById("t-wat").textContent = fmt(d.watch);
-  document.getElementById("k-cycle").textContent = new Date().toLocaleTimeString("en-US",{hour:"2-digit",minute:"2-digit"});
+  document.getElementById("k-conv").textContent  = fmt(d.convergence);
+  document.getElementById("t-pri").textContent   = fmt(d.primed);
+  document.getElementById("t-qua").textContent   = fmt(d.qualify);
+  document.getElementById("t-nur").textContent   = fmt(d.nurture);
+  document.getElementById("t-wat").textContent   = fmt(d.watch);
 }
 
 async function loadSources() {
@@ -601,116 +952,114 @@ async function loadSources() {
   if (!data) return;
 
   const live = data.filter(s=>s.today>0);
-  document.getElementById("k-sources").textContent = live.length;
+  document.getElementById("k-sources").textContent  = live.length;
+  document.getElementById("src-active").textContent  = live.length;
+  document.getElementById("src-wired").textContent   = data.length;
+  const total = data.reduce((a,s)=>a+Number(s.total),0);
+  document.getElementById("src-total").textContent   = fmt(total);
 
-  // Today strip — compact chips
-  document.getElementById("today-strip").innerHTML = live
+  // Chips on overview
+  document.getElementById("chip-meta").textContent = live.length+" sources active";
+  document.getElementById("chips").innerHTML = live
     .sort((a,b)=>b.today-a.today)
-    .map(s=>`<div class="ts-item">
-      <div class="ts-dot"></div>
-      ${sl(s.slug)}<span class="ts-count">+${fmt(s.today)}</span>
+    .map(s=>`<div class="chip">
+      <div class="chip-dot"></div>
+      ${sl(s.slug)}<span class="chip-count">+${fmt(s.today)}</span>
     </div>`).join("");
 
-  // Sources full table — grouped: live first, then indexed
+  // Full source table
   const sorted = [...data].sort((a,b)=>{
-    if (b.today>0 && a.today===0) return 1;
-    if (a.today>0 && b.today===0) return -1;
-    return b.total - a.total;
+    if(a.today>0 && b.today===0) return -1;
+    if(b.today>0 && a.today===0) return 1;
+    return b.total-a.total;
   });
-
-  const totalRecords = data.reduce((a,s)=>a+Number(s.total),0);
-  document.getElementById("src-meta").textContent = `${data.length} sources · ${fmt(totalRecords)} records indexed`;
-
   document.getElementById("src-body").innerHTML = sorted.map(s=>`<tr>
     <td><span style="font-weight:600;color:var(--ink)">${sl(s.slug)}</span></td>
-    <td><span style="font-size:10px;color:var(--ink3)">${cat(s.slug)}</span></td>
+    <td><span style="font-size:11px;color:var(--ink3)">${cat(s.slug)}</span></td>
     <td><strong>${fmt(s.total)}</strong></td>
-    <td style="color:${s.today>0?"var(--live)":"var(--ink3)"}">
-      ${s.today>0?"+"+fmt(s.today):"--"}
+    <td style="font-weight:600;color:${s.today>0?"var(--live-dk)":"var(--ink3)"}">
+      ${s.today>0?"+"+fmt(s.today):"—"}
     </td>
-    <td style="font-size:11px;color:var(--ink3)">${s.last||"--"}</td>
-    <td><span class="b ${s.today>0?"live":"idle"}">${s.today>0?"Live":"Indexed"}</span></td>
+    <td style="font-size:12px;color:var(--ink3)">${s.last||"—"}</td>
+    <td><span class="badge ${s.today>0?"live":"idle"}">${s.today>0?"Live":"Indexed"}</span></td>
   </tr>`).join("");
 }
 
 async function loadLeads() {
   const leads = await rpc("pp_top_leads",{lim:30});
   if (!leads) return;
-
   const seen = new Set();
   const uniq = leads.filter(r=>{
-    if (!r.raw_owner_name || r.raw_owner_name==="null" || /^\d{4}/.test(r.raw_owner_name)) return false;
-    if (seen.has(r.raw_owner_name)) return false;
+    if(!r.raw_owner_name||r.raw_owner_name==="null"||/^\d{4}/.test(r.raw_owner_name)) return false;
+    if(seen.has(r.raw_owner_name)) return false;
     seen.add(r.raw_owner_name); return true;
   }).slice(0,20);
 
   document.getElementById("lead-meta").textContent = uniq.length+" leads";
-  document.getElementById("full-lead-meta").textContent = uniq.length+" records";
-
-  // Mini table for overview
   document.getElementById("lead-body").innerHTML = uniq.map(r=>`<tr>
-    <td><div class="nm">${(r.raw_owner_name||"").slice(0,26)}</div></td>
-    <td><div class="addr">${(r.raw_address||"--").slice(0,28)}</div></td>
-    <td style="font-size:11px;color:var(--ink3)">${r.county||"--"}</td>
-    <td style="font-size:11px;color:var(--ink3)">${sl(r.source_slug)}</td>
-    <td>${bar(r.score||0)}</td>
+    <td><div class="name-cell">${(r.raw_owner_name||"").slice(0,28)}</div></td>
+    <td><div class="addr-cell">${(r.raw_address||"—").slice(0,30)}</div></td>
+    <td style="font-size:12px;color:var(--ink3)">${r.county||"—"}</td>
+    <td style="font-size:12px;color:var(--ink3)">${sl(r.source_slug)}</td>
+    <td>${scoreBar(r.score||0)}</td>
     <td>${badge(r.score||0)}</td>
-  </tr>`).join("") || "<tr><td colspan='6' class='loading'>No named leads</td></tr>";
+  </tr>`).join("") || "<tr><td colspan='6' class='loading'>No named leads found</td></tr>";
 
-  allLeads = uniq;
-  document.getElementById("full-lead-body").innerHTML = renderFullLeads(uniq);
+  _allLeads = uniq;
+  document.getElementById("full-lead-body").innerHTML = renderRows(uniq);
 }
 
 async function loadConvergence() {
-  const cv = await qt("pp_scraper_signals","select=raw_address,raw_owner_name,county,score,captured_at&source_slug=eq.convergence-engine&order=captured_at.desc&limit=10");
+  const cv = await qt("pp_scraper_signals",
+    "select=raw_address,raw_owner_name,county,score,captured_at&source_slug=eq.convergence-engine&order=captured_at.desc&limit=10");
   const html = (Array.isArray(cv)&&cv.length) ? cv.map(r=>`
-    <div class="ci">
-      <div class="ci-top">
-        <span class="ci-flag">&#10753; CONVERGENCE MARK</span>
-        <span class="ci-score">${r.score||85}</span>
+    <div class="conv-card">
+      <div class="conv-top">
+        <span class="conv-label">⊕ Convergence Mark</span>
+        <span class="conv-score">${r.score||85}</span>
       </div>
-      <div class="ci-addr">${r.raw_address||r.raw_owner_name||"Address matched"}</div>
-      <div class="ci-meta">${r.county||"Utah"} County &middot; ${r.captured_at?.split("T")[0]||"--"}</div>
+      <div class="conv-addr">${r.raw_address||r.raw_owner_name||"Address matched"}</div>
+      <div class="conv-meta">${r.county||"Utah"} County · ${r.captured_at?.split("T")[0]||"—"}</div>
     </div>`).join("")
-  : `<div class="ci"><div class="ci-top"><span class="ci-flag">&#10753; CONVERGENCE MARKS</span><span class="ci-score">88</span></div><div class="ci-addr">88 dual-side matches indexed</div><div class="ci-meta">Seller distress + buyer interest · same address</div></div>`;
+  : `<div class="conv-card">
+      <div class="conv-top"><span class="conv-label">⊕ Convergence Marks</span><span class="conv-score">88</span></div>
+      <div class="conv-addr">88 dual-side matches indexed in database</div>
+      <div class="conv-meta">Seller distress + buyer interest · same address · Score 85</div>
+    </div>`;
   document.getElementById("conv-mini").innerHTML = html;
   document.getElementById("conv-full").innerHTML = html;
 }
 
 async function loadMarket() {
-  const mkt = await qt("pp_scraper_signals","select=raw_payload,source_slug,raw_address,captured_at&source_slug=in.(realtor-market-utah,zillow-market-signals)&order=captured_at.desc&limit=60");
+  const mkt = await qt("pp_scraper_signals",
+    "select=raw_payload,source_slug,raw_address,captured_at&source_slug=in.(realtor-market-utah,zillow-market-signals)&order=captured_at.desc&limit=60");
   if (!Array.isArray(mkt)) return;
-
-  const parseP = x => { try { return JSON.parse(x.raw_payload||"{}"); } catch(e) { return {}; } };
+  const parseP = x=>{try{return JSON.parse(x.raw_payload||"{}")}catch(e){return{}}};
   const r = mkt.filter(x=>x.source_slug==="realtor-market-utah").slice(0,6);
   const z = mkt.filter(x=>x.source_slug==="zillow-market-signals").slice(0,6);
-
   document.getElementById("mkt-r").innerHTML = r.length ? r.map(x=>{
     const p=parseP(x);
-    return `<div class="sigr">
-      <div class="sn">${p.metro||p.market||x.raw_address?.slice(0,30)||"Market signal"}</div>
-      <div class="sv">${p.active_listing_count||p.value||"--"}</div>
-      <div class="st">${x.captured_at?.split("T")[0]||""}</div>
+    return `<div class="sig-row">
+      <div class="sig-name">${p.metro||p.market||x.raw_address?.slice(0,32)||"Market signal"}</div>
+      <div class="sig-val">${p.active_listing_count||p.value||"—"}</div>
+      <div class="sig-date">${x.captured_at?.split("T")[0]||""}</div>
     </div>`;
   }).join("") : "<div class='loading'>Loading...</div>";
-
   document.getElementById("mkt-z").innerHTML = z.length ? z.map(x=>{
     const p=parseP(x);
-    return `<div class="sigr">
-      <div class="sn">${p.indicator_name||p.metro||x.raw_address?.slice(0,30)||"Signal"}</div>
-      <div class="sv">${p.value?"$"+Number(p.value).toLocaleString():(p.signal_value||"--")}</div>
-      <div class="st">${x.captured_at?.split("T")[0]||""}</div>
+    return `<div class="sig-row">
+      <div class="sig-name">${p.indicator_name||p.metro||x.raw_address?.slice(0,32)||"Signal"}</div>
+      <div class="sig-val">${p.value?"$"+Number(p.value).toLocaleString():(p.signal_value||"—")}</div>
+      <div class="sig-date">${x.captured_at?.split("T")[0]||""}</div>
     </div>`;
   }).join("") : "<div class='loading'>Loading...</div>";
 }
 
 async function init() {
-  // KPIs first — instant via RPC
   await loadKPIs();
   const now = new Date().toLocaleTimeString("en-US",{hour:"2-digit",minute:"2-digit"});
-  document.getElementById("t-refresh").textContent = "Refreshed "+now;
-  document.getElementById("lr-foot").textContent = "Refreshed "+now;
-  // Everything else in background
+  document.getElementById("t-refresh").textContent = "Refreshed " + now;
+  document.getElementById("lr-foot").textContent   = "Refreshed " + now;
   Promise.allSettled([loadSources(), loadLeads(), loadConvergence(), loadMarket()]);
 }
 
