@@ -609,10 +609,10 @@ body {
             </div>
             <table class="tbl">
               <thead><tr>
-                <th>Owner</th>
-                <th>Address</th>
+                <th>Property / Signal</th>
                 <th>County</th>
                 <th>Source</th>
+                <th>Type</th>
                 <th>Score</th>
                 <th>Priority</th>
               </tr></thead>
@@ -683,11 +683,10 @@ body {
       <div class="panel">
         <table class="tbl">
           <thead><tr>
-            <th>Owner</th>
-            <th>Address</th>
+            <th>Property / Signal</th>
             <th>County</th>
             <th>Source</th>
-            <th>Signal</th>
+            <th>Type</th>
             <th>Score</th>
             <th>Priority</th>
             <th>Date Found</th>
@@ -920,17 +919,28 @@ function filterLeads(tier, btn) {
 }
 
 function renderRows(leads) {
-  if (!leads.length) return "<tr><td colspan='8' class='loading'>No leads in this tier</td></tr>";
-  return leads.map(r=>`<tr>
-    <td><div class="name-cell">${(r.raw_owner_name||"").slice(0,28)}</div></td>
-    <td><div class="addr-cell">${(r.raw_address||"—").slice(0,30)}</div></td>
-    <td style="font-size:12px;color:var(--ink3)">${r.county||"—"}</td>
-    <td style="font-size:12px;color:var(--ink3)">${sl(r.source_slug)}</td>
-    <td style="font-size:12px;color:var(--ink3)">${r.signal_type||"—"}</td>
-    <td>${scoreBar(r.score||0)}</td>
-    <td>${badge(r.score||0)}</td>
-    <td style="font-size:12px;color:var(--ink3)">${r.first_seen||"—"}</td>
-  </tr>`).join("");
+  if (!leads.length) return "<tr><td colspan='7' class='loading'>No leads in this tier</td></tr>";
+  return leads.map(r=>{
+    // Primary display: owner name if present, otherwise address
+    const primary = (r.raw_owner_name && r.raw_owner_name !== "—")
+      ? r.raw_owner_name.slice(0,32)
+      : (r.raw_address||"—").slice(0,36);
+    const secondary = (r.raw_owner_name && r.raw_owner_name !== "—")
+      ? (r.raw_address||"").slice(0,30)
+      : "";
+    return `<tr>
+      <td>
+        <div class="name-cell">${primary}</div>
+        ${secondary ? `<div class="addr-cell">${secondary}</div>` : ""}
+      </td>
+      <td style="font-size:12px;color:var(--ink3)">${r.county||"—"}</td>
+      <td style="font-size:12px;color:var(--ink3)">${sl(r.source_slug)}</td>
+      <td style="font-size:12px;color:var(--ink3)">${r.signal_type||"—"}</td>
+      <td>${scoreBar(r.score||0)}</td>
+      <td>${badge(r.score||0)}</td>
+      <td style="font-size:12px;color:var(--ink3)">${r.first_seen||"—"}</td>
+    </tr>`;
+  }).join("");
 }
 
 // ── LOADERS ────────────────────────────────────
@@ -988,22 +998,29 @@ async function loadSources() {
 async function loadLeads() {
   const leads = await rpc("pp_top_leads",{lim:30});
   if (!leads) return;
+  // Deduplicate on address — show best score per address
   const seen = new Set();
   const uniq = leads.filter(r=>{
-    if(!r.raw_owner_name||r.raw_owner_name==="null"||/^\d{4}/.test(r.raw_owner_name)) return false;
-    if(seen.has(r.raw_owner_name)) return false;
-    seen.add(r.raw_owner_name); return true;
+    const key = (r.raw_address||r.raw_owner_name||"").slice(0,40);
+    if (!key || key === "—") return false;
+    if (seen.has(key)) return false;
+    seen.add(key); return true;
   }).slice(0,20);
 
   document.getElementById("lead-meta").textContent = uniq.length+" leads";
-  document.getElementById("lead-body").innerHTML = uniq.map(r=>`<tr>
-    <td><div class="name-cell">${(r.raw_owner_name||"").slice(0,28)}</div></td>
-    <td><div class="addr-cell">${(r.raw_address||"—").slice(0,30)}</div></td>
-    <td style="font-size:12px;color:var(--ink3)">${r.county||"—"}</td>
-    <td style="font-size:12px;color:var(--ink3)">${sl(r.source_slug)}</td>
-    <td>${scoreBar(r.score||0)}</td>
-    <td>${badge(r.score||0)}</td>
-  </tr>`).join("") || "<tr><td colspan='6' class='loading'>No named leads found</td></tr>";
+  document.getElementById("lead-body").innerHTML = uniq.map(r=>{
+    const primary = (r.raw_owner_name && r.raw_owner_name !== "—")
+      ? r.raw_owner_name.slice(0,32)
+      : (r.raw_address||"—").slice(0,38);
+    return `<tr>
+      <td><div class="name-cell">${primary}</div></td>
+      <td style="font-size:12px;color:var(--ink3)">${r.county||"—"}</td>
+      <td style="font-size:12px;color:var(--ink3)">${sl(r.source_slug)}</td>
+      <td style="font-size:12px;color:var(--ink3)">${r.signal_type||"—"}</td>
+      <td>${scoreBar(r.score||0)}</td>
+      <td>${badge(r.score||0)}</td>
+    </tr>`;
+  }).join("") || "<tr><td colspan='6' class='loading'>No leads found</td></tr>";
 
   _allLeads = uniq;
   document.getElementById("full-lead-body").innerHTML = renderRows(uniq);
