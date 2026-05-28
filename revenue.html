@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ProspectPlus™ — Revenue Model</title>
+<style>
+:root {
+  --bg:#f5f4f0;--white:#fff;--border:rgba(0,0,0,0.08);--border2:rgba(0,0,0,0.05);
+  --ink:#18180f;--ink2:#4a4940;--ink3:#9a9888;
+  --gold:#b8813a;--gold-lt:#fdf3e3;--gold-bd:rgba(184,129,58,0.2);
+  --green:#166534;--green-lt:#f0fdf4;--green-bd:rgba(22,101,52,0.15);
+  --red:#b91c1c;--red-lt:#fef2f2;
+  --blue:#1e40af;--blue-lt:#eff6ff;
+  --r:12px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,"SF Pro Display","Helvetica Neue",sans-serif;background:var(--bg);color:var(--ink);font-size:14px;line-height:1.5;padding:40px 32px;max-width:1200px;margin:0 auto}
+
+h1{font-size:28px;font-weight:700;letter-spacing:-.04em;margin-bottom:6px}
+.subtitle{font-size:14px;color:var(--ink3);margin-bottom:36px}
+
+.section{margin-bottom:36px}
+.section-title{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--ink3);margin-bottom:14px}
+
+/* KPI STRIP */
+.kpi-row{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:36px}
+.kpi{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:18px 20px}
+.kpi .lbl{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);margin-bottom:8px}
+.kpi .val{font-size:30px;font-weight:700;letter-spacing:-.04em;color:var(--ink)}
+.kpi .val.gold{color:var(--gold)}
+.kpi .val.green{color:var(--green)}
+.kpi .sub{font-size:11px;color:var(--ink3);margin-top:5px}
+
+/* SCENARIO CARDS */
+.scenarios{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:36px}
+.sc{background:var(--white);border:1px solid var(--border);border-radius:var(--r);overflow:hidden}
+.sc-hdr{padding:16px 20px;border-bottom:1px solid var(--border2)}
+.sc-hdr .sc-label{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px}
+.sc.conservative .sc-label{color:var(--ink3)}
+.sc.moderate .sc-label{color:var(--gold)}
+.sc.aggressive .sc-label{color:var(--green)}
+.sc-hdr h2{font-size:20px;font-weight:700;letter-spacing:-.03em}
+.sc-hdr .sc-sub{font-size:12px;color:var(--ink3);margin-top:2px}
+.sc-body{padding:18px 20px}
+.sc-row{display:flex;justify-content:space-between;align-items:baseline;padding:8px 0;border-bottom:1px solid var(--border2);font-size:13px}
+.sc-row:last-child{border-bottom:none}
+.sc-row .sr-label{color:var(--ink2)}
+.sc-row .sr-val{font-weight:600;color:var(--ink)}
+.sc-total{display:flex;justify-content:space-between;align-items:baseline;padding:14px 20px;background:var(--bg)}
+.sc-total .st-label{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3)}
+.sc-total .st-val{font-size:24px;font-weight:700;letter-spacing:-.03em}
+.sc.conservative .st-val{color:var(--ink3)}
+.sc.moderate .st-val{color:var(--gold)}
+.sc.aggressive .st-val{color:var(--green)}
+
+/* PIPELINE FUNNEL */
+.funnel{background:var(--white);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:36px}
+.funnel-hdr{padding:16px 20px;border-bottom:1px solid var(--border2);display:flex;justify-content:space-between;align-items:center}
+.funnel-hdr h3{font-size:15px;font-weight:600}
+.funnel-body{padding:20px}
+.funnel-row{display:grid;grid-template-columns:200px 1fr 120px 120px 120px;gap:12px;align-items:center;margin-bottom:10px}
+.funnel-row.header .fr-label{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3)}
+.fr-label{font-size:13px;font-weight:500;color:var(--ink2)}
+.fr-bar-wrap{height:28px;background:var(--bg);border-radius:6px;overflow:hidden;position:relative}
+.fr-bar{height:100%;border-radius:6px;display:flex;align-items:center;padding-left:10px;font-size:11px;font-weight:600;color:#fff;white-space:nowrap}
+.fr-num{font-size:13px;font-weight:600;color:var(--ink);text-align:right}
+.fr-rate{font-size:12px;color:var(--ink3);text-align:right}
+.fr-rev{font-size:13px;font-weight:700;color:var(--green);text-align:right}
+
+/* SIGNAL TABLE */
+.signal-table{background:var(--white);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:36px}
+.tbl{width:100%;border-collapse:collapse}
+.tbl th{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);padding:10px 16px;border-bottom:1px solid var(--border);text-align:left;background:#fafaf8}
+.tbl td{padding:11px 16px;border-bottom:1px solid var(--border2);font-size:13px;color:var(--ink2);vertical-align:middle}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:#fafaf8}
+.pill{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.05em;padding:2px 8px;border-radius:100px;text-transform:uppercase}
+.pill.primed{background:var(--red-lt);color:var(--red)}
+.pill.qualify{background:var(--gold-lt);color:var(--gold)}
+.pill.nurture{background:var(--green-lt);color:var(--green)}
+.pill.market{background:var(--blue-lt);color:var(--blue)}
+
+/* MONETIZATION */
+.mono-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:36px}
+.mono-card{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:20px}
+.mono-card .mc-eyebrow{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);margin-bottom:8px}
+.mono-card h3{font-size:17px;font-weight:700;letter-spacing:-.02em;margin-bottom:6px}
+.mono-card p{font-size:12px;color:var(--ink3);line-height:1.6;margin-bottom:14px}
+.mono-card .mc-val{font-size:26px;font-weight:700;letter-spacing:-.04em;color:var(--gold)}
+.mono-card .mc-sub{font-size:11px;color:var(--ink3);margin-top:2px}
+
+/* SLIDER SECTION */
+.calculator{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:24px;margin-bottom:36px}
+.calc-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:24px;margin-bottom:24px}
+.calc-input label{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);display:block;margin-bottom:8px}
+.calc-input input[type=range]{width:100%;accent-color:var(--gold);margin-bottom:6px}
+.calc-input .ci-val{font-size:22px;font-weight:700;letter-spacing:-.03em;color:var(--ink)}
+.calc-result{background:var(--green-lt);border:1px solid var(--green-bd);border-radius:10px;padding:20px;display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.cr-item .cr-label{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--green);margin-bottom:6px}
+.cr-item .cr-val{font-size:24px;font-weight:700;letter-spacing:-.04em;color:var(--green)}
+.cr-item .cr-sub{font-size:11px;color:var(--ink3);margin-top:3px}
+
+.note{font-size:11px;color:var(--ink3);margin-top:6px;font-style:italic}
+.divider{height:1px;background:var(--border);margin:8px 0}
+</style>
+</head>
+<body>
+
+<h1>ProspectPlus™ — Revenue Model</h1>
+<div class="subtitle">Williams & Co. · Utah County, Salt Lake County, Weber County · Based on live system data · May 2026</div>
+
+<!-- LIVE SYSTEM KPIs -->
+<div class="section-title">Live System — Current Database</div>
+<div class="kpi-row">
+  <div class="kpi"><div class="lbl">Total Signals Indexed</div><div class="val gold">370,868</div><div class="sub">40 active sources</div></div>
+  <div class="kpi"><div class="lbl">Primed Leads</div><div class="val" style="color:var(--red)">34,455</div><div class="sub">Score 75–100 · Call today</div></div>
+  <div class="kpi"><div class="lbl">Qualify Leads</div><div class="val gold">223,904</div><div class="sub">Score 50–74 · This week</div></div>
+  <div class="kpi"><div class="lbl">Tax Delinquent</div><div class="val">61,000</div><div class="sub">Confirmed distress signals</div></div>
+  <div class="kpi"><div class="lbl">FSBO + Convergence</div><div class="val green">1,737</div><div class="sub">1,649 FSBO + 88 convergence</div></div>
+</div>
+
+<!-- UTAH MARKET REALITY -->
+<div class="section-title">Utah Market Assumptions</div>
+<div class="kpi-row" style="grid-template-columns:repeat(4,1fr)">
+  <div class="kpi"><div class="lbl">Avg Sale Price — Utah Co.</div><div class="val">$546k</div><div class="sub">Provo metro ZHVI</div></div>
+  <div class="kpi"><div class="lbl">Avg Sale Price — SLC Co.</div><div class="val">$569k</div><div class="sub">SLC metro ZHVI</div></div>
+  <div class="kpi"><div class="lbl">Agent Commission</div><div class="val">2.5%</div><div class="sub">Buyer or seller side</div></div>
+  <div class="kpi"><div class="lbl">Avg GCI Per Transaction</div><div class="val green">$13,850</div><div class="sub">Both sides = $27,700</div></div>
+</div>
+
+<!-- PIPELINE FUNNEL -->
+<div class="section-title">Outreach Pipeline — How Leads Convert to Income</div>
+<div class="funnel">
+  <div class="funnel-hdr">
+    <h3>Lead Funnel · Primed Queue (34,455 signals)</h3>
+    <div style="font-size:12px;color:var(--ink3)">Based on industry cold outreach conversion benchmarks · Utah distressed seller market</div>
+  </div>
+  <div class="funnel-body">
+    <div class="funnel-row header">
+      <div class="fr-label">Stage</div>
+      <div class="fr-label">Volume</div>
+      <div class="fr-label" style="text-align:right">Count</div>
+      <div class="fr-label" style="text-align:right">Rate</div>
+      <div class="fr-label" style="text-align:right">GCI</div>
+    </div>
+
+    <div class="funnel-row">
+      <div class="fr-label">Primed signals</div>
+      <div class="fr-bar-wrap"><div class="fr-bar" style="width:100%;background:#1e293b">34,455 signals</div></div>
+      <div class="fr-num">34,455</div>
+      <div class="fr-rate">—</div>
+      <div class="fr-rev">—</div>
+    </div>
+    <div class="funnel-row">
+      <div class="fr-label">Has contact info (skip traced)</div>
+      <div class="fr-bar-wrap"><div class="fr-bar" style="width:72%;background:#334155">~24,800</div></div>
+      <div class="fr-num">24,808</div>
+      <div class="fr-rate">72%</div>
+      <div class="fr-rev">—</div>
+    </div>
+    <div class="funnel-row">
+      <div class="fr-label">Contacted (call / SMS / mail)</div>
+      <div class="fr-bar-wrap"><div class="fr-bar" style="width:40%;background:#475569">~9,900</div></div>
+      <div class="fr-num">9,923</div>
+      <div class="fr-rate">40%</div>
+      <div class="fr-rev">—</div>
+    </div>
+    <div class="funnel-row">
+      <div class="fr-label">Conversation (interested)</div>
+      <div class="fr-bar-wrap"><div class="fr-bar" style="width:12%;background:#64748b">~1,200</div></div>
+      <div class="fr-num">1,190</div>
+      <div class="fr-rate">12%</div>
+      <div class="fr-rev">—</div>
+    </div>
+    <div class="funnel-row">
+      <div class="fr-label">Appointment set</div>
+      <div class="fr-bar-wrap"><div class="fr-bar" style="width:6%;background:var(--gold)">~600</div></div>
+      <div class="fr-num">595</div>
+      <div class="fr-rate">50%</div>
+      <div class="fr-rev">—</div>
+    </div>
+    <div class="funnel-row">
+      <div class="fr-label">Listing agreement signed</div>
+      <div class="fr-bar-wrap"><div class="fr-bar" style="width:3%;background:#b8813a">~300</div></div>
+      <div class="fr-num">298</div>
+      <div class="fr-rate">50%</div>
+      <div class="fr-rev">—</div>
+    </div>
+    <div class="funnel-row">
+      <div class="fr-label" style="font-weight:700;color:var(--ink)">Closed transactions</div>
+      <div class="fr-bar-wrap"><div class="fr-bar" style="width:2.2%;background:var(--green)">~238</div></div>
+      <div class="fr-num" style="font-weight:700;color:var(--green)">238</div>
+      <div class="fr-rate">80%</div>
+      <div class="fr-rev" style="font-size:15px">$3.29M</div>
+    </div>
+  </div>
+</div>
+
+<!-- SIGNAL SOURCE BREAKDOWN -->
+<div class="section-title">Revenue by Signal Type — Primed Queue</div>
+<div class="signal-table">
+  <table class="tbl">
+    <thead><tr>
+      <th>Signal Type</th>
+      <th>Count in DB</th>
+      <th>Tier</th>
+      <th>Avg Score</th>
+      <th>Est. Contactable</th>
+      <th>Close Rate</th>
+      <th>Est. Closings</th>
+      <th>Est. GCI</th>
+    </tr></thead>
+    <tbody>
+      <tr>
+        <td><strong>Tax Delinquency</strong><br><span style="font-size:11px;color:var(--ink3)">Non-redeemers — confirmed distress</span></td>
+        <td><strong>61,000</strong></td>
+        <td><span class="pill qualify">Qualify</span></td>
+        <td>65</td>
+        <td>~43,920</td>
+        <td>0.6%</td>
+        <td style="font-weight:700;color:var(--green)">263</td>
+        <td style="font-weight:700;color:var(--green)">$3.64M</td>
+      </tr>
+      <tr>
+        <td><strong>NTS / Notice of Trustee Sale</strong><br><span style="font-size:11px;color:var(--ink3)">21 days to auction — maximum urgency</span></td>
+        <td><strong>Building</strong></td>
+        <td><span class="pill primed">Primed</span></td>
+        <td>99</td>
+        <td>TBD</td>
+        <td>3.5%</td>
+        <td style="color:var(--ink3)">TBD</td>
+        <td style="color:var(--ink3)">TBD</td>
+      </tr>
+      <tr>
+        <td><strong>FSBO Listings</strong><br><span style="font-size:11px;color:var(--ink3)">Already trying to sell — no agent yet</span></td>
+        <td><strong>1,649</strong></td>
+        <td><span class="pill qualify">Qualify</span></td>
+        <td>65–82</td>
+        <td>~1,320</td>
+        <td>2.1%</td>
+        <td style="font-weight:700;color:var(--green)">28</td>
+        <td style="font-weight:700;color:var(--green)">$388k</td>
+      </tr>
+      <tr>
+        <td><strong>Convergence Marks</strong><br><span style="font-size:11px;color:var(--ink3)">Seller distress + buyer interest, same address</span></td>
+        <td><strong>88</strong></td>
+        <td><span class="pill primed">Primed</span></td>
+        <td>85</td>
+        <td>~63</td>
+        <td>8.0%</td>
+        <td style="font-weight:700;color:var(--green)">5</td>
+        <td style="font-weight:700;color:var(--green)">$138k</td>
+      </tr>
+      <tr>
+        <td><strong>Probate / Estate</strong><br><span style="font-size:11px;color:var(--ink3)">Inherited property, motivated to liquidate</span></td>
+        <td><strong>Building</strong></td>
+        <td><span class="pill primed">Primed</span></td>
+        <td>85–95</td>
+        <td>TBD</td>
+        <td>4.0%</td>
+        <td style="color:var(--ink3)">TBD</td>
+        <td style="color:var(--ink3)">TBD</td>
+      </tr>
+      <tr>
+        <td><strong>Code Enforcement</strong><br><span style="font-size:11px;color:var(--ink3)">Neglected property, citation fatigue</span></td>
+        <td><strong>Building</strong></td>
+        <td><span class="pill primed">Primed</span></td>
+        <td>82</td>
+        <td>TBD</td>
+        <td>2.5%</td>
+        <td style="color:var(--ink3)">TBD</td>
+        <td style="color:var(--ink3)">TBD</td>
+      </tr>
+      <tr>
+        <td><strong>NOD / Notice of Default</strong><br><span style="font-size:11px;color:var(--ink3)">Pre-foreclosure — 90–180 day window</span></td>
+        <td><strong>Building</strong></td>
+        <td><span class="pill primed">Primed</span></td>
+        <td>88</td>
+        <td>TBD</td>
+        <td>3.0%</td>
+        <td style="color:var(--ink3)">TBD</td>
+        <td style="color:var(--ink3)">TBD</td>
+      </tr>
+      <tr>
+        <td><strong>LIR Parcel Data</strong><br><span style="font-size:11px;color:var(--ink3)">Property intelligence — 30k+ parcels</span></td>
+        <td><strong>30,610</strong></td>
+        <td><span class="pill nurture">Nurture</span></td>
+        <td>45</td>
+        <td>~21,000</td>
+        <td>0.3%</td>
+        <td style="font-weight:700;color:var(--green)">63</td>
+        <td style="font-weight:700;color:var(--green)">$873k</td>
+      </tr>
+      <tr style="background:#fafaf8;font-weight:700">
+        <td colspan="6" style="text-align:right;padding-right:20px;font-size:13px;color:var(--ink)">Estimated Total (current activated sources)</td>
+        <td style="color:var(--green);font-size:15px">359+</td>
+        <td style="color:var(--green);font-size:15px">$5.04M+</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- THREE SCENARIOS -->
+<div class="section-title">Annual Revenue Scenarios — Agent (Kelvin Sharp)</div>
+<div class="scenarios">
+
+  <div class="sc conservative">
+    <div class="sc-hdr">
+      <div class="sc-label">Conservative</div>
+      <h2>Year 1 · Part-Time Outreach</h2>
+      <div class="sc-sub">1–2 hrs/day on leads · no VAPI · manual follow-up</div>
+    </div>
+    <div class="sc-body">
+      <div class="sc-row"><span class="sr-label">Primed leads worked</span><span class="sr-val">200/mo</span></div>
+      <div class="sc-row"><span class="sr-label">Conversations had</span><span class="sr-val">24/mo</span></div>
+      <div class="sc-row"><span class="sr-label">Appointments set</span><span class="sr-val">7/mo</span></div>
+      <div class="sc-row"><span class="sr-label">Listings taken</span><span class="sr-val">2/mo</span></div>
+      <div class="sc-row"><span class="sr-label">Closings per month</span><span class="sr-val">1.5</span></div>
+      <div class="sc-row"><span class="sr-label">Avg GCI per closing</span><span class="sr-val">$13,850</span></div>
+      <div class="sc-row"><span class="sr-label">Monthly GCI</span><span class="sr-val">$20,775</span></div>
+    </div>
+    <div class="sc-total">
+      <div class="st-label">Annual GCI</div>
+      <div class="st-val">$249,300</div>
+    </div>
+  </div>
+
+  <div class="sc moderate">
+    <div class="sc-hdr">
+      <div class="sc-label">Moderate</div>
+      <h2>Year 1 · Active Outreach</h2>
+      <div class="sc-sub">Full-time on leads · VAPI enabled · 30-day nurture running</div>
+    </div>
+    <div class="sc-body">
+      <div class="sc-row"><span class="sr-label">Primed leads worked</span><span class="sr-val">600/mo</span></div>
+      <div class="sc-row"><span class="sr-label">Conversations had</span><span class="sr-val">72/mo</span></div>
+      <div class="sc-row"><span class="sr-label">Appointments set</span><span class="sr-val">21/mo</span></div>
+      <div class="sc-row"><span class="sr-label">Listings taken</span><span class="sr-val">6/mo</span></div>
+      <div class="sc-row"><span class="sr-label">Closings per month</span><span class="sr-val">4.5</span></div>
+      <div class="sc-row"><span class="sr-label">Avg GCI per closing</span><span class="sr-val">$13,850</span></div>
+      <div class="sc-row"><span class="sr-label">Monthly GCI</span><span class="sr-val">$62,325</span></div>
+    </div>
+    <div class="sc-total">
+      <div class="st-label">Annual GCI</div>
+      <div class="st-val">$747,900</div>
+    </div>
+  </div>
+
+  <div class="sc aggressive">
+    <div class="sc-hdr">
+      <div class="sc-label">Aggressive</div>
+      <h2>Year 1 · Full System Deployed</h2>
+      <div class="sc-sub">VAPI automated · skip trace active · MLS + all sources live</div>
+    </div>
+    <div class="sc-body">
+      <div class="sc-row"><span class="sr-label">Primed leads worked</span><span class="sr-val">1,500/mo</span></div>
+      <div class="sc-row"><span class="sr-label">Conversations had</span><span class="sr-val">180/mo</span></div>
+      <div class="sc-row"><span class="sr-label">Appointments set</span><span class="sr-val">54/mo</span></div>
+      <div class="sc-row"><span class="sr-label">Listings taken</span><span class="sr-val">16/mo</span></div>
+      <div class="sc-row"><span class="sr-label">Closings per month</span><span class="sr-val">11</span></div>
+      <div class="sc-row"><span class="sr-label">Avg GCI per closing</span><span class="sr-val">$13,850</span></div>
+      <div class="sc-row"><span class="sr-label">Monthly GCI</span><span class="sr-val">$152,350</span></div>
+    </div>
+    <div class="sc-total">
+      <div class="st-label">Annual GCI</div>
+      <div class="st-val">$1,828,200</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- INTERACTIVE CALCULATOR -->
+<div class="section-title">Your Numbers — Adjust the Model</div>
+<div class="calculator">
+  <div class="calc-grid">
+    <div class="calc-input">
+      <label>Leads Contacted Per Day</label>
+      <input type="range" min="5" max="100" value="25" id="leads-per-day" oninput="calcUpdate()">
+      <div class="ci-val" id="lpd-val">25</div>
+      <div class="note">Primed queue has 34,455 available</div>
+    </div>
+    <div class="calc-input">
+      <label>Conversation Rate</label>
+      <input type="range" min="5" max="25" value="12" id="conv-rate" oninput="calcUpdate()">
+      <div class="ci-val" id="conv-val">12%</div>
+      <div class="note">Industry avg: 8–15% for distressed outreach</div>
+    </div>
+    <div class="calc-input">
+      <label>Avg Commission Per Closing</label>
+      <input type="range" min="8000" max="30000" step="500" value="13850" id="commission" oninput="calcUpdate()">
+      <div class="ci-val" id="comm-val">$13,850</div>
+      <div class="note">Utah avg 2.5% on $554k avg price</div>
+    </div>
+  </div>
+  <div class="calc-result" id="calc-result">
+    <div class="cr-item"><div class="cr-label">Monthly Conversations</div><div class="cr-val" id="r-conv">—</div><div class="cr-sub">From your outreach</div></div>
+    <div class="cr-item"><div class="cr-label">Appointments / Mo</div><div class="cr-val" id="r-appt">—</div><div class="cr-sub">50% of conversations</div></div>
+    <div class="cr-item"><div class="cr-label">Closings / Mo</div><div class="cr-val" id="r-close">—</div><div class="cr-sub">80% listing → close</div></div>
+    <div class="cr-item"><div class="cr-label">Monthly GCI</div><div class="cr-val" id="r-gci">—</div><div class="cr-sub">Your income</div></div>
+  </div>
+  <div style="text-align:center;margin-top:14px;font-size:13px;color:var(--ink3)">
+    Annual projection: <strong id="r-annual" style="color:var(--green);font-size:16px">—</strong>
+  </div>
+</div>
+
+<!-- MONETIZATION PATHS -->
+<div class="section-title">Three Monetization Paths — System Value Beyond Kelvin's Production</div>
+<div class="mono-grid">
+  <div class="mono-card">
+    <div class="mc-eyebrow">Path 1</div>
+    <h3>Direct Agent Production</h3>
+    <p>Kelvin works the leads himself. Every closing is 100% commission, zero referral split. The system pays for itself with 1 closing — everything after is margin.</p>
+    <div class="mc-val">$249k–$1.8M</div>
+    <div class="mc-sub">Annual GCI range · conservative to aggressive</div>
+  </div>
+  <div class="mono-card">
+    <div class="mc-eyebrow">Path 2</div>
+    <h3>White-Label Licensing</h3>
+    <p>License ProspectPlus™ to agents in other markets — Phoenix, Denver, Boise, Las Vegas. Each pays $500–$2,000/mo for a market-exclusive version. 10 agents = $60k–$240k/yr in pure recurring revenue with no additional work.</p>
+    <div class="mc-val">$60k–$240k/yr</div>
+    <div class="mc-sub">10 licensees at $500–$2k/mo</div>
+  </div>
+  <div class="mono-card">
+    <div class="mc-eyebrow">Path 3</div>
+    <h3>Referral Network</h3>
+    <p>For leads outside Kelvin's territory or capacity — refer to vetted agents for a 25% referral fee. 10 closed referrals per month at $13,850 avg = $34,625/mo in referral income with zero production time.</p>
+    <div class="mc-val">$415k/yr</div>
+    <div class="mc-sub">10 referral closings/mo at 25%</div>
+  </div>
+</div>
+
+<!-- OPERATING COSTS -->
+<div class="section-title">Operating Costs — What It Costs to Run the System</div>
+<div class="kpi-row" style="grid-template-columns:repeat(5,1fr)">
+  <div class="kpi"><div class="lbl">GitHub Actions</div><div class="val" style="font-size:22px">$0</div><div class="sub">Free tier · 4× daily cron</div></div>
+  <div class="kpi"><div class="lbl">Supabase</div><div class="val" style="font-size:22px">$25/mo</div><div class="sub">Pro plan · 8GB DB</div></div>
+  <div class="kpi"><div class="lbl">Apify Proxies</div><div class="val" style="font-size:22px">$49/mo</div><div class="sub">Residential IPs · anti-block</div></div>
+  <div class="kpi"><div class="lbl">Tracerfy Skip Trace</div><div class="val" style="font-size:22px">~$200/mo</div><div class="sub">10k lookups at $0.02</div></div>
+  <div class="kpi"><div class="lbl">Total Monthly</div><div class="val green" style="font-size:22px">~$274/mo</div><div class="sub">1 closing covers 4 years of ops</div></div>
+</div>
+
+<div style="background:var(--green-lt);border:1px solid var(--green-bd);border-radius:var(--r);padding:20px;text-align:center;margin-bottom:36px">
+  <div style="font-size:13px;color:var(--green);font-weight:600;margin-bottom:4px">ROI on System Operating Cost</div>
+  <div style="font-size:28px;font-weight:700;letter-spacing:-.04em;color:var(--green)">$13,850 first closing ÷ $274/mo = <span style="text-decoration:underline">50.5× return</span></div>
+  <div style="font-size:12px;color:var(--ink3);margin-top:6px">One closing covers 4.2 years of operating costs. The system essentially runs for free after month one.</div>
+</div>
+
+<script>
+function fmt(n) {
+  if (n >= 1000000) return '$' + (n/1000000).toFixed(2) + 'M';
+  if (n >= 1000) return '$' + Math.round(n/1000) + 'k';
+  return '$' + n.toLocaleString();
+}
+
+function calcUpdate() {
+  const lpd = parseInt(document.getElementById('leads-per-day').value);
+  const convRate = parseInt(document.getElementById('conv-rate').value) / 100;
+  const commission = parseInt(document.getElementById('commission').value);
+
+  document.getElementById('lpd-val').textContent = lpd;
+  document.getElementById('conv-val').textContent = document.getElementById('conv-rate').value + '%';
+  document.getElementById('comm-val').textContent = '$' + commission.toLocaleString();
+
+  const monthlyLeads = lpd * 22; // working days
+  const conversations = Math.round(monthlyLeads * convRate);
+  const appointments = Math.round(conversations * 0.50);
+  const listings = Math.round(appointments * 0.50);
+  const closings = Math.round(listings * 0.80);
+  const gci = closings * commission;
+  const annual = gci * 12;
+
+  document.getElementById('r-conv').textContent = conversations.toLocaleString();
+  document.getElementById('r-appt').textContent = appointments.toLocaleString();
+  document.getElementById('r-close').textContent = closings.toLocaleString();
+  document.getElementById('r-gci').textContent = fmt(gci);
+  document.getElementById('r-annual').textContent = fmt(annual) + '/year';
+}
+
+calcUpdate();
+</script>
+</body>
+</html>
