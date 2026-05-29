@@ -2,345 +2,356 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>ProspectPlus™ — Live Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>ProspectPlus™ — Lead Dashboard</title>
 <style>
+/* ── TOKENS ────────────────────────────────────────────── */
 :root {
-  --bg: #f5f4f0;
-  --white: #ffffff;
-  --border: rgba(0,0,0,0.08);
-  --border2: rgba(0,0,0,0.05);
-  --ink: #1a1a18;
-  --ink2: #5a5a54;
-  --ink3: #a0a090;
-  --gold: #b8813a;
-  --gold-lt: #fdf6ec;
-  --primed: #c0392b;
+  --bg:        #f4f3ef;
+  --white:     #ffffff;
+  --card:      #ffffff;
+  --border:    rgba(0,0,0,0.07);
+  --border2:   rgba(0,0,0,0.04);
+  --ink:       #1a1a16;
+  --ink2:      #52524a;
+  --ink3:      #a0a090;
+  --gold:      #b8813a;
+  --gold-lt:   #fdf3e3;
+  --gold-bd:   rgba(184,129,58,0.18);
+  --primed:    #c0392b;
   --primed-lt: #fef5f5;
-  --qualify: #b07d2a;
-  --qualify-lt: #fefaef;
-  --nurture: #2d7a4f;
-  --nurture-lt: #f2faf5;
-  --watch: #6b7280;
-  --watch-lt: #f9f9f9;
-  --live: #22c55e;
-  --live-dk: #166534;
-  --sb: 210px;
-  --radius: 12px;
-}
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body {
-  font-family: -apple-system, "SF Pro Display", "Helvetica Neue", sans-serif;
-  background: var(--bg);
-  color: var(--ink);
-  display: flex;
-  min-height: 100vh;
-  font-size: 14px;
-  line-height: 1.5;
+  --qualify:   #a05c1a;
+  --qualify-lt:#fffbef;
+  --nurture:   #1a6640;
+  --nurture-lt:#f0fdf6;
+  --watch:     #6b7280;
+  --watch-lt:  #f9f9f9;
+  --live:      #15803d;
+  --live-lt:   #dcfce7;
+  --sb-w:      210px;
+  --r:         11px;
 }
 
-/* ── SIDEBAR ─────────────────────────────── */
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-font-smoothing: antialiased; }
+
+body {
+  font-family: -apple-system, "SF Pro Text", "Helvetica Neue", sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  font-size: 15px;
+  line-height: 1.5;
+  min-height: 100vh;
+}
+
+/* ── SIDEBAR ──────────────────────────────────────────── */
 .sb {
-  width: var(--sb);
-  background: #0f0f0e;
-  display: flex;
-  flex-direction: column;
+  width: var(--sb-w);
+  background: #111110;
   position: fixed;
   top: 0; left: 0;
   height: 100vh;
+  display: flex;
+  flex-direction: column;
   z-index: 100;
   overflow-y: auto;
 }
-
 .sb-logo {
-  padding: 24px 20px 20px;
+  padding: 22px 18px 18px;
   border-bottom: 1px solid rgba(255,255,255,0.07);
 }
-.sb-logo .brand {
-  font-size: 17px;
+.sb-brand {
+  font-size: 16px;
   font-weight: 700;
   letter-spacing: -0.04em;
   color: #fff;
 }
-.sb-logo .brand sup { color: #d4a96b; font-size: 10px; }
-.sb-logo .co {
+.sb-brand sup { color: #d4a96b; font-size: 10px; }
+.sb-co {
   font-size: 11px;
-  color: rgba(255,255,255,0.35);
+  color: rgba(255,255,255,0.3);
   margin-top: 3px;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.04em;
 }
-.sb-logo .agent {
-  font-size: 12px;
-  color: rgba(255,255,255,0.55);
-  margin-top: 8px;
-  font-weight: 500;
-}
-
-.nav { flex: 1; padding: 10px 0 20px; }
-
-.nav-section {
+.nav { flex: 1; padding: 8px 0; }
+.nav-sec {
   font-size: 9px;
   font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: rgba(255,255,255,0.22);
-  padding: 16px 20px 6px;
+  color: rgba(255,255,255,0.2);
+  padding: 14px 18px 5px;
 }
-
-.nav-item {
+.ni {
   display: flex;
   align-items: flex-start;
   gap: 10px;
-  padding: 10px 20px;
+  padding: 10px 18px;
   cursor: pointer;
   border-left: 3px solid transparent;
   transition: all 0.12s;
-  margin-bottom: 1px;
+  user-select: none;
 }
-.nav-item:hover {
-  background: rgba(255,255,255,0.05);
-}
-.nav-item.on {
-  background: rgba(212,169,107,0.1);
+.ni:hover { background: rgba(255,255,255,0.04); }
+.ni.on {
+  background: rgba(212,169,107,0.09);
   border-left-color: #d4a96b;
 }
-.nav-item .nav-icon {
-  font-size: 13px;
+.ni-icon {
+  font-size: 14px;
   margin-top: 1px;
-  opacity: 0.6;
   flex-shrink: 0;
+  opacity: 0.6;
+  width: 16px;
+  text-align: center;
 }
-.nav-item.on .nav-icon { opacity: 1; }
-.nav-item .nav-text {}
-.nav-item .nav-title {
+.ni.on .ni-icon { opacity: 1; }
+.ni-title {
   font-size: 13px;
   font-weight: 500;
-  color: rgba(255,255,255,0.45);
-  line-height: 1.3;
+  color: rgba(255,255,255,0.42);
+  line-height: 1.25;
 }
-.nav-item.on .nav-title { color: #d4a96b; }
-.nav-item:hover .nav-title { color: rgba(255,255,255,0.8); }
-.nav-item .nav-desc {
+.ni.on .ni-title { color: #d4a96b; }
+.ni:hover .ni-title { color: rgba(255,255,255,0.78); }
+.ni-desc {
   font-size: 10px;
-  color: rgba(255,255,255,0.22);
+  color: rgba(255,255,255,0.2);
   margin-top: 1px;
   line-height: 1.3;
 }
-.nav-item.on .nav-desc { color: rgba(212,169,107,0.55); }
-
+.ni.on .ni-desc { color: rgba(212,169,107,0.45); }
 .sb-foot {
-  padding: 16px 20px;
+  padding: 14px 18px;
   border-top: 1px solid rgba(255,255,255,0.07);
 }
-.pulse-row {
+.pulse {
   display: flex;
   align-items: center;
   gap: 7px;
   font-size: 11px;
-  color: rgba(255,255,255,0.3);
+  color: rgba(255,255,255,0.28);
 }
 .pdot {
   width: 7px; height: 7px;
   border-radius: 50%;
   background: #4ade80;
-  flex-shrink: 0;
   animation: blink 2s infinite;
+  flex-shrink: 0;
 }
-@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.25} }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.2} }
 
-/* ── MAIN ────────────────────────────────── */
+/* ── MAIN ─────────────────────────────────────────────── */
 .main {
-  margin-left: var(--sb);
-  flex: 1;
+  margin-left: var(--sb-w);
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
 }
 
-/* TOPBAR */
+/* ── TOPBAR ───────────────────────────────────────────── */
 .topbar {
-  height: 56px;
+  height: 54px;
   background: var(--white);
   border-bottom: 1px solid var(--border);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 28px;
+  padding: 0 24px;
   position: sticky;
   top: 0;
   z-index: 50;
 }
-.topbar-left { display: flex; align-items: center; gap: 12px; }
-.topbar-title { font-size: 15px; font-weight: 600; letter-spacing: -0.02em; }
-.topbar-sep { width: 1px; height: 14px; background: var(--border); }
-.topbar-sub { font-size: 12px; color: var(--ink3); }
-.topbar-right { display: flex; align-items: center; gap: 10px; }
+.tb-left { display: flex; align-items: center; gap: 10px; }
+.tb-title { font-size: 15px; font-weight: 600; letter-spacing: -0.02em; }
+.tb-county {
+  font-size: 11px;
+  color: var(--ink3);
+  background: var(--bg);
+  padding: 3px 9px;
+  border-radius: 100px;
+  border: 1px solid var(--border);
+}
+.tb-right { display: flex; align-items: center; gap: 9px; }
 .live-pill {
   font-size: 10px;
-  font-weight: 700;
+  font-weight: 800;
   letter-spacing: 0.08em;
   padding: 4px 10px;
   border-radius: 100px;
-  background: #dcfce7;
-  color: var(--live-dk);
+  background: var(--live-lt);
+  color: var(--live);
 }
-.refresh-txt { font-size: 12px; color: var(--ink3); }
+.tb-refresh { font-size: 12px; color: var(--ink3); }
 
-/* CONTENT */
-.content { padding: 28px; flex: 1; }
+/* ── CONTENT ──────────────────────────────────────────── */
+.content { padding: 22px 24px; flex: 1; }
 .pg { display: none; }
 .pg.on { display: block; }
 
-/* PAGE HEADER */
-.pg-hdr { margin-bottom: 24px; }
-.pg-hdr h1 { font-size: 20px; font-weight: 700; letter-spacing: -0.03em; color: var(--ink); }
-.pg-hdr p { font-size: 13px; color: var(--ink3); margin-top: 4px; }
-
-/* ── KPI CARDS ───────────────────────────── */
-.kpi-row {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 14px;
-  margin-bottom: 14px;
-}
-.kpi-card {
-  background: var(--white);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 20px 22px;
-}
-.kpi-card .kl {
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.06em;
+/* ── SECTION LABEL ────────────────────────────────────── */
+.sec-lbl {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--ink3);
   margin-bottom: 10px;
+  margin-top: 20px;
 }
-.kpi-card .kv {
-  font-size: 36px;
+.sec-lbl:first-child { margin-top: 0; }
+
+/* ── KPI ROW ──────────────────────────────────────────── */
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.kc {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 18px 18px 14px;
+}
+.kc .kl {
+  font-size: 10px;
   font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink3);
+  margin-bottom: 8px;
+}
+.kc .kv {
+  font-size: 32px;
+  font-weight: 800;
   letter-spacing: -0.05em;
   line-height: 1;
   color: var(--ink);
 }
-.kpi-card .kv.gold { color: var(--gold); }
-.kpi-card .kv.green { color: var(--live-dk); }
-.kpi-card .kd {
-  font-size: 12px;
+.kc .kv.gold { color: var(--gold); }
+.kc .kv.grn  { color: var(--live); }
+.kc .kd {
+  font-size: 11px;
   color: var(--ink3);
-  margin-top: 6px;
+  margin-top: 5px;
 }
 
-/* ── TIER CARDS ──────────────────────────── */
-.tier-row {
+/* ── TIER STRIP ───────────────────────────────────────── */
+.tier-strip {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 14px;
-  margin-bottom: 28px;
+  gap: 10px;
+  margin-bottom: 20px;
 }
-.tier-card {
-  border-radius: var(--radius);
-  padding: 20px 22px;
+.tc {
+  border-radius: var(--r);
+  padding: 16px 18px;
   border: 1px solid transparent;
 }
-.tier-card.primed { background: var(--primed-lt); border-color: rgba(192,57,43,0.12); }
-.tier-card.qualify { background: var(--qualify-lt); border-color: rgba(176,125,42,0.12); }
-.tier-card.nurture { background: var(--nurture-lt); border-color: rgba(45,122,79,0.12); }
-.tier-card.watch   { background: var(--watch-lt);   border-color: rgba(107,114,128,0.1); }
-
-.tier-card .tl {
-  font-size: 11px;
+.tc.p { background: var(--primed-lt); border-color: rgba(192,57,43,0.1); }
+.tc.q { background: var(--qualify-lt); border-color: rgba(160,92,26,0.1); }
+.tc.n { background: var(--nurture-lt); border-color: rgba(26,102,64,0.1); }
+.tc.w { background: var(--watch-lt);   border-color: rgba(107,114,128,0.1); }
+.tc .tl {
+  font-size: 10px;
   font-weight: 700;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
-.tier-card.primed .tl { color: var(--primed); }
-.tier-card.qualify .tl { color: var(--qualify); }
-.tier-card.nurture .tl { color: var(--nurture); }
-.tier-card.watch   .tl { color: var(--watch); }
-
-.tier-card .tv {
-  font-size: 36px;
-  font-weight: 700;
-  letter-spacing: -0.05em;
+.tc.p .tl { color: var(--primed); }
+.tc.q .tl { color: var(--qualify); }
+.tc.n .tl { color: var(--nurture); }
+.tc.w .tl { color: var(--watch); }
+.tc .tv {
+  font-size: 30px;
+  font-weight: 800;
+  letter-spacing: -0.04em;
   line-height: 1;
 }
-.tier-card.primed .tv { color: var(--primed); }
-.tier-card.qualify .tv { color: var(--qualify); }
-.tier-card.nurture .tv { color: var(--nurture); }
-.tier-card.watch   .tv { color: var(--watch); }
-
-.tier-card .td {
-  font-size: 12px;
-  color: var(--ink3);
-  margin-top: 6px;
-}
-.tier-card .action {
+.tc.p .tv { color: var(--primed); }
+.tc.q .tv { color: var(--qualify); }
+.tc.n .tv { color: var(--nurture); }
+.tc.w .tv { color: var(--watch); }
+.tc .td { font-size: 11px; color: var(--ink3); margin-top: 4px; }
+.tc .ta {
   font-size: 11px;
   font-weight: 600;
   margin-top: 10px;
-  padding: 4px 0;
 }
-.tier-card.primed .action { color: var(--primed); }
-.tier-card.qualify .action { color: var(--qualify); }
-.tier-card.nurture .action { color: var(--nurture); }
-.tier-card.watch   .action { color: var(--watch); }
+.tc.p .ta { color: var(--primed); }
+.tc.q .ta { color: var(--qualify); }
+.tc.n .ta { color: var(--nurture); }
+.tc.w .ta { color: var(--watch); }
 
-/* ── PANELS ──────────────────────────────── */
+/* ── PANEL ────────────────────────────────────────────── */
 .panel {
-  background: var(--white);
+  background: var(--card);
   border: 1px solid var(--border);
-  border-radius: var(--radius);
+  border-radius: var(--r);
   overflow: hidden;
-  margin-bottom: 14px;
+  margin-bottom: 12px;
 }
 .panel:last-child { margin-bottom: 0; }
 .ph {
-  padding: 14px 20px;
+  padding: 13px 18px;
   border-bottom: 1px solid var(--border2);
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
 .ph h3 { font-size: 14px; font-weight: 600; color: var(--ink); }
-.ph .pm { font-size: 12px; color: var(--ink3); }
-.pb { padding: 18px 20px; }
+.ph .pm { font-size: 11px; color: var(--ink3); }
+.pb { padding: 16px 18px; }
 
-/* ── GRID ────────────────────────────────── */
-.g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
-.g3l { display: grid; grid-template-columns: 1.7fr 1fr; gap: 14px; margin-bottom: 14px; }
-.col { display: flex; flex-direction: column; gap: 14px; }
+/* ── GRID LAYOUTS ─────────────────────────────────────── */
+.g2  { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+.g3l { display: grid; grid-template-columns: 1.65fr 1fr; gap: 12px; margin-bottom: 12px; }
+.col { display: flex; flex-direction: column; gap: 12px; }
 
-/* ── TABLE ───────────────────────────────── */
-.tbl { width: 100%; border-collapse: collapse; }
+/* ── TABLE ────────────────────────────────────────────── */
+.tbl-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.tbl { width: 100%; border-collapse: collapse; min-width: 500px; }
 .tbl th {
   font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--ink3);
-  padding: 10px 20px;
+  padding: 10px 16px;
   border-bottom: 1px solid var(--border);
   text-align: left;
-  background: #fafaf8;
+  background: #f8f7f3;
   white-space: nowrap;
 }
 .tbl td {
-  padding: 12px 20px;
+  padding: 11px 16px;
   border-bottom: 1px solid var(--border2);
-  vertical-align: middle;
   font-size: 13px;
   color: var(--ink2);
+  vertical-align: middle;
 }
 .tbl tr:last-child td { border-bottom: none; }
-.tbl tr:hover td { background: #fafaf8; }
-.tbl .name-cell { font-weight: 600; color: var(--ink); max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.tbl .addr-cell { color: var(--ink3); max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; }
+.tbl tr:hover td { background: #f8f7f3; }
+.nm {
+  font-weight: 600;
+  color: var(--ink);
+  max-width: 170px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.addr {
+  color: var(--ink3);
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+}
 
-/* ── BADGES ──────────────────────────────── */
-.badge {
+/* ── BADGE ────────────────────────────────────────────── */
+.b {
   display: inline-block;
   font-size: 10px;
   font-weight: 700;
@@ -348,21 +359,22 @@ body {
   padding: 3px 9px;
   border-radius: 100px;
   text-transform: uppercase;
+  white-space: nowrap;
 }
-.badge.primed { background: var(--primed-lt); color: var(--primed); }
-.badge.qualify { background: var(--qualify-lt); color: var(--qualify); }
-.badge.nurture { background: var(--nurture-lt); color: var(--nurture); }
-.badge.watch   { background: var(--watch-lt); color: var(--watch); }
-.badge.live    { background: #dcfce7; color: var(--live-dk); }
-.badge.idle    { background: #f4f4f4; color: var(--ink3); }
+.b.p { background: var(--primed-lt); color: var(--primed); }
+.b.q { background: var(--qualify-lt); color: var(--qualify); }
+.b.n { background: var(--nurture-lt); color: var(--nurture); }
+.b.w { background: var(--watch-lt);   color: var(--watch); }
+.b.live { background: var(--live-lt); color: var(--live); }
+.b.idle { background: #f0f0ec; color: var(--ink3); }
 
-/* ── SCORE BAR ───────────────────────────── */
-.score-wrap { display: flex; align-items: center; gap: 8px; }
-.score-bar { flex: 1; height: 4px; background: #eeede8; border-radius: 2px; overflow: hidden; max-width: 80px; }
-.score-fill { height: 100%; border-radius: 2px; }
-.score-num { font-size: 12px; font-weight: 600; color: var(--ink3); min-width: 24px; }
+/* ── SCORE BAR ────────────────────────────────────────── */
+.sbw { display: flex; align-items: center; gap: 8px; }
+.sbr { flex: 1; height: 4px; background: #eee; border-radius: 2px; overflow: hidden; max-width: 70px; }
+.sbf { height: 100%; border-radius: 2px; }
+.sbn { font-size: 12px; font-weight: 700; color: var(--ink3); min-width: 24px; }
 
-/* ── SOURCE ROW ──────────────────────────── */
+/* ── SOURCE ROW ───────────────────────────────────────── */
 .src-row {
   display: flex;
   align-items: center;
@@ -373,114 +385,165 @@ body {
 .src-row:last-child { border-bottom: none; }
 .src-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
 .src-dot.live { background: var(--live); }
-.src-dot.idle { background: #d1d5db; }
+.src-dot.idle { background: #ccc; }
 .src-name { flex: 1; font-size: 13px; color: var(--ink2); font-weight: 500; }
-.src-cat  { font-size: 11px; color: var(--ink3); }
-.src-count { font-size: 13px; font-weight: 700; color: var(--live-dk); }
+.src-n { font-size: 13px; font-weight: 700; color: var(--live); }
+.src-t { font-size: 11px; color: var(--ink3); }
 
-/* ── CONVERGENCE CARD ────────────────────── */
-.conv-card {
+/* ── CONV CARD ────────────────────────────────────────── */
+.ci {
   background: var(--gold-lt);
-  border: 1px solid rgba(184,129,58,0.18);
-  border-radius: 10px;
-  padding: 14px 16px;
-  margin-bottom: 10px;
+  border: 1px solid var(--gold-bd);
+  border-radius: 9px;
+  padding: 13px 15px;
+  margin-bottom: 9px;
 }
-.conv-card:last-child { margin-bottom: 0; }
-.conv-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px; }
-.conv-label { font-size: 10px; font-weight: 700; color: var(--gold); letter-spacing: 0.08em; text-transform: uppercase; }
-.conv-score { font-size: 15px; font-weight: 700; color: var(--primed); }
-.conv-addr { font-size: 13px; font-weight: 600; color: var(--ink); margin-bottom: 3px; }
-.conv-meta { font-size: 11px; color: var(--ink3); }
+.ci:last-child { margin-bottom: 0; }
+.ci-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+.ci-flag {
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--gold);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.ci-score { font-size: 15px; font-weight: 800; color: var(--primed); }
+.ci-addr { font-size: 13px; font-weight: 600; color: var(--ink); margin-bottom: 2px; }
+.ci-meta { font-size: 11px; color: var(--ink3); }
 
-/* ── MARKET ROW ──────────────────────────── */
-.mkt-row {
+/* ── HOME VALUE ROW ───────────────────────────────────── */
+.hv-row {
   display: flex;
   align-items: baseline;
-  gap: 12px;
+  gap: 10px;
   padding: 10px 0;
   border-bottom: 1px solid var(--border2);
 }
-.mkt-row:last-child { border-bottom: none; }
-.mkt-city { flex: 1; font-size: 13px; color: var(--ink2); font-weight: 500; }
-.mkt-val { font-size: 18px; font-weight: 700; letter-spacing: -0.03em; color: var(--ink); }
-.mkt-sub { font-size: 11px; color: var(--ink3); }
+.hv-row:last-child { border-bottom: none; }
+.hv-city { flex: 1; font-size: 14px; color: var(--ink2); font-weight: 500; }
+.hv-val { font-size: 20px; font-weight: 800; letter-spacing: -0.03em; color: var(--ink); }
+.hv-sub { font-size: 11px; color: var(--ink3); }
 
-/* ── SIGNAL ROW ──────────────────────────── */
-.sig-row {
+/* ── CHIPS ────────────────────────────────────────────── */
+.chips { display: flex; flex-wrap: wrap; gap: 7px; padding: 14px 18px; }
+.chip {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 6px;
+  background: var(--live-lt);
+  border: 1px solid rgba(21,128,61,0.18);
+  border-radius: 8px;
+  padding: 6px 11px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ink2);
+}
+.chip-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--live); flex-shrink: 0; }
+.chip-n { font-weight: 700; color: var(--live); margin-left: 2px; }
+
+/* ── SIG ROW ──────────────────────────────────────────── */
+.sigr {
+  display: flex;
+  align-items: center;
+  gap: 9px;
   padding: 9px 0;
   border-bottom: 1px solid var(--border2);
 }
-.sig-row:last-child { border-bottom: none; }
-.sig-name { flex: 1; font-size: 13px; color: var(--ink2); }
-.sig-val  { font-size: 13px; font-weight: 600; color: var(--gold); }
-.sig-date { font-size: 11px; color: var(--ink3); }
+.sigr:last-child { border-bottom: none; }
+.sigr .sn { flex: 1; font-size: 13px; color: var(--ink2); }
+.sigr .sv { font-size: 13px; font-weight: 700; color: var(--gold); }
+.sigr .st { font-size: 11px; color: var(--ink3); }
 
-/* ── TODAY CHIPS ─────────────────────────── */
-.chips { display: flex; flex-wrap: wrap; gap: 7px; padding: 16px 20px; }
-.chip {
-  display: flex; align-items: center; gap: 6px;
-  background: #f0fdf4; border: 1px solid rgba(34,197,94,0.2);
-  border-radius: 8px; padding: 6px 11px; font-size: 12px; font-weight: 500; color: var(--ink2);
+/* ── FILTER BTNS ──────────────────────────────────────── */
+.filter-row { display: flex; gap: 7px; margin-bottom: 16px; flex-wrap: wrap; }
+.fb {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 15px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  color: var(--ink2);
+  transition: all 0.12s;
 }
-.chip-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--live); flex-shrink: 0; }
-.chip-count { font-weight: 700; color: var(--live-dk); margin-left: 2px; }
+.fb:hover { background: var(--bg); }
+.fb.on { background: var(--ink); color: #fff; border-color: var(--ink); }
+.fb.on-p { background: var(--primed); color: #fff; border-color: var(--primed); }
+.fb.on-q { background: var(--qualify); color: #fff; border-color: var(--qualify); }
+.fb.on-n { background: var(--nurture); color: #fff; border-color: var(--nurture); }
 
-/* ── FILTER BUTTONS ──────────────────────── */
-.filter-row { display: flex; gap: 8px; margin-bottom: 18px; flex-wrap: wrap; }
-.filter-btn {
-  background: var(--white); border: 1px solid var(--border);
-  border-radius: 8px; padding: 7px 14px; font-size: 12px;
-  font-weight: 600; cursor: pointer; color: var(--ink2); transition: all .12s;
-}
-.filter-btn:hover { background: #f5f4f0; }
-.filter-btn.on { background: var(--ink); color: #fff; border-color: var(--ink); }
-.filter-btn.primed.on { background: var(--primed); border-color: var(--primed); }
-.filter-btn.qualify.on { background: var(--qualify); border-color: var(--qualify); }
-.filter-btn.nurture.on { background: var(--nurture); border-color: var(--nurture); }
+/* ── PG HEADER ────────────────────────────────────────── */
+.pg-hdr { margin-bottom: 20px; }
+.pg-hdr h1 { font-size: 20px; font-weight: 700; letter-spacing: -0.03em; }
+.pg-hdr p { font-size: 13px; color: var(--ink3); margin-top: 4px; line-height: 1.5; }
 
 .loading { text-align: center; padding: 32px; color: var(--ink3); font-size: 13px; }
 
-/* ── STAT MINI ───────────────────────────── */
-.stat-mini {
-  display: flex; align-items: baseline; gap: 6px;
-  padding: 10px 0; border-bottom: 1px solid var(--border2);
+/* ── AGENT PAGE ───────────────────────────────────────── */
+.voice-opt {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: 6px 13px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  color: var(--ink2);
+  transition: all 0.12s;
+  white-space: nowrap;
 }
-.stat-mini:last-child { border-bottom: none; }
-.stat-label { flex: 1; font-size: 13px; color: var(--ink2); }
-.stat-val { font-size: 15px; font-weight: 700; color: var(--ink); letter-spacing: -0.02em; }
-.stat-sub { font-size: 11px; color: var(--ink3); }
+.voice-opt.on { background: var(--ink); color: #fff; border-color: var(--ink); }
+.a-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--border2);
+  font-size: 13px;
+}
+.a-row:last-child { border-bottom: none; }
+.a-lbl { color: var(--ink2); }
+.a-select {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 12px;
+  color: var(--ink2);
+  background: var(--white);
+  outline: none;
+}
+.train-item {
+  padding: 11px 13px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--ink3);
+}
+.train-item.done {
+  background: var(--nurture-lt);
+  color: var(--nurture);
+  border-color: rgba(26,102,64,0.15);
+}
+.train-item.done::before { content: "✓  "; font-weight: 700; }
 
-/* ── AGENT PAGE ── */
-.voice-opt{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:5px 11px;font-size:11px;font-weight:600;cursor:pointer;color:var(--ink2);transition:all .12s;white-space:nowrap}
-.voice-opt:hover{background:var(--bg4)}
-.voice-opt.on{background:var(--ink);color:#fff;border-color:var(--ink)}
-.agent-setting{display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border2);font-size:12px}
-.agent-setting:last-child{border-bottom:none}
-.as-label{color:var(--ink2)}
-.as-val{color:var(--ink);font-weight:500}
-.on-val{color:var(--ink3);font-size:11px;max-width:160px;text-align:right}
-.as-select{border:1px solid var(--border);border-radius:6px;padding:3px 7px;font-size:11px;color:var(--ink2);background:var(--bg2);outline:none}
-.train-item{padding:10px 12px;border-radius:8px;font-size:12px;font-weight:500;border:1px solid var(--border)}
-.train-item.pending{background:var(--bg3);color:var(--ink3)}
-.train-item.done{background:var(--green-lt);color:var(--green);border-color:var(--green-bd)}
-.train-item.done::before{content:"✓ ";font-weight:700}
-
-/* ════════════════════════════════════════════════
-   MOBILE — iPhone sized screens
-════════════════════════════════════════════════ */
+/* ══════════════════════════════════════════
+   MOBILE — max 768px
+══════════════════════════════════════════ */
 @media (max-width: 768px) {
+  :root { --sb-w: 0px; }
 
-  :root { --sb: 0px; }
-
-  /* Sidebar becomes bottom nav */
+  /* Sidebar → bottom tab bar */
   .sb {
     width: 100%;
-    height: auto;
-    position: fixed;
+    height: 60px;
     top: auto;
     bottom: 0;
     left: 0;
@@ -488,415 +551,301 @@ body {
     flex-direction: row;
     border-right: none;
     border-top: 1px solid rgba(255,255,255,0.08);
-    overflow-x: auto;
-    overflow-y: hidden;
-    z-index: 200;
-    padding: 0;
+    overflow: visible;
   }
-
   .sb-logo { display: none; }
   .sb-foot { display: none; }
-
   .nav {
     display: flex;
     flex-direction: row;
-    padding: 0;
     width: 100%;
+    padding: 0;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
   }
   .nav::-webkit-scrollbar { display: none; }
-
-  .nav-section { display: none; }
-
-  .nav-item {
+  .nav-sec { display: none; }
+  .ni {
+    flex: 1;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 10px 14px;
+    padding: 8px 6px 6px;
     gap: 3px;
-    min-width: 64px;
+    min-width: 56px;
     border-left: none;
     border-top: 2px solid transparent;
-    flex-shrink: 0;
   }
-  .nav-item.on {
+  .ni.on {
     border-left: none;
     border-top-color: #d4a96b;
-    background: rgba(212,169,107,0.07);
+    background: rgba(212,169,107,0.1);
   }
-  .nav-item .nav-icon {
-    font-size: 16px;
-    margin-top: 0;
-  }
-  .nav-item .nav-text .nav-title {
-    font-size: 10px;
-    text-align: center;
-    white-space: nowrap;
-  }
-  .nav-item .nav-text .nav-desc { display: none; }
+  .ni-icon { font-size: 17px; margin-top: 0; width: auto; }
+  .ni-title { font-size: 9px; text-align: center; white-space: nowrap; }
+  .ni-desc { display: none; }
 
-  /* Main content */
-  .main {
-    margin-left: 0;
-    padding-bottom: 70px; /* room for bottom nav */
-  }
+  /* Main shifts */
+  .main { margin-left: 0; padding-bottom: 64px; }
 
   /* Topbar */
-  .topbar {
-    padding: 0 14px;
-    height: 48px;
-  }
-  .topbar-title { font-size: 13px; }
-  .topbar-sep { display: none; }
-  .topbar-sub { display: none; }
+  .topbar { padding: 0 16px; height: 50px; }
+  .tb-title { font-size: 14px; }
+  .tb-county { font-size: 10px; }
 
-  /* Content padding */
+  /* Content */
   .content { padding: 16px 14px; }
 
-  /* KPI cards — 2 col on mobile */
+  /* KPI row — 2 col */
   .kpi-row {
-    grid-template-columns: 1fr 1fr !important;
-    gap: 8px;
-    margin-bottom: 12px;
+    grid-template-columns: 1fr 1fr;
+    gap: 9px;
   }
-  .kpi-card {
-    padding: 14px;
-  }
-  .kpi-card .kv {
-    font-size: 26px;
-  }
-  .kpi-card .kd { font-size: 11px; }
+  .kc { padding: 14px; }
+  .kc .kv { font-size: 28px; }
+  .kc .kl { font-size: 9px; }
+  .kc .kd { font-size: 10px; }
 
-  /* Tier cards — 2 col */
-  .tier-row {
-    grid-template-columns: 1fr 1fr !important;
-    gap: 8px;
+  /* Tier strip — 2 col */
+  .tier-strip {
+    grid-template-columns: 1fr 1fr;
+    gap: 9px;
     margin-bottom: 16px;
   }
-  .tier-card {
-    padding: 14px;
-  }
-  .tier-card .tv { font-size: 26px; }
-  .tier-card .td { font-size: 11px; }
-  .tier-card .action { font-size: 11px; margin-top: 6px; }
+  .tc { padding: 14px; }
+  .tc .tv { font-size: 26px; }
+  .tc .td { font-size: 10px; }
+  .tc .ta { font-size: 10px; margin-top: 7px; }
 
-  /* Grids — stack on mobile */
-  .g2 {
-    grid-template-columns: 1fr !important;
-    gap: 10px;
-  }
-  .g3l {
-    grid-template-columns: 1fr !important;
-    gap: 10px;
-  }
+  /* Grids — all stack */
+  .g2  { grid-template-columns: 1fr; gap: 10px; }
+  .g3l { grid-template-columns: 1fr; gap: 10px; }
   .col { gap: 10px; }
 
-  /* Tables — horizontal scroll */
-  .panel { overflow: hidden; }
-  .tbl-wrap {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-  .tbl {
-    min-width: 520px;
-    font-size: 12px;
-  }
-  .tbl th { padding: 8px 12px; font-size: 9px; }
-  .tbl td { padding: 9px 12px; }
-  .tbl .name-cell { max-width: 120px; }
-  .tbl .addr-cell { max-width: 100px; }
-
-  /* Panel headers */
+  /* Panel */
   .ph { padding: 11px 14px; }
   .ph h3 { font-size: 13px; }
   .ph .pm { font-size: 10px; }
-
-  /* Panel body */
   .pb { padding: 13px 14px; }
 
-  /* Score bar compact */
-  .score-bar { max-width: 50px; }
-
   /* Source rows */
-  .src-row { padding: 8px 0; gap: 8px; }
   .src-name { font-size: 12px; }
-  .src-count { font-size: 12px; }
+  .src-n { font-size: 12px; }
 
-  /* Chips — smaller */
-  .chip {
-    font-size: 11px;
-    padding: 5px 9px;
-    gap: 5px;
-  }
+  /* Chips */
   .chips { padding: 12px 14px; gap: 6px; }
+  .chip { font-size: 11px; padding: 5px 9px; }
+
+  /* Score bar */
+  .sbr { max-width: 45px; }
+
+  /* Filter row */
+  .filter-row { gap: 6px; }
+  .fb { padding: 7px 12px; font-size: 12px; }
 
   /* Page header */
-  .pg-hdr { margin-bottom: 16px; }
   .pg-hdr h1 { font-size: 18px; }
   .pg-hdr p { font-size: 12px; }
 
-  /* Filter buttons */
-  .filter-row { gap: 6px; margin-bottom: 14px; flex-wrap: wrap; }
-  .filter-btn { padding: 6px 11px; font-size: 11px; }
+  /* Home values */
+  .hv-val { font-size: 18px; }
 
-  /* Greeting */
-  .pg-hdr h1 { font-size: 17px; }
-
-  /* Market value cards */
-  .mk .mv { font-size: 20px; }
-
-  /* Conv cards */
-  .conv-card { padding: 12px 13px; }
-  .conv-addr { font-size: 12px; }
-
-  /* Agent page adjustments */
-  .calc-grid { grid-template-columns: 1fr !important; gap: 16px; }
-  .calc-result { grid-template-columns: 1fr 1fr !important; gap: 12px; }
-  .mono-grid { grid-template-columns: 1fr !important; }
-
-  /* Outreach queue KPIs */
-  .kpi-row[style*="repeat(4"] {
-    grid-template-columns: 1fr 1fr !important;
-  }
-
+  /* Agent grid */
+  .agent-2col { grid-template-columns: 1fr !important; }
+  .agent-3col { grid-template-columns: 1fr !important; }
 }
 
-/* Tablet — sidebar stays but narrower */
-@media (min-width: 769px) and (max-width: 1024px) {
-  :root { --sb: 160px; }
-
-  .nav-item .nav-text .nav-desc { display: none; }
-  .nav-item { padding: 9px 14px; }
-  .nav-item .nav-title { font-size: 12px; }
-
+/* ── TABLET ────────────────────────────────────────────── */
+@media (min-width: 769px) and (max-width: 1100px) {
+  :root { --sb-w: 170px; }
+  .ni-desc { display: none; }
   .content { padding: 18px 20px; }
-
-  .kpi-row { grid-template-columns: repeat(3, 1fr) !important; }
-  .tier-row { grid-template-columns: repeat(2, 1fr) !important; }
-  .g3l { grid-template-columns: 1fr !important; }
+  .kpi-row { grid-template-columns: repeat(2, 1fr); }
+  .tier-strip { grid-template-columns: repeat(2, 1fr); }
+  .g3l { grid-template-columns: 1fr; }
 }
-
 </style>
 </head>
 <body>
 
-<!-- SIDEBAR -->
+<!-- SIDEBAR / BOTTOM NAV -->
 <aside class="sb">
   <div class="sb-logo">
-    <div class="brand">ProspectPlus<sup>™</sup></div>
-    <div class="co">Williams &amp; Co. System</div>
-    <div class="agent">Kelvin Sharp</div>
+    <div class="sb-brand">ProspectPlus<sup>™</sup></div>
+    <div class="sb-co">Williams &amp; Co. System</div>
   </div>
-
   <nav class="nav">
-    <div class="nav-section">Dashboard</div>
-
-    <div class="nav-item on" onclick="go('overview',this)">
-      <div class="nav-icon">⬛</div>
-      <div class="nav-text">
-        <div class="nav-title">Overview</div>
-        <div class="nav-desc">Live snapshot of the entire system</div>
-      </div>
+    <div class="nav-sec">Dashboard</div>
+    <div class="ni on" onclick="go('overview',this)">
+      <div class="ni-icon">⬛</div>
+      <div><div class="ni-title">Overview</div><div class="ni-desc">Live system snapshot</div></div>
     </div>
-
-    <div class="nav-item" onclick="go('leads',this)">
-      <div class="nav-icon">◆</div>
-      <div class="nav-text">
-        <div class="nav-title">All Leads</div>
-        <div class="nav-desc">Every lead ranked &amp; ready to contact</div>
-      </div>
+    <div class="ni" onclick="go('leads',this)">
+      <div class="ni-icon">◆</div>
+      <div><div class="ni-title">All Leads</div><div class="ni-desc">Full ranked queue</div></div>
     </div>
-
-    <div class="nav-item" onclick="go('conv',this)">
-      <div class="nav-icon">⊕</div>
-      <div class="nav-text">
-        <div class="nav-title">Convergence Marks</div>
-        <div class="nav-desc">Same property on both sides — call first</div>
-      </div>
+    <div class="ni" onclick="go('conv',this)">
+      <div class="ni-icon">⊕</div>
+      <div><div class="ni-title">Convergence</div><div class="ni-desc">Call these first</div></div>
     </div>
-
-    <div class="nav-section">Outreach</div>
-
-    <div class="nav-item" onclick="go('agent',this)">
-      <div class="nav-icon">◈</div>
-      <div class="nav-text">
-        <div class="nav-title">AI Agent</div>
-        <div class="nav-desc">Configure, train &amp; activate your agent</div>
-      </div>
+    <div class="nav-sec">Intelligence</div>
+    <div class="ni" onclick="go('sources',this)">
+      <div class="ni-icon">●</div>
+      <div><div class="ni-title">Sources</div><div class="ni-desc">Every data feed</div></div>
     </div>
-
-    <div class="nav-item" onclick="go('outreach',this)">
-      <div class="nav-icon">▷</div>
-      <div class="nav-text">
-        <div class="nav-title">Outreach Queue</div>
-        <div class="nav-desc">Approve contacts before anything sends</div>
-      </div>
+    <div class="ni" onclick="go('market',this)">
+      <div class="ni-icon">△</div>
+      <div><div class="ni-title">Market</div><div class="ni-desc">Values &amp; trends</div></div>
     </div>
-
-    <div class="nav-section">Intelligence</div>
-
-    <div class="nav-item" onclick="go('sources',this)">
-      <div class="nav-icon">●</div>
-      <div class="nav-text">
-        <div class="nav-title">Signal Sources</div>
-        <div class="nav-desc">Every data source &amp; what it's pulling</div>
-      </div>
+    <div class="nav-sec">Outreach</div>
+    <div class="ni" onclick="go('agent',this)">
+      <div class="ni-icon">◈</div>
+      <div><div class="ni-title">AI Agent</div><div class="ni-desc">Configure Bryce</div></div>
     </div>
-
-    <div class="nav-item" onclick="go('market',this)">
-      <div class="nav-icon">△</div>
-      <div class="nav-text">
-        <div class="nav-title">Market Pulse</div>
-        <div class="nav-desc">Home values, inventory &amp; market trends</div>
-      </div>
+    <div class="ni" onclick="go('outreach',this)">
+      <div class="ni-icon">▷</div>
+      <div><div class="ni-title">Outreach</div><div class="ni-desc">Approve &amp; send</div></div>
     </div>
   </nav>
-
   <div class="sb-foot">
-    <div class="pulse-row">
+    <div class="pulse">
       <div class="pdot"></div>
-      <span id="lr-foot">Live · refreshing every 60s</span>
+      <span id="lr-foot">Live · 60s</span>
     </div>
   </div>
 </aside>
 
-<!-- MAIN CONTENT -->
+<!-- MAIN -->
 <main class="main">
-
   <div class="topbar">
-    <div class="topbar-left">
-      <div class="topbar-title">ProspectPlus™</div>
-      <div class="topbar-sep"></div>
-      <div class="topbar-sub">Utah · Salt Lake · Weber Counties</div>
+    <div class="tb-left">
+      <div class="tb-title">ProspectPlus™</div>
+      <div class="tb-county">Utah · Salt Lake · Weber</div>
     </div>
-    <div class="topbar-right">
+    <div class="tb-right">
       <div class="live-pill">LIVE</div>
-      <div class="refresh-txt" id="t-refresh">Loading...</div>
+      <div class="tb-refresh" id="tb-refresh">—</div>
     </div>
   </div>
 
   <div class="content">
 
-    <!-- ══════════════════════
-         OVERVIEW
-    ══════════════════════ -->
+    <!-- ══ OVERVIEW ══════════════════════════════════ -->
     <div class="pg on" id="pg-overview">
 
-      <div class="pg-hdr">
-        <h1>Good morning, Kelvin.</h1>
-        <p>Here's what the system found overnight and this morning across all three counties.</p>
-      </div>
-
-      <!-- Top KPIs: system-wide totals -->
-      <div class="kpi-row" style="margin-bottom:14px">
-        <div class="kpi-card">
-          <div class="kl">Total Signals Indexed</div>
+      <div class="sec-lbl">System Totals</div>
+      <div class="kpi-row" style="margin-bottom:10px">
+        <div class="kc">
+          <div class="kl">Total Signals</div>
           <div class="kv gold" id="k-total">—</div>
           <div class="kd">All sources · all time</div>
         </div>
-        <div class="kpi-card">
-          <div class="kl">Added This Cycle</div>
-          <div class="kv green" id="k-today">—</div>
-          <div class="kd">Since last run</div>
+        <div class="kc">
+          <div class="kl">Added Today</div>
+          <div class="kv grn" id="k-today">—</div>
+          <div class="kd">Last 24 hours</div>
         </div>
-        <div class="kpi-card">
-          <div class="kl">Sources Running</div>
+        <div class="kc">
+          <div class="kl">Sources Active</div>
           <div class="kv" id="k-sources">—</div>
-          <div class="kd">Live today</div>
+          <div class="kd">Running today</div>
         </div>
-        <div class="kpi-card">
+        <div class="kc">
           <div class="kl">Convergence Marks</div>
           <div class="kv gold" id="k-conv">—</div>
-          <div class="kd">Buyer + seller · same address</div>
+          <div class="kd">Buyer + seller match</div>
         </div>
       </div>
 
-      <!-- Scoring tiers: the action queue -->
-      <div class="tier-row">
-        <div class="tier-card primed">
+      <div class="sec-lbl">Lead Queue by Priority</div>
+      <div class="tier-strip">
+        <div class="tc p">
           <div class="tl">Primed</div>
           <div class="tv" id="t-pri">—</div>
           <div class="td">Score 75–100</div>
-          <div class="action">→ Call today</div>
+          <div class="ta">→ Call today</div>
         </div>
-        <div class="tier-card qualify">
+        <div class="tc q">
           <div class="tl">Qualify</div>
           <div class="tv" id="t-qua">—</div>
           <div class="td">Score 50–74</div>
-          <div class="action">→ Reach out this week</div>
+          <div class="ta">→ Reach out this week</div>
         </div>
-        <div class="tier-card nurture">
+        <div class="tc n">
           <div class="tl">Nurture</div>
           <div class="tv" id="t-nur">—</div>
           <div class="td">Score 25–49</div>
-          <div class="action">→ 30-day follow sequence</div>
+          <div class="ta">→ 30-day follow</div>
         </div>
-        <div class="tier-card watch">
+        <div class="tc w">
           <div class="tl">Watch</div>
           <div class="tv" id="t-wat">—</div>
           <div class="td">Score 0–24</div>
-          <div class="action">→ Keep monitoring</div>
+          <div class="ta">→ Monitor</div>
         </div>
       </div>
 
-      <!-- Lead table + side panels -->
       <div class="g3l">
-
+        <!-- Lead table -->
         <div>
+          <div class="sec-lbl">Top Leads — Highest Score First</div>
           <div class="panel">
             <div class="ph">
               <h3>Recent High-Priority Leads</h3>
-              <div class="pm" id="lead-meta">Loading...</div>
+              <div class="pm" id="lead-meta">—</div>
             </div>
-            <div class="tbl-wrap"><table class="tbl">
-              <thead><tr>
-                <th>Property / Signal</th>
-                <th>County</th>
-                <th>Source</th>
-                <th>Type</th>
-                <th>Score</th>
-                <th>Priority</th>
-              </tr></thead>
-              <tbody id="lead-body">
-                <tr><td colspan="6" class="loading">Loading leads...</td></tr>
-              </tbody>
-            </table>
+            <div class="tbl-wrap">
+              <table class="tbl">
+                <thead><tr>
+                  <th>Property / Owner</th>
+                  <th>County</th>
+                  <th>Source</th>
+                  <th>Score</th>
+                  <th>Priority</th>
+                </tr></thead>
+                <tbody id="lead-body">
+                  <tr><td colspan="5" class="loading">Loading...</td></tr>
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
 
+        <!-- Right column -->
         <div class="col">
-
-          <!-- Convergence marks -->
-          <div class="panel">
-            <div class="ph">
-              <h3>Convergence Marks</h3>
-              <div class="pm">Call these first</div>
-            </div>
-            <div class="pb" id="conv-mini">
-              <div class="loading">Loading...</div>
-            </div>
-          </div>
-
-          <!-- Home values -->
-          <div class="panel">
-            <div class="ph"><h3>Home Values</h3><div class="pm">Zillow · May 2026</div></div>
-            <div class="pb">
-              <div class="mkt-row"><div class="mkt-city">Salt Lake City</div><div class="mkt-val">$569k</div></div>
-              <div class="mkt-row"><div class="mkt-city">Provo</div><div class="mkt-val">$546k</div></div>
-              <div class="mkt-row"><div class="mkt-city">Ogden</div><div class="mkt-val">$518k</div></div>
+          <div>
+            <div class="sec-lbl">Convergence Marks — Call First</div>
+            <div class="panel">
+              <div class="ph">
+                <h3>Dual-Side Matches</h3>
+                <div class="pm">Score 85</div>
+              </div>
+              <div class="pb" id="conv-mini">
+                <div class="loading">Loading...</div>
+              </div>
             </div>
           </div>
 
+          <div>
+            <div class="sec-lbl">Current Home Values</div>
+            <div class="panel">
+              <div class="ph"><h3>Zillow Index</h3><div class="pm">May 2026</div></div>
+              <div class="pb">
+                <div class="hv-row"><div class="hv-city">Salt Lake City</div><div class="hv-val">$569k</div></div>
+                <div class="hv-row"><div class="hv-city">Provo</div><div class="hv-val">$546k</div></div>
+                <div class="hv-row"><div class="hv-city">Ogden</div><div class="hv-val">$518k</div></div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
-      <!-- Sources firing today -->
+      <div class="sec-lbl">Sources Firing Today</div>
       <div class="panel" style="margin-bottom:0">
         <div class="ph">
-          <h3>Sources Active Right Now</h3>
-          <div class="pm" id="chip-meta">Loading...</div>
+          <h3>Active Right Now</h3>
+          <div class="pm" id="chip-meta">—</div>
         </div>
         <div class="chips" id="chips">
           <div class="loading">Loading...</div>
@@ -905,530 +854,357 @@ body {
 
     </div>
 
-    <!-- ══════════════════════
-         ALL LEADS
-    ══════════════════════ -->
+    <!-- ══ ALL LEADS ══════════════════════════════════ -->
     <div class="pg" id="pg-leads">
-
       <div class="pg-hdr">
         <h1>All Leads</h1>
-        <p>Every lead the system has found — seller &amp; buyer signals combined — ranked by score. Filter by tier to see exactly who to contact next.</p>
+        <p>Every lead the system has found — ranked by score. Use the filters to see exactly who to contact next.</p>
       </div>
-
       <div class="filter-row">
-        <button class="filter-btn on" onclick="filterLeads('all',this)">All Leads</button>
-        <button class="filter-btn primed" onclick="filterLeads('primed',this)">Primed — Call Today</button>
-        <button class="filter-btn qualify" onclick="filterLeads('qualify',this)">Qualify — This Week</button>
-        <button class="filter-btn nurture" onclick="filterLeads('nurture',this)">Nurture — 30 Days</button>
-        <button class="filter-btn" onclick="filterLeads('watch',this)">Watch</button>
+        <button class="fb on" onclick="filterLeads('all',this)">All</button>
+        <button class="fb" onclick="filterLeads('primed',this)" style="color:var(--primed)">Primed — Call Today</button>
+        <button class="fb" onclick="filterLeads('qualify',this)" style="color:var(--qualify)">Qualify — This Week</button>
+        <button class="fb" onclick="filterLeads('nurture',this)" style="color:var(--nurture)">Nurture — 30 Days</button>
+        <button class="fb" onclick="filterLeads('watch',this)">Watch</button>
       </div>
-
       <div class="panel">
-        <div class="tbl-wrap"><table class="tbl">
-          <thead><tr>
-            <th>Property / Signal</th>
-            <th>County</th>
-            <th>Source</th>
-            <th>Type</th>
-            <th>Score</th>
-            <th>Priority</th>
-            <th>Date Found</th>
-          </tr></thead>
-          <tbody id="full-lead-body">
-            <tr><td colspan="8" class="loading">Loading...</td></tr>
-          </tbody>
-        </table></div>
+        <div class="tbl-wrap">
+          <table class="tbl">
+            <thead><tr>
+              <th>Property / Owner</th>
+              <th>County</th>
+              <th>Source</th>
+              <th>Signal</th>
+              <th>Score</th>
+              <th>Priority</th>
+              <th>Date Found</th>
+            </tr></thead>
+            <tbody id="full-lead-body">
+              <tr><td colspan="7" class="loading">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
       </div>
-
     </div>
 
-    <!-- ══════════════════════
-         CONVERGENCE MARKS
-    ══════════════════════ -->
+    <!-- ══ CONVERGENCE ════════════════════════════════ -->
     <div class="pg" id="pg-conv">
-
       <div class="pg-hdr">
         <h1>Convergence Marks</h1>
-        <p>These are the highest-priority opportunities in the system. The same property address showed up in both seller distress data and buyer interest signals at the same time — that means a motivated seller with active buyer attention on the same address. Score 85. These are the calls you make first.</p>
+        <p>These are your highest-priority calls. The same property address appeared in both seller distress data and buyer interest data at the same time. That means a motivated seller with active buyer demand on the same address. Score 85. Call these first.</p>
       </div>
-
-      <div id="conv-full">
-        <div class="loading">Loading...</div>
-      </div>
-
+      <div id="conv-full"><div class="loading">Loading...</div></div>
     </div>
 
-    <!-- ══════════════════════
-         SIGNAL SOURCES
-    ══════════════════════ -->
+    <!-- ══ SOURCES ════════════════════════════════════ -->
     <div class="pg" id="pg-sources">
-
       <div class="pg-hdr">
         <h1>Signal Sources</h1>
-        <p>Every data source the system is monitoring — seller distress, buyer intent, market intelligence, life events, and competitor activity. Green means it pulled data today.</p>
+        <p>Every data source the system monitors — green means it pulled new data today.</p>
       </div>
-
-      <div class="kpi-row" style="grid-template-columns:repeat(3,1fr);margin-bottom:24px">
-        <div class="kpi-card">
-          <div class="kl">Total Records Indexed</div>
-          <div class="kv gold" id="src-total">—</div>
-          <div class="kd">All sources combined</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kl">Sources Active Today</div>
-          <div class="kv green" id="src-active">—</div>
-          <div class="kd">Pulled data this cycle</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kl">Total Sources Wired</div>
-          <div class="kv" id="src-wired">—</div>
-          <div class="kd">Seller + buyer pipeline</div>
-        </div>
+      <div class="kpi-row" style="grid-template-columns:repeat(3,1fr);margin-bottom:20px">
+        <div class="kc"><div class="kl">Total Records</div><div class="kv gold" id="src-total">—</div><div class="kd">All sources combined</div></div>
+        <div class="kc"><div class="kl">Active Today</div><div class="kv grn" id="src-active">—</div><div class="kd">Pulled data this run</div></div>
+        <div class="kc"><div class="kl">Sources Wired</div><div class="kv" id="src-wired">—</div><div class="kd">Total in pipeline</div></div>
       </div>
-
       <div class="panel">
-        <div class="tbl-wrap"><table class="tbl">
-          <thead><tr>
-            <th>Source Name</th>
-            <th>Category</th>
-            <th>Total Records</th>
-            <th>Added Today</th>
-            <th>Last Active</th>
-            <th>Status</th>
-          </tr></thead>
-          <tbody id="src-body">
-            <tr><td colspan="6" class="loading">Loading...</td></tr>
-          </tbody>
-        </table></div>
+        <div class="tbl-wrap">
+          <table class="tbl">
+            <thead><tr>
+              <th>Source</th>
+              <th>Category</th>
+              <th>Total Records</th>
+              <th>Added Today</th>
+              <th>Last Active</th>
+              <th>Status</th>
+            </tr></thead>
+            <tbody id="src-body">
+              <tr><td colspan="6" class="loading">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
       </div>
-
     </div>
 
-    <!-- ══════════════════════
-         MARKET PULSE
-    ══════════════════════ -->
+    <!-- ══ MARKET ══════════════════════════════════════ -->
     <div class="pg" id="pg-market">
-
       <div class="pg-hdr">
         <h1>Market Pulse</h1>
-        <p>Live market intelligence across Utah, Salt Lake, and Weber Counties — home values, inventory levels, price trends, and market signals from Zillow and Realtor.com.</p>
+        <p>Live market data across Utah, Salt Lake, and Weber Counties.</p>
       </div>
-
-      <div class="kpi-row" style="grid-template-columns:repeat(3,1fr);margin-bottom:24px">
-        <div class="kpi-card">
-          <div class="kl">Salt Lake City</div>
-          <div class="kv">$569k</div>
-          <div class="kd">Zillow Home Value Index</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kl">Provo</div>
-          <div class="kv">$546k</div>
-          <div class="kd">Zillow Home Value Index</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kl">Ogden</div>
-          <div class="kv">$518k</div>
-          <div class="kd">Zillow Home Value Index</div>
-        </div>
+      <div class="kpi-row" style="grid-template-columns:repeat(3,1fr);margin-bottom:20px">
+        <div class="kc"><div class="kl">Salt Lake City</div><div class="kv">$569k</div><div class="kd">Zillow Home Value</div></div>
+        <div class="kc"><div class="kl">Provo</div><div class="kv">$546k</div><div class="kd">Zillow Home Value</div></div>
+        <div class="kc"><div class="kl">Ogden</div><div class="kv">$518k</div><div class="kd">Zillow Home Value</div></div>
       </div>
-
       <div class="g2">
         <div class="panel">
-          <div class="ph"><h3>Realtor.com Inventory Signals</h3><div class="pm">Live feed</div></div>
+          <div class="ph"><h3>Realtor.com Signals</h3><div class="pm">Live</div></div>
           <div class="pb" id="mkt-r"><div class="loading">Loading...</div></div>
         </div>
         <div class="panel">
-          <div class="ph"><h3>Zillow Market Signals</h3><div class="pm">Live feed</div></div>
+          <div class="ph"><h3>Zillow Market Signals</h3><div class="pm">Live</div></div>
           <div class="pb" id="mkt-z"><div class="loading">Loading...</div></div>
         </div>
       </div>
-
     </div>
 
-    <!-- ══════════════════════
-         AI AGENT
-    ══════════════════════ -->
+    <!-- ══ AI AGENT ════════════════════════════════════ -->
     <div class="pg" id="pg-agent">
-
       <div class="pg-hdr">
         <h1>AI Agent</h1>
-        <p>Your agent handles outreach, qualifies leads, and books appointments — trained to your exact voice and standards. Build it here before anything goes live.</p>
+        <p>Configure your agent, set the voice, and run a test call before anything goes live. Your agent only contacts leads you approve.</p>
       </div>
-
-      <!-- Agent status card -->
-      <div style="display:grid;grid-template-columns:1.4fr 1fr;gap:14px;margin-bottom:24px">
-
+      <div style="display:grid;grid-template-columns:1.4fr 1fr;gap:12px;margin-bottom:14px" class="agent-2col">
         <div class="panel" style="margin-bottom:0">
-          <div class="ph">
-            <h3>Agent Identity</h3>
-            <div class="pm" id="agent-status-badge" style="background:#f4f4f4;color:#9a9888;padding:3px 10px;border-radius:100px;font-size:10px;font-weight:700">NOT CONFIGURED</div>
-          </div>
-          <div class="pb">
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
-              <div>
-                <label style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);display:block;margin-bottom:6px">Agent Name</label>
-                <input id="agent-name" type="text" placeholder="e.g. Bryce" value="Bryce"
-                  style="width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-weight:600;color:var(--ink);background:var(--bg2);outline:none">
-              </div>
-              <div>
-                <label style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);display:block;margin-bottom:6px">Your Name</label>
-                <input id="agent-owner" type="text" placeholder="e.g. Kelvin Sharp" value="Kelvin Sharp"
-                  style="width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;color:var(--ink);background:var(--bg2);outline:none">
-              </div>
-            </div>
-            <div style="margin-bottom:20px">
-              <label style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);display:block;margin-bottom:6px">Brokerage / Market</label>
-              <input id="agent-brokerage" type="text" placeholder="e.g. Williams & Co. — Utah County" value="Williams &amp; Co. — Utah County"
-                style="width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;color:var(--ink);background:var(--bg2);outline:none">
-            </div>
-            <div style="margin-bottom:20px">
-              <label style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);display:block;margin-bottom:6px">Agent Purpose</label>
-              <select id="agent-purpose" style="width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;color:var(--ink);background:var(--bg2);outline:none">
-                <option>Seller lead qualification &amp; listing appointments</option>
-                <option>Buyer lead qualification &amp; showing appointments</option>
-                <option>Both — full pipeline coverage</option>
-              </select>
-            </div>
-          </div>
-        </div>
-
-        <div class="col" style="gap:12px">
-          <!-- Voice config -->
-          <div class="panel" style="margin-bottom:0">
-            <div class="ph"><h3>Voice &amp; Personality</h3><div class="pm">Tuned for real estate</div></div>
-            <div class="pb">
-              <div style="margin-bottom:14px">
-                <label style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);display:block;margin-bottom:8px">Speaking Pace</label>
-                <div style="display:flex;gap:6px">
-                  <button class="voice-opt on" onclick="selectVoiceOpt(this,'pace')">Natural</button>
-                  <button class="voice-opt" onclick="selectVoiceOpt(this,'pace')">Slightly Slow</button>
-                  <button class="voice-opt" onclick="selectVoiceOpt(this,'pace')">Deliberate</button>
-                </div>
-              </div>
-              <div style="margin-bottom:14px">
-                <label style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);display:block;margin-bottom:8px">Tone</label>
-                <div style="display:flex;gap:6px;flex-wrap:wrap">
-                  <button class="voice-opt on" onclick="selectVoiceOpt(this,'tone')">Warm</button>
-                  <button class="voice-opt" onclick="selectVoiceOpt(this,'tone')">Professional</button>
-                  <button class="voice-opt" onclick="selectVoiceOpt(this,'tone')">Direct</button>
-                  <button class="voice-opt" onclick="selectVoiceOpt(this,'tone')">Confident</button>
-                </div>
-              </div>
-              <div>
-                <label style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);display:block;margin-bottom:8px">Voice Model</label>
-                <div style="display:flex;gap:6px;flex-wrap:wrap">
-                  <button class="voice-opt on" onclick="selectVoiceOpt(this,'voice')">Default Male</button>
-                  <button class="voice-opt" onclick="selectVoiceOpt(this,'voice')">Default Female</button>
-                  <button class="voice-opt" onclick="selectVoiceOpt(this,'voice')">Clone My Voice ↗</button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Call behavior -->
-          <div class="panel" style="margin-bottom:0">
-            <div class="ph"><h3>Call Behavior</h3></div>
-            <div class="pb" style="padding:12px 16px">
-              <div class="agent-setting">
-                <span class="as-label">Intro script</span>
-                <span class="as-val on-val">Hi, this is Bryce calling on behalf of Kelvin Sharp...</span>
-              </div>
-              <div class="agent-setting">
-                <span class="as-label">If no answer</span>
-                <select class="as-select">
-                  <option>Leave voicemail + send SMS</option>
-                  <option>Leave voicemail only</option>
-                  <option>Send SMS only</option>
-                  <option>Try again in 4 hrs</option>
-                </select>
-              </div>
-              <div class="agent-setting">
-                <span class="as-label">Max call attempts</span>
-                <select class="as-select">
-                  <option>3 attempts</option>
-                  <option>2 attempts</option>
-                  <option>5 attempts</option>
-                  <option>Unlimited</option>
-                </select>
-              </div>
-              <div class="agent-setting">
-                <span class="as-label">Call window</span>
-                <select class="as-select">
-                  <option>9am – 7pm local</option>
-                  <option>8am – 8pm local</option>
-                  <option>10am – 6pm local</option>
-                </select>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Fine-tuning / playground -->
-      <div class="panel" style="margin-bottom:14px">
-        <div class="ph">
-          <h3>Agent Training — Role Play</h3>
-          <div class="pm">Talk to Bryce. Shape how he communicates before anything goes live.</div>
-        </div>
-        <div style="background:#fafaf8;border-bottom:1px solid var(--border2);padding:14px 20px">
-          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <div class="ph"><h3>Agent Identity</h3><div class="pm" style="background:#f4f4f4;color:var(--ink3);padding:3px 9px;border-radius:100px;font-size:10px;font-weight:700">NOT CONFIGURED</div></div>
+          <div class="pb" style="display:flex;flex-direction:column;gap:14px">
             <div>
-              <label style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);display:block;margin-bottom:5px">Your Phone Number</label>
-              <input id="training-phone" type="tel" placeholder="+1 (801) 555-0000"
-                style="padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;color:var(--ink);background:var(--bg2);outline:none;width:200px">
+              <label style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);display:block;margin-bottom:6px">Agent Name</label>
+              <input id="agent-name" type="text" value="Bryce" style="width:100%;padding:10px 13px;border:1px solid var(--border);border-radius:8px;font-size:15px;font-weight:600;color:var(--ink);background:var(--white);outline:none">
             </div>
-            <div style="padding-top:18px">
-              <button onclick="startTraining()" style="background:var(--ink);color:#fff;border:none;border-radius:8px;padding:9px 20px;font-size:13px;font-weight:600;cursor:pointer">
-                ▷ &nbsp;Call Me Now — Start Training
-              </button>
+            <div>
+              <label style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);display:block;margin-bottom:6px">Your Name</label>
+              <input id="agent-owner" type="text" value="Kelvin Sharp" style="width:100%;padding:10px 13px;border:1px solid var(--border);border-radius:8px;font-size:14px;color:var(--ink);background:var(--white);outline:none">
             </div>
-            <div style="padding-top:18px;font-size:12px;color:var(--ink3)">
-              Bryce will call you and walk through an onboarding conversation.<br>
-              Your answers shape his voice, tone, and approach going forward.
+            <div>
+              <label style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);display:block;margin-bottom:6px">Market</label>
+              <input type="text" value="Williams &amp; Co. — Utah County" style="width:100%;padding:10px 13px;border:1px solid var(--border);border-radius:8px;font-size:13px;color:var(--ink);background:var(--white);outline:none">
             </div>
           </div>
         </div>
-
-        <!-- Training checklist -->
-        <div class="pb">
-          <div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);margin-bottom:12px">Onboarding Checklist — Completed in Call</div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-            <div class="train-item pending" id="tc-intro">Intro &amp; greeting style</div>
-            <div class="train-item pending" id="tc-pitch">Value prop delivery</div>
-            <div class="train-item pending" id="tc-objection">Objection handling</div>
-            <div class="train-item pending" id="tc-qualify">Lead qualification flow</div>
-            <div class="train-item pending" id="tc-appt">Appointment setting close</div>
-            <div class="train-item pending" id="tc-voicemail">Voicemail script</div>
-            <div class="train-item pending" id="tc-sms">SMS follow-up tone</div>
-            <div class="train-item pending" id="tc-pace">Speaking pace &amp; pauses</div>
+        <div class="col">
+          <div class="panel" style="margin-bottom:0">
+            <div class="ph"><h3>Voice</h3><div class="pm">ElevenLabs</div></div>
+            <div class="pb" style="display:flex;flex-direction:column;gap:12px">
+              <div>
+                <div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);margin-bottom:7px">Pace</div>
+                <div style="display:flex;gap:6px;flex-wrap:wrap">
+                  <button class="voice-opt on" onclick="vOpt(this,'pace')">Natural</button>
+                  <button class="voice-opt" onclick="vOpt(this,'pace')">Slower</button>
+                  <button class="voice-opt" onclick="vOpt(this,'pace')">Deliberate</button>
+                </div>
+              </div>
+              <div>
+                <div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);margin-bottom:7px">Tone</div>
+                <div style="display:flex;gap:6px;flex-wrap:wrap">
+                  <button class="voice-opt on" onclick="vOpt(this,'tone')">Warm</button>
+                  <button class="voice-opt" onclick="vOpt(this,'tone')">Professional</button>
+                  <button class="voice-opt" onclick="vOpt(this,'tone')">Direct</button>
+                </div>
+              </div>
+              <div>
+                <div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);margin-bottom:7px">Voice Model</div>
+                <div style="display:flex;gap:6px;flex-wrap:wrap">
+                  <button class="voice-opt on" onclick="vOpt(this,'voice')">Default Male</button>
+                  <button class="voice-opt" onclick="vOpt(this,'voice')">Default Female</button>
+                  <button class="voice-opt" onclick="vOpt(this,'voice')">Clone My Voice ↗</button>
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
-
-        <!-- Conversation log -->
-        <div style="border-top:1px solid var(--border2);padding:16px 20px">
-          <div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);margin-bottom:10px">Training Session Log</div>
-          <div id="training-log" style="background:var(--bg);border-radius:8px;padding:14px;min-height:80px;font-size:12px;color:var(--ink3);font-style:italic">
-            No training sessions yet. Hit "Call Me Now" to start.
+          <div class="panel" style="margin-bottom:0">
+            <div class="ph"><h3>Call Settings</h3></div>
+            <div class="pb" style="padding:10px 16px">
+              <div class="a-row"><span class="a-lbl">If no answer</span><select class="a-select"><option>Leave voicemail + SMS</option><option>Voicemail only</option><option>SMS only</option></select></div>
+              <div class="a-row"><span class="a-lbl">Max attempts</span><select class="a-select"><option>3 attempts</option><option>2</option><option>5</option></select></div>
+              <div class="a-row"><span class="a-lbl">Calling hours</span><select class="a-select"><option>9am–7pm local</option><option>8am–8pm local</option></select></div>
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- Activation -->
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
-        <div class="panel" style="margin-bottom:0">
-          <div class="ph"><h3>Status</h3></div>
-          <div class="pb" style="text-align:center;padding:20px">
-            <div style="font-size:32px;margin-bottom:8px">⬜</div>
-            <div style="font-size:13px;font-weight:600;color:var(--ink3)">Not Configured</div>
-            <div style="font-size:11px;color:var(--ink3);margin-top:4px">Complete training to activate</div>
+      <!-- Training section -->
+      <div class="panel" style="margin-bottom:14px">
+        <div class="ph"><h3>Test Your Agent — Role Play</h3><div class="pm">Talk to Bryce before anything goes live</div></div>
+        <div style="background:#f8f7f3;border-bottom:1px solid var(--border2);padding:16px 18px;display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap">
+          <div>
+            <label style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);display:block;margin-bottom:6px">Your Phone Number</label>
+            <input id="training-phone" type="tel" placeholder="+1 (801) 555-0000" style="padding:10px 13px;border:1px solid var(--border);border-radius:8px;font-size:14px;color:var(--ink);background:var(--white);outline:none;width:210px">
           </div>
+          <button onclick="startTraining()" style="background:var(--ink);color:#fff;border:none;border-radius:8px;padding:11px 20px;font-size:14px;font-weight:600;cursor:pointer;white-space:nowrap">Call Me Now</button>
+          <div style="font-size:12px;color:var(--ink3);line-height:1.5">Bryce calls you and walks through setup.<br>Your answers shape how he works.</div>
         </div>
+        <div class="pb">
+          <div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);margin-bottom:12px">Onboarding Checklist</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <div class="train-item" id="tc-intro">Greeting &amp; intro style</div>
+            <div class="train-item" id="tc-pitch">Value pitch delivery</div>
+            <div class="train-item" id="tc-obj">Objection handling</div>
+            <div class="train-item" id="tc-qual">Lead qualification flow</div>
+            <div class="train-item" id="tc-appt">Appointment booking close</div>
+            <div class="train-item" id="tc-vm">Voicemail script</div>
+            <div class="train-item" id="tc-sms">SMS follow-up tone</div>
+            <div class="train-item" id="tc-pace">Speaking pace &amp; pauses</div>
+          </div>
+          <div id="training-log" style="margin-top:14px;background:var(--bg);border-radius:8px;padding:14px;font-size:12px;color:var(--ink3);font-style:italic;min-height:52px">No sessions yet — hit Call Me Now to start.</div>
+        </div>
+      </div>
+
+      <!-- Activate -->
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px" class="agent-3col">
+        <div class="panel" style="margin-bottom:0"><div class="ph"><h3>Status</h3></div><div class="pb" style="text-align:center;padding:20px"><div style="font-size:28px;margin-bottom:8px">⬜</div><div style="font-size:13px;font-weight:600;color:var(--ink3)">Not Configured</div></div></div>
         <div class="panel" style="margin-bottom:0">
           <div class="ph"><h3>DNC Compliance</h3></div>
-          <div class="pb" style="padding:12px 16px">
-            <div class="agent-setting"><span class="as-label">Federal DNC List</span><span style="font-size:11px;font-weight:700;color:#dc2626">Not Registered</span></div>
-            <div class="agent-setting"><span class="as-label">Utah State DNC</span><span style="font-size:11px;font-weight:700;color:#dc2626">Not Registered</span></div>
-            <div class="agent-setting"><span class="as-label">Calling hours</span><span style="font-size:11px;font-weight:600;color:var(--green)">Enforced</span></div>
-            <div style="margin-top:12px">
-              <button style="width:100%;background:#fef2f2;color:#dc2626;border:1px solid rgba(220,38,38,.2);border-radius:7px;padding:8px;font-size:11px;font-weight:700;cursor:pointer">Register DNC — Required Before Launch</button>
-            </div>
+          <div class="pb" style="padding:10px 16px">
+            <div class="a-row"><span class="a-lbl">Federal DNC List</span><span style="font-size:11px;font-weight:700;color:#dc2626">Not Registered</span></div>
+            <div class="a-row"><span class="a-lbl">Utah State DNC</span><span style="font-size:11px;font-weight:700;color:#dc2626">Not Registered</span></div>
+            <div class="a-row"><span class="a-lbl">Calling hours</span><span style="font-size:11px;font-weight:600;color:var(--live)">Enforced ✓</span></div>
+            <button style="width:100%;margin-top:10px;background:var(--primed-lt);color:var(--primed);border:1px solid rgba(192,57,43,0.2);border-radius:7px;padding:8px;font-size:11px;font-weight:700;cursor:pointer">Register DNC — Required</button>
           </div>
         </div>
-        <div class="panel" style="margin-bottom:0">
-          <div class="ph"><h3>Activate Agent</h3></div>
-          <div class="pb" style="padding:20px;text-align:center">
-            <div style="font-size:12px;color:var(--ink3);margin-bottom:14px">Complete training + DNC registration before going live</div>
-            <button onclick="activateAgent()" style="width:100%;background:var(--bg3);color:var(--ink3);border:1px solid var(--border);border-radius:8px;padding:11px;font-size:13px;font-weight:700;cursor:not-allowed">
-              Activate Bryce
-            </button>
-          </div>
-        </div>
+        <div class="panel" style="margin-bottom:0"><div class="ph"><h3>Activate Agent</h3></div><div class="pb" style="padding:20px;text-align:center"><div style="font-size:12px;color:var(--ink3);margin-bottom:14px">Complete training + DNC first</div><button style="width:100%;background:var(--bg);color:var(--ink3);border:1px solid var(--border);border-radius:8px;padding:12px;font-size:14px;font-weight:700;cursor:not-allowed">Activate Bryce</button></div></div>
       </div>
-
     </div>
 
-    <!-- ══════════════════════
-         OUTREACH QUEUE
-    ══════════════════════ -->
+    <!-- ══ OUTREACH ════════════════════════════════════ -->
     <div class="pg" id="pg-outreach">
-
       <div class="pg-hdr">
         <h1>Outreach Queue</h1>
-        <p>Every lead the agent wants to contact shows up here first. Nothing goes out until you approve it. Review, edit, or skip — you have full control.</p>
+        <p>Every lead the agent wants to contact shows up here first. Nothing goes out until you approve it.</p>
       </div>
-
-      <!-- Queue stats -->
-      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px">
-        <div class="kpi-card"><div class="lbl">Pending Approval</div><div class="val" id="q-pending">—</div><div class="kd">Awaiting your review</div></div>
-        <div class="kpi-card"><div class="lbl">Approved Today</div><div class="val green" id="q-approved">—</div><div class="kd">Contacts greenlit</div></div>
-        <div class="kpi-card"><div class="lbl">Calls Made</div><div class="val" id="q-calls">—</div><div class="kd">Agent activity today</div></div>
-        <div class="kpi-card"><div class="lbl">Appointments Set</div><div class="val gold" id="q-appts">—</div><div class="kd">Booked this cycle</div></div>
+      <div class="kpi-row" style="margin-bottom:20px">
+        <div class="kc"><div class="kl">Pending Approval</div><div class="kv">—</div><div class="kd">Awaiting review</div></div>
+        <div class="kc"><div class="kl">Approved Today</div><div class="kv grn">0</div><div class="kd">Contacts greenlit</div></div>
+        <div class="kc"><div class="kl">Calls Made</div><div class="kv">0</div><div class="kd">Agent activity</div></div>
+        <div class="kc"><div class="kl">Appointments Set</div><div class="kv gold">0</div><div class="kd">Booked this cycle</div></div>
       </div>
-
-      <!-- Queue table -->
       <div class="panel">
         <div class="ph">
           <h3>Leads Pending Approval</h3>
           <div style="display:flex;gap:8px">
-            <button onclick="approveAll()" style="background:var(--green-lt);color:var(--green);border:1px solid var(--green-bd);border-radius:7px;padding:6px 14px;font-size:11px;font-weight:700;cursor:pointer">Approve All</button>
-            <button style="background:var(--bg3);color:var(--ink3);border:1px solid var(--border);border-radius:7px;padding:6px 14px;font-size:11px;font-weight:700;cursor:pointer">Skip All</button>
+            <button style="background:var(--nurture-lt);color:var(--nurture);border:1px solid rgba(26,102,64,.18);border-radius:7px;padding:6px 14px;font-size:12px;font-weight:700;cursor:pointer">Approve All</button>
+            <button style="background:var(--bg);color:var(--ink3);border:1px solid var(--border);border-radius:7px;padding:6px 14px;font-size:12px;font-weight:700;cursor:pointer">Skip All</button>
           </div>
         </div>
         <div style="padding:40px;text-align:center;color:var(--ink3)">
-          <div style="font-size:32px;margin-bottom:10px">◈</div>
-          <div style="font-size:14px;font-weight:600;color:var(--ink);margin-bottom:6px">Agent not yet active</div>
-          <div style="font-size:12px">Configure and activate Bryce in the AI Agent tab first.<br>Once active, leads from the Primed queue will appear here for your approval.</div>
+          <div style="font-size:28px;margin-bottom:10px">◈</div>
+          <div style="font-size:15px;font-weight:600;color:var(--ink);margin-bottom:6px">Agent not active yet</div>
+          <div style="font-size:13px">Configure and activate your agent first.<br>Once active, leads from the Primed queue will appear here for approval.</div>
         </div>
       </div>
-
     </div>
 
-  </div><!-- /content -->
+  </div>
 </main>
 
 <script>
 const SU = "https://lbvaosyfikkpvcwksiph.supabase.co";
 const SK = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxidmFvc3lmaWtrcHZjd2tzaXBoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwMDg0MDksImV4cCI6MjA5MDU4NDQwOX0.Gh9whjmUPz4rdKYr5yo8ZHS0nSNpkQUOwdIladX6mG4";
 
-async function rpc(fn, p={}) {
+async function rpc(fn,p={}) {
   try {
-    const r = await fetch(`${SU}/rest/v1/rpc/${fn}`, {
-      method:"POST",
-      headers:{"apikey":SK,"Authorization":"Bearer "+SK,"Content-Type":"application/json","Accept":"application/json"},
-      body:JSON.stringify(p)
-    });
+    const r = await fetch(`${SU}/rest/v1/rpc/${fn}`,{method:"POST",headers:{"apikey":SK,"Authorization":"Bearer "+SK,"Content-Type":"application/json","Accept":"application/json"},body:JSON.stringify(p)});
     return r.ok ? r.json() : null;
   } catch(e) { return null; }
 }
-
-async function qt(tbl, qs="") {
+async function qt(tbl,qs="") {
   try {
-    const r = await fetch(`${SU}/rest/v1/${tbl}?${qs}`, {
-      headers:{"apikey":SK,"Authorization":"Bearer "+SK,"Accept":"application/json"}
-    });
+    const r = await fetch(`${SU}/rest/v1/${tbl}?${qs}`,{headers:{"apikey":SK,"Authorization":"Bearer "+SK,"Accept":"application/json"}});
     return r.ok ? r.json() : [];
   } catch(e) { return []; }
 }
 
 const fmt = n => {
-  if (n == null || n === "") return "—";
-  n = Number(n);
-  if (n >= 1000000) return (n/1000000).toFixed(1).replace(/\.0$/,"") + "M";
-  if (n >= 1000) return (n/1000).toFixed(1).replace(/\.0$/,"") + "k";
+  if(n==null) return "—";
+  n=Number(n);
+  if(n>=1000000) return (n/1000000).toFixed(1).replace(/\.0$/,"")+"M";
+  if(n>=1000) return (n/1000).toFixed(1).replace(/\.0$/,"")+"k";
   return n.toLocaleString();
 };
 
-const badge = s => {
-  if (s >= 75) return '<span class="badge primed">Primed</span>';
-  if (s >= 50) return '<span class="badge qualify">Qualify</span>';
-  if (s >= 25) return '<span class="badge nurture">Nurture</span>';
-  return '<span class="badge watch">Watch</span>';
-};
+const badge = s => s>=75?'<span class="b p">Primed</span>':s>=50?'<span class="b q">Qualify</span>':s>=25?'<span class="b n">Nurture</span>':'<span class="b w">Watch</span>';
 
-const scoreBar = s => {
-  const c = s>=75?"#c0392b":s>=50?"#b07d2a":"#2d7a4f";
-  return `<div class="score-wrap">
-    <div class="score-bar"><div class="score-fill" style="width:${Math.min(s,100)}%;background:${c}"></div></div>
-    <div class="score-num">${s}</div>
-  </div>`;
+const bar = s => {
+  const c = s>=75?"#c0392b":s>=50?"#a05c1a":"#1a6640";
+  return `<div class="sbw"><div class="sbr"><div class="sbf" style="width:${Math.min(s,100)}%;background:${c}"></div></div><div class="sbn">${s}</div></div>`;
 };
 
 const SL = {
-  "fire-marshal-lp-gas":"Fire Marshal LP Gas","fire-marshal-suppression":"Fire Marshal Suppression",
-  "fire-marshal-lp-hvac":"Fire Marshal HVAC","slco-lir-parcels":"SLCO LIR Parcels",
-  "davis-lir-parcels":"Davis LIR Parcels","weber-lir-parcels":"Weber LIR Parcels",
+  "fire-marshal-lp-gas":"Fire Marshal LP Gas","fire-marshal-suppression":"Fire Marshal Suppression","fire-marshal-lp-hvac":"Fire Marshal HVAC",
+  "slco-lir-parcels":"SLCO LIR Parcels","davis-lir-parcels":"Davis LIR Parcels","weber-lir-parcels":"Weber LIR Parcels",
   "utah-county-tax-delinquency-pdf":"Tax Delinquency PDF","ksl-fsbo-extended":"KSL FSBO",
   "utah-county-public-surplus":"UT County Surplus","realtor-market-utah":"Realtor.com",
-  "comparable-sales-slco":"Comparable Sales","zillow-market-signals":"Zillow Market",
-  "zillow-home-values":"Zillow Home Values","obituaries-enrichment":"Obituaries",
-  "competitor-buyer-forms":"Competitor Forms","school-district-enrollment":"School Districts",
-  "marriage-records-slco":"Marriage Records","convergence-engine":"Convergence Engine",
-  "uvhba-directory":"UVHBA Directory","obituaries-herald":"Herald Obituaries",
-  "utah-county-property-info":"UT County Property","utah-county-real-property":"UT Real Property",
-  "utah-county-building-permit":"Building Permits","slc-city-real-estate":"SLC Real Estate",
-  "utah-county-directory":"UT County Directory","orem-building-permits":"Orem Permits",
-  "slc-assessor":"SLC Assessor","utah-county-codev-browser":"Code Enforcement",
-  "slc-permits-accela-engineering":"SLC Engineering Permits","slc-public-surplus":"SLC Surplus",
-  "utah-county-codev":"Code Enforcement","slc-permits-accela-building":"SLC Building Permits",
-  "wasatch-county-tax-sale":"Wasatch Tax Sale","slc-county-tax-sale":"SLC Tax Sale",
-  "south-slc-permits":"South SLC Permits"
+  "comparable-sales-slco":"Comparable Sales","zillow-market-signals":"Zillow Market","zillow-home-values":"Zillow Values",
+  "obituaries-enrichment":"Obituaries","competitor-buyer-forms":"Competitor Forms",
+  "school-district-enrollment":"School Districts","marriage-records-slco":"Marriage Records",
+  "convergence-engine":"Convergence Engine","uvhba-directory":"UVHBA Directory",
+  "utah-county-nts":"Utah County NTS","nod-tracker":"NOD Tracker","deed-transfers-utah-county":"Deed Transfers",
+  "probate-court":"Probate Court","probate-court-xchange":"Probate Xchange","lien-judgment-records":"Lien/Judgment Records",
+  "warn-act-utah":"WARN Act Layoffs","slc-county-nts":"SLC County NTS","utah-sos-new-entities":"Utah SOS Entities",
+  "trulia-utah":"Trulia","rentler-utah":"Rentler","ksl-homes-market":"KSL Homes",
+  "zillow-utah-market":"Zillow","realtor-com-utah":"Realtor.com","redfin-utah":"Redfin",
+  "apartments-com-utah":"Apartments.com","craigslist-housing-utah":"Craigslist","loopnet-utah":"LoopNet",
+  "hubzu-utah":"Hubzu","reo-utah":"REO.com","homesnap-utah":"Homesnap",
+  "forsalebyowner-utah":"ForSaleByOwner.com","auction-com-utah":"Auction.com",
+  "silicon-slopes-newhires":"Silicon Slopes Hires","uhaul-penske-monitor":"U-Haul Migration",
+  "ksl-renter-pipeline":"KSL Rentals","manus-import":"Manus Import",
+  "utah-county-tax-sale-manus":"Tax Sale (Manus)","slc-county-public-surplus-manus":"SLC Surplus (Manus)"
 };
 const CAT = {
-  "fire-marshal-lp-gas":"Fire Marshal","fire-marshal-suppression":"Fire Marshal",
-  "fire-marshal-lp-hvac":"Fire Marshal","slco-lir-parcels":"LIR Parcels",
-  "davis-lir-parcels":"LIR Parcels","weber-lir-parcels":"LIR Parcels",
+  "fire-marshal-lp-gas":"Fire Marshal","fire-marshal-suppression":"Fire Marshal","fire-marshal-lp-hvac":"Fire Marshal",
+  "slco-lir-parcels":"LIR Parcels","davis-lir-parcels":"LIR Parcels","weber-lir-parcels":"LIR Parcels",
   "utah-county-tax-delinquency-pdf":"Tax Distress","ksl-fsbo-extended":"FSBO",
   "utah-county-public-surplus":"Surplus","realtor-market-utah":"Market Intel",
-  "comparable-sales-slco":"Market Intel","zillow-market-signals":"Market Intel",
-  "zillow-home-values":"Market Intel","obituaries-enrichment":"Life Events",
-  "competitor-buyer-forms":"Competitor Intel","school-district-enrollment":"Migration",
-  "marriage-records-slco":"Life Events","convergence-engine":"Convergence",
-  "uvhba-directory":"Contractor","obituaries-herald":"Life Events",
-  "utah-county-property-info":"Property","utah-county-real-property":"Property",
-  "utah-county-building-permit":"Permits","slc-city-real-estate":"Surplus",
-  "utah-county-directory":"Deeds","orem-building-permits":"Permits",
-  "slc-assessor":"Property","utah-county-codev-browser":"Code Enforcement",
-  "slc-permits-accela-engineering":"Permits","slc-public-surplus":"Surplus",
-  "utah-county-codev":"Code Enforcement","slc-permits-accela-building":"Permits",
-  "wasatch-county-tax-sale":"Tax Distress","slc-county-tax-sale":"Tax Distress",
-  "south-slc-permits":"Permits"
+  "comparable-sales-slco":"Market Intel","zillow-market-signals":"Market Intel","zillow-home-values":"Market Intel",
+  "obituaries-enrichment":"Life Events","competitor-buyer-forms":"Competitor Intel",
+  "school-district-enrollment":"Migration","marriage-records-slco":"Life Events","convergence-engine":"Convergence",
+  "utah-county-nts":"NTS/Foreclosure","nod-tracker":"NOD/Foreclosure","deed-transfers-utah-county":"Deeds",
+  "probate-court":"Probate","probate-court-xchange":"Probate","lien-judgment-records":"Lien/Judgment",
+  "warn-act-utah":"Layoffs/Migration","slc-county-nts":"NTS/Foreclosure",
+  "trulia-utah":"Marketplace","rentler-utah":"Rental Market","ksl-homes-market":"Marketplace",
+  "zillow-utah-market":"Marketplace","realtor-com-utah":"Marketplace","redfin-utah":"Marketplace",
+  "apartments-com-utah":"Rental Market","craigslist-housing-utah":"Marketplace","loopnet-utah":"Commercial",
+  "hubzu-utah":"Foreclosure/Auction","reo-utah":"Bank Owned","homesnap-utah":"Marketplace",
+  "forsalebyowner-utah":"FSBO","auction-com-utah":"Foreclosure/Auction",
+  "silicon-slopes-newhires":"Buyer Signal","uhaul-penske-monitor":"Migration",
+  "ksl-renter-pipeline":"Rental/Buyer","utah-sos-new-entities":"Investor Signal"
 };
 const sl = s => SL[s]||s;
 const cat = s => CAT[s]||"—";
 
-// Nav
 function go(pg, el) {
   document.querySelectorAll(".pg").forEach(p=>p.classList.remove("on"));
   document.getElementById("pg-"+pg)?.classList.add("on");
-  document.querySelectorAll(".nav-item").forEach(n=>n.classList.remove("on"));
+  document.querySelectorAll(".ni").forEach(n=>n.classList.remove("on"));
   el?.classList.add("on");
 }
 
-// Lead filter
-let _allLeads = [];
+let _leads = [];
 function filterLeads(tier, btn) {
-  document.querySelectorAll(".filter-btn").forEach(b=>b.classList.remove("on"));
+  document.querySelectorAll(".fb").forEach(b=>{b.classList.remove("on","on-p","on-q","on-n");});
   btn.classList.add("on");
-  const f = tier==="all" ? _allLeads : _allLeads.filter(r=>{
+  const map = {primed:"on-p",qualify:"on-q",nurture:"on-n"};
+  if(map[tier]) btn.classList.add(map[tier]);
+  const f = tier==="all" ? _leads : _leads.filter(r=>{
     if(tier==="primed")  return r.score>=75;
     if(tier==="qualify") return r.score>=50&&r.score<75;
     if(tier==="nurture") return r.score>=25&&r.score<50;
     if(tier==="watch")   return r.score<25;
     return true;
   });
-  document.getElementById("full-lead-body").innerHTML = renderRows(f);
+  renderFullLeads(f);
 }
 
-function renderRows(leads) {
-  if (!leads.length) return "<tr><td colspan='7' class='loading'>No leads in this tier</td></tr>";
-  return leads.map(r=>{
-    // Primary display: owner name if present, otherwise address
-    const primary = (r.raw_owner_name && r.raw_owner_name !== "—")
-      ? r.raw_owner_name.slice(0,32)
-      : (r.raw_address||"—").slice(0,36);
-    const secondary = (r.raw_owner_name && r.raw_owner_name !== "—")
-      ? (r.raw_address||"").slice(0,30)
-      : "";
+function renderFullLeads(leads) {
+  if(!leads.length){document.getElementById("full-lead-body").innerHTML="<tr><td colspan='7' class='loading'>No leads in this tier</td></tr>";return;}
+  document.getElementById("full-lead-body").innerHTML = leads.map(r=>{
+    const primary = (r.raw_owner_name&&r.raw_owner_name!=="—") ? r.raw_owner_name.slice(0,30) : (r.raw_address||"—").slice(0,34);
     return `<tr>
-      <td>
-        <div class="name-cell">${primary}</div>
-        ${secondary ? `<div class="addr-cell">${secondary}</div>` : ""}
-      </td>
+      <td><div class="nm">${primary}</div></td>
       <td style="font-size:12px;color:var(--ink3)">${r.county||"—"}</td>
       <td style="font-size:12px;color:var(--ink3)">${sl(r.source_slug)}</td>
       <td style="font-size:12px;color:var(--ink3)">${r.signal_type||"—"}</td>
-      <td>${scoreBar(r.score||0)}</td>
+      <td>${bar(r.score||0)}</td>
       <td>${badge(r.score||0)}</td>
       <td style="font-size:12px;color:var(--ink3)">${r.first_seen||"—"}</td>
     </tr>`;
   }).join("");
 }
 
-// ── LOADERS ────────────────────────────────────
-
 async function loadKPIs() {
   const d = await rpc("pp_kpi_summary");
-  if (!d) return;
+  if(!d) return;
   document.getElementById("k-total").textContent = fmt(d.total);
   document.getElementById("k-today").textContent = fmt(d.added_today);
   document.getElementById("k-conv").textContent  = fmt(d.convergence);
@@ -1440,170 +1216,100 @@ async function loadKPIs() {
 
 async function loadSources() {
   const data = await rpc("pp_source_summary");
-  if (!data) return;
-
+  if(!data) return;
   const live = data.filter(s=>s.today>0);
   document.getElementById("k-sources").textContent  = live.length;
   document.getElementById("src-active").textContent  = live.length;
   document.getElementById("src-wired").textContent   = data.length;
-  const total = data.reduce((a,s)=>a+Number(s.total),0);
-  document.getElementById("src-total").textContent   = fmt(total);
-
-  // Chips on overview
-  document.getElementById("chip-meta").textContent = live.length+" sources active";
-  document.getElementById("chips").innerHTML = live
-    .sort((a,b)=>b.today-a.today)
-    .map(s=>`<div class="chip">
+  document.getElementById("src-total").textContent   = fmt(data.reduce((a,s)=>a+Number(s.total),0));
+  document.getElementById("chip-meta").textContent   = live.length+" active";
+  document.getElementById("chips").innerHTML = live.sort((a,b)=>b.today-a.today).map(s=>`
+    <div class="chip">
       <div class="chip-dot"></div>
-      ${sl(s.slug)}<span class="chip-count">+${fmt(s.today)}</span>
+      ${sl(s.slug)}<span class="chip-n">+${fmt(s.today)}</span>
     </div>`).join("");
-
-  // Full source table
-  const sorted = [...data].sort((a,b)=>{
-    if(a.today>0 && b.today===0) return -1;
-    if(b.today>0 && a.today===0) return 1;
-    return b.total-a.total;
-  });
+  const sorted = [...data].sort((a,b)=>(b.today>0?1:0)-(a.today>0?1:0)||b.total-a.total);
   document.getElementById("src-body").innerHTML = sorted.map(s=>`<tr>
-    <td><span style="font-weight:600;color:var(--ink)">${sl(s.slug)}</span></td>
-    <td><span style="font-size:11px;color:var(--ink3)">${cat(s.slug)}</span></td>
+    <td><strong>${sl(s.slug)}</strong></td>
+    <td style="font-size:11px;color:var(--ink3)">${cat(s.slug)}</td>
     <td><strong>${fmt(s.total)}</strong></td>
-    <td style="font-weight:600;color:${s.today>0?"var(--live-dk)":"var(--ink3)"}">
-      ${s.today>0?"+"+fmt(s.today):"—"}
-    </td>
+    <td style="font-weight:600;color:${s.today>0?"var(--live)":"var(--ink3)"}">+${fmt(s.today)}</td>
     <td style="font-size:12px;color:var(--ink3)">${s.last||"—"}</td>
-    <td><span class="badge ${s.today>0?"live":"idle"}">${s.today>0?"Live":"Indexed"}</span></td>
+    <td><span class="b ${s.today>0?"live":"idle"}">${s.today>0?"Live":"Indexed"}</span></td>
   </tr>`).join("");
 }
 
 async function loadLeads() {
   const leads = await rpc("pp_top_leads",{lim:30});
-  if (!leads) return;
-  // Deduplicate on address — show best score per address
+  if(!leads) return;
   const seen = new Set();
   const uniq = leads.filter(r=>{
     const key = (r.raw_address||r.raw_owner_name||"").slice(0,40);
-    if (!key || key === "—") return false;
-    if (seen.has(key)) return false;
+    if(!key||key==="—"||seen.has(key)) return false;
     seen.add(key); return true;
   }).slice(0,20);
-
   document.getElementById("lead-meta").textContent = uniq.length+" leads";
   document.getElementById("lead-body").innerHTML = uniq.map(r=>{
-    const primary = (r.raw_owner_name && r.raw_owner_name !== "—")
-      ? r.raw_owner_name.slice(0,32)
-      : (r.raw_address||"—").slice(0,38);
+    const primary = (r.raw_owner_name&&r.raw_owner_name!=="—") ? r.raw_owner_name.slice(0,30) : (r.raw_address||"—").slice(0,34);
     return `<tr>
-      <td><div class="name-cell">${primary}</div></td>
+      <td><div class="nm">${primary}</div></td>
       <td style="font-size:12px;color:var(--ink3)">${r.county||"—"}</td>
       <td style="font-size:12px;color:var(--ink3)">${sl(r.source_slug)}</td>
-      <td style="font-size:12px;color:var(--ink3)">${r.signal_type||"—"}</td>
-      <td>${scoreBar(r.score||0)}</td>
+      <td>${bar(r.score||0)}</td>
       <td>${badge(r.score||0)}</td>
     </tr>`;
-  }).join("") || "<tr><td colspan='6' class='loading'>No leads found</td></tr>";
-
-  _allLeads = uniq;
-  document.getElementById("full-lead-body").innerHTML = renderRows(uniq);
+  }).join("")||"<tr><td colspan='5' class='loading'>No leads found</td></tr>";
+  _leads = uniq;
+  renderFullLeads(uniq);
 }
 
 async function loadConvergence() {
-  const cv = await qt("pp_scraper_signals",
-    "select=raw_address,raw_owner_name,county,score,captured_at&source_slug=eq.convergence-engine&order=captured_at.desc&limit=10");
+  const cv = await qt("pp_scraper_signals","select=raw_address,raw_owner_name,county,score,captured_at&source_slug=eq.convergence-engine&order=captured_at.desc&limit=10");
   const html = (Array.isArray(cv)&&cv.length) ? cv.map(r=>`
-    <div class="conv-card">
-      <div class="conv-top">
-        <span class="conv-label">⊕ Convergence Mark</span>
-        <span class="conv-score">${r.score||85}</span>
-      </div>
-      <div class="conv-addr">${r.raw_address||r.raw_owner_name||"Address matched"}</div>
-      <div class="conv-meta">${r.county||"Utah"} County · ${r.captured_at?.split("T")[0]||"—"}</div>
+    <div class="ci">
+      <div class="ci-top"><span class="ci-flag">⊕ Convergence Mark</span><span class="ci-score">${r.score||85}</span></div>
+      <div class="ci-addr">${r.raw_address||r.raw_owner_name||"Address matched"}</div>
+      <div class="ci-meta">${r.county||"Utah"} County · ${r.captured_at?.split("T")[0]||"—"}</div>
     </div>`).join("")
-  : `<div class="conv-card">
-      <div class="conv-top"><span class="conv-label">⊕ Convergence Marks</span><span class="conv-score">88</span></div>
-      <div class="conv-addr">88 dual-side matches indexed in database</div>
-      <div class="conv-meta">Seller distress + buyer interest · same address · Score 85</div>
-    </div>`;
+  : `<div class="ci"><div class="ci-top"><span class="ci-flag">⊕ Convergence Marks</span><span class="ci-score">88</span></div><div class="ci-addr">88 dual-side matches in database</div><div class="ci-meta">Seller distress + buyer interest · same property</div></div>`;
   document.getElementById("conv-mini").innerHTML = html;
   document.getElementById("conv-full").innerHTML = html;
 }
 
 async function loadMarket() {
-  const mkt = await qt("pp_scraper_signals",
-    "select=raw_payload,source_slug,raw_address,captured_at&source_slug=in.(realtor-market-utah,zillow-market-signals)&order=captured_at.desc&limit=60");
-  if (!Array.isArray(mkt)) return;
+  const mkt = await qt("pp_scraper_signals","select=raw_payload,source_slug,raw_address,captured_at&source_slug=in.(realtor-market-utah,zillow-market-signals)&order=captured_at.desc&limit=60");
+  if(!Array.isArray(mkt)) return;
   const parseP = x=>{try{return JSON.parse(x.raw_payload||"{}")}catch(e){return{}}};
-  const r = mkt.filter(x=>x.source_slug==="realtor-market-utah").slice(0,6);
-  const z = mkt.filter(x=>x.source_slug==="zillow-market-signals").slice(0,6);
-  document.getElementById("mkt-r").innerHTML = r.length ? r.map(x=>{
-    const p=parseP(x);
-    return `<div class="sig-row">
-      <div class="sig-name">${p.metro||p.market||x.raw_address?.slice(0,32)||"Market signal"}</div>
-      <div class="sig-val">${p.active_listing_count||p.value||"—"}</div>
-      <div class="sig-date">${x.captured_at?.split("T")[0]||""}</div>
-    </div>`;
-  }).join("") : "<div class='loading'>Loading...</div>";
-  document.getElementById("mkt-z").innerHTML = z.length ? z.map(x=>{
-    const p=parseP(x);
-    return `<div class="sig-row">
-      <div class="sig-name">${p.indicator_name||p.metro||x.raw_address?.slice(0,32)||"Signal"}</div>
-      <div class="sig-val">${p.value?"$"+Number(p.value).toLocaleString():(p.signal_value||"—")}</div>
-      <div class="sig-date">${x.captured_at?.split("T")[0]||""}</div>
-    </div>`;
-  }).join("") : "<div class='loading'>Loading...</div>";
+  const r=mkt.filter(x=>x.source_slug==="realtor-market-utah").slice(0,6);
+  const z=mkt.filter(x=>x.source_slug==="zillow-market-signals").slice(0,6);
+  document.getElementById("mkt-r").innerHTML = r.length ? r.map(x=>{const p=parseP(x);return`<div class="sigr"><div class="sn">${p.metro||x.raw_address?.slice(0,32)||"Signal"}</div><div class="sv">${p.active_listing_count||p.value||"—"}</div><div class="st">${x.captured_at?.split("T")[0]||""}</div></div>`;}).join("") : "<div class='loading'>Loading...</div>";
+  document.getElementById("mkt-z").innerHTML = z.length ? z.map(x=>{const p=parseP(x);return`<div class="sigr"><div class="sn">${p.indicator_name||x.raw_address?.slice(0,32)||"Signal"}</div><div class="sv">${p.value?"$"+Number(p.value).toLocaleString():(p.signal_value||"—")}</div><div class="st">${x.captured_at?.split("T")[0]||""}</div></div>`;}).join("") : "<div class='loading'>Loading...</div>";
+}
+
+function vOpt(btn, group) {
+  btn.closest("div").querySelectorAll(".voice-opt").forEach(b=>b.classList.remove("on"));
+  btn.classList.add("on");
+}
+function startTraining() {
+  const phone = document.getElementById("training-phone").value;
+  if(!phone||phone.length<10){alert("Enter your phone number first.");return;}
+  const log = document.getElementById("training-log");
+  log.style.fontStyle="normal"; log.style.color="var(--ink2)";
+  log.innerHTML = `<strong>${new Date().toLocaleTimeString()}</strong> — Session started for ${phone}<br><span style="color:var(--ink3)">VAPI integration required for live calling. Configure your VAPI key to enable.</span>`;
+  document.getElementById("tc-intro").className="train-item done";
+  document.getElementById("tc-pitch").className="train-item done";
 }
 
 async function init() {
   await loadKPIs();
   const now = new Date().toLocaleTimeString("en-US",{hour:"2-digit",minute:"2-digit"});
-  document.getElementById("t-refresh").textContent = "Refreshed " + now;
-  document.getElementById("lr-foot").textContent   = "Refreshed " + now;
-  Promise.allSettled([loadSources(), loadLeads(), loadConvergence(), loadMarket()]);
+  document.getElementById("tb-refresh").textContent = "Updated "+now;
+  document.getElementById("lr-foot").textContent = "Updated "+now;
+  Promise.allSettled([loadSources(),loadLeads(),loadConvergence(),loadMarket()]);
 }
 
 init();
-setInterval(init, 60000);
-
-// ── AGENT PAGE JS ──────────────────────────────────────────────────────────
-function selectVoiceOpt(btn, group) {
-  const parent = btn.parentElement;
-  parent.querySelectorAll('.voice-opt').forEach(b => b.classList.remove('on'));
-  btn.classList.add('on');
-}
-
-function startTraining() {
-  const phone = document.getElementById('training-phone').value;
-  const name  = document.getElementById('agent-name').value || 'Bryce';
-  const owner = document.getElementById('agent-owner').value || 'Kelvin';
-  if (!phone || phone.length < 10) {
-    alert('Enter your phone number first.');
-    return;
-  }
-  const log = document.getElementById('training-log');
-  log.style.fontStyle = 'normal';
-  log.style.color = 'var(--ink2)';
-  log.innerHTML = `<div style="margin-bottom:8px"><strong>${new Date().toLocaleTimeString()}</strong> — Training session initiated</div>
-    <div style="color:var(--ink3)">Calling ${phone}...<br>${name} will introduce himself and begin the onboarding conversation with ${owner}.<br><br>
-    <em>VAPI integration required to activate live calling. Configure your VAPI key in settings to enable.</em></div>`;
-  // Mark first items as in-progress
-  document.getElementById('tc-intro').className = 'train-item done';
-  document.getElementById('tc-pitch').className = 'train-item done';
-}
-
-function approveAll() {
-  document.getElementById('q-approved').textContent = '0';
-  alert('No leads in queue yet. Activate your agent first.');
-}
-
-function activateAgent() {
-  alert('Complete the training session and DNC registration before activating Bryce.');
-}
-
-// Populate outreach queue placeholders
-document.getElementById('q-pending').textContent = '—';
-document.getElementById('q-approved').textContent = '0';
-document.getElementById('q-calls').textContent = '0';
-document.getElementById('q-appts').textContent = '0';
+setInterval(init,60000);
 </script>
 </body>
 </html>
