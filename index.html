@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>ProspectPlus™ — Live Dashboard</title>
 <style>
 :root {
@@ -468,6 +468,216 @@ body {
 .train-item.pending{background:var(--bg3);color:var(--ink3)}
 .train-item.done{background:var(--green-lt);color:var(--green);border-color:var(--green-bd)}
 .train-item.done::before{content:"✓ ";font-weight:700}
+
+/* ════════════════════════════════════════════════
+   MOBILE — iPhone sized screens
+════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+
+  :root { --sb: 0px; }
+
+  /* Sidebar becomes bottom nav */
+  .sb {
+    width: 100%;
+    height: auto;
+    position: fixed;
+    top: auto;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    flex-direction: row;
+    border-right: none;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    overflow-x: auto;
+    overflow-y: hidden;
+    z-index: 200;
+    padding: 0;
+  }
+
+  .sb-logo { display: none; }
+  .sb-foot { display: none; }
+
+  .nav {
+    display: flex;
+    flex-direction: row;
+    padding: 0;
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .nav::-webkit-scrollbar { display: none; }
+
+  .nav-section { display: none; }
+
+  .nav-item {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 14px;
+    gap: 3px;
+    min-width: 64px;
+    border-left: none;
+    border-top: 2px solid transparent;
+    flex-shrink: 0;
+  }
+  .nav-item.on {
+    border-left: none;
+    border-top-color: #d4a96b;
+    background: rgba(212,169,107,0.07);
+  }
+  .nav-item .nav-icon {
+    font-size: 16px;
+    margin-top: 0;
+  }
+  .nav-item .nav-text .nav-title {
+    font-size: 10px;
+    text-align: center;
+    white-space: nowrap;
+  }
+  .nav-item .nav-text .nav-desc { display: none; }
+
+  /* Main content */
+  .main {
+    margin-left: 0;
+    padding-bottom: 70px; /* room for bottom nav */
+  }
+
+  /* Topbar */
+  .topbar {
+    padding: 0 14px;
+    height: 48px;
+  }
+  .topbar-title { font-size: 13px; }
+  .topbar-sep { display: none; }
+  .topbar-sub { display: none; }
+
+  /* Content padding */
+  .content { padding: 16px 14px; }
+
+  /* KPI cards — 2 col on mobile */
+  .kpi-row {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .kpi-card {
+    padding: 14px;
+  }
+  .kpi-card .kv {
+    font-size: 26px;
+  }
+  .kpi-card .kd { font-size: 11px; }
+
+  /* Tier cards — 2 col */
+  .tier-row {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  .tier-card {
+    padding: 14px;
+  }
+  .tier-card .tv { font-size: 26px; }
+  .tier-card .td { font-size: 11px; }
+  .tier-card .action { font-size: 11px; margin-top: 6px; }
+
+  /* Grids — stack on mobile */
+  .g2 {
+    grid-template-columns: 1fr !important;
+    gap: 10px;
+  }
+  .g3l {
+    grid-template-columns: 1fr !important;
+    gap: 10px;
+  }
+  .col { gap: 10px; }
+
+  /* Tables — horizontal scroll */
+  .panel { overflow: hidden; }
+  .tbl-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .tbl {
+    min-width: 520px;
+    font-size: 12px;
+  }
+  .tbl th { padding: 8px 12px; font-size: 9px; }
+  .tbl td { padding: 9px 12px; }
+  .tbl .name-cell { max-width: 120px; }
+  .tbl .addr-cell { max-width: 100px; }
+
+  /* Panel headers */
+  .ph { padding: 11px 14px; }
+  .ph h3 { font-size: 13px; }
+  .ph .pm { font-size: 10px; }
+
+  /* Panel body */
+  .pb { padding: 13px 14px; }
+
+  /* Score bar compact */
+  .score-bar { max-width: 50px; }
+
+  /* Source rows */
+  .src-row { padding: 8px 0; gap: 8px; }
+  .src-name { font-size: 12px; }
+  .src-count { font-size: 12px; }
+
+  /* Chips — smaller */
+  .chip {
+    font-size: 11px;
+    padding: 5px 9px;
+    gap: 5px;
+  }
+  .chips { padding: 12px 14px; gap: 6px; }
+
+  /* Page header */
+  .pg-hdr { margin-bottom: 16px; }
+  .pg-hdr h1 { font-size: 18px; }
+  .pg-hdr p { font-size: 12px; }
+
+  /* Filter buttons */
+  .filter-row { gap: 6px; margin-bottom: 14px; flex-wrap: wrap; }
+  .filter-btn { padding: 6px 11px; font-size: 11px; }
+
+  /* Greeting */
+  .pg-hdr h1 { font-size: 17px; }
+
+  /* Market value cards */
+  .mk .mv { font-size: 20px; }
+
+  /* Conv cards */
+  .conv-card { padding: 12px 13px; }
+  .conv-addr { font-size: 12px; }
+
+  /* Agent page adjustments */
+  .calc-grid { grid-template-columns: 1fr !important; gap: 16px; }
+  .calc-result { grid-template-columns: 1fr 1fr !important; gap: 12px; }
+  .mono-grid { grid-template-columns: 1fr !important; }
+
+  /* Outreach queue KPIs */
+  .kpi-row[style*="repeat(4"] {
+    grid-template-columns: 1fr 1fr !important;
+  }
+
+}
+
+/* Tablet — sidebar stays but narrower */
+@media (min-width: 769px) and (max-width: 1024px) {
+  :root { --sb: 160px; }
+
+  .nav-item .nav-text .nav-desc { display: none; }
+  .nav-item { padding: 9px 14px; }
+  .nav-item .nav-title { font-size: 12px; }
+
+  .content { padding: 18px 20px; }
+
+  .kpi-row { grid-template-columns: repeat(3, 1fr) !important; }
+  .tier-row { grid-template-columns: repeat(2, 1fr) !important; }
+  .g3l { grid-template-columns: 1fr !important; }
+}
+
 </style>
 </head>
 <body>
@@ -640,7 +850,7 @@ body {
               <h3>Recent High-Priority Leads</h3>
               <div class="pm" id="lead-meta">Loading...</div>
             </div>
-            <table class="tbl">
+            <div class="tbl-wrap"><table class="tbl">
               <thead><tr>
                 <th>Property / Signal</th>
                 <th>County</th>
@@ -714,7 +924,7 @@ body {
       </div>
 
       <div class="panel">
-        <table class="tbl">
+        <div class="tbl-wrap"><table class="tbl">
           <thead><tr>
             <th>Property / Signal</th>
             <th>County</th>
@@ -727,7 +937,7 @@ body {
           <tbody id="full-lead-body">
             <tr><td colspan="8" class="loading">Loading...</td></tr>
           </tbody>
-        </table>
+        </table></div>
       </div>
 
     </div>
@@ -777,7 +987,7 @@ body {
       </div>
 
       <div class="panel">
-        <table class="tbl">
+        <div class="tbl-wrap"><table class="tbl">
           <thead><tr>
             <th>Source Name</th>
             <th>Category</th>
@@ -789,7 +999,7 @@ body {
           <tbody id="src-body">
             <tr><td colspan="6" class="loading">Loading...</td></tr>
           </tbody>
-        </table>
+        </table></div>
       </div>
 
     </div>
