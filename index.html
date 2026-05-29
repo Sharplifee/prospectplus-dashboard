@@ -453,6 +453,21 @@ body {
 .stat-label { flex: 1; font-size: 13px; color: var(--ink2); }
 .stat-val { font-size: 15px; font-weight: 700; color: var(--ink); letter-spacing: -0.02em; }
 .stat-sub { font-size: 11px; color: var(--ink3); }
+
+/* ── AGENT PAGE ── */
+.voice-opt{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:5px 11px;font-size:11px;font-weight:600;cursor:pointer;color:var(--ink2);transition:all .12s;white-space:nowrap}
+.voice-opt:hover{background:var(--bg4)}
+.voice-opt.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.agent-setting{display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border2);font-size:12px}
+.agent-setting:last-child{border-bottom:none}
+.as-label{color:var(--ink2)}
+.as-val{color:var(--ink);font-weight:500}
+.on-val{color:var(--ink3);font-size:11px;max-width:160px;text-align:right}
+.as-select{border:1px solid var(--border);border-radius:6px;padding:3px 7px;font-size:11px;color:var(--ink2);background:var(--bg2);outline:none}
+.train-item{padding:10px 12px;border-radius:8px;font-size:12px;font-weight:500;border:1px solid var(--border)}
+.train-item.pending{background:var(--bg3);color:var(--ink3)}
+.train-item.done{background:var(--green-lt);color:var(--green);border-color:var(--green-bd)}
+.train-item.done::before{content:"✓ ";font-weight:700}
 </style>
 </head>
 <body>
@@ -489,6 +504,24 @@ body {
       <div class="nav-text">
         <div class="nav-title">Convergence Marks</div>
         <div class="nav-desc">Same property on both sides — call first</div>
+      </div>
+    </div>
+
+    <div class="nav-section">Outreach</div>
+
+    <div class="nav-item" onclick="go('agent',this)">
+      <div class="nav-icon">◈</div>
+      <div class="nav-text">
+        <div class="nav-title">AI Agent</div>
+        <div class="nav-desc">Configure, train &amp; activate your agent</div>
+      </div>
+    </div>
+
+    <div class="nav-item" onclick="go('outreach',this)">
+      <div class="nav-icon">▷</div>
+      <div class="nav-text">
+        <div class="nav-title">Outreach Queue</div>
+        <div class="nav-desc">Approve contacts before anything sends</div>
       </div>
     </div>
 
@@ -802,6 +835,244 @@ body {
 
     </div>
 
+    <!-- ══════════════════════
+         AI AGENT
+    ══════════════════════ -->
+    <div class="pg" id="pg-agent">
+
+      <div class="pg-hdr">
+        <h1>AI Agent</h1>
+        <p>Your agent handles outreach, qualifies leads, and books appointments — trained to your exact voice and standards. Build it here before anything goes live.</p>
+      </div>
+
+      <!-- Agent status card -->
+      <div style="display:grid;grid-template-columns:1.4fr 1fr;gap:14px;margin-bottom:24px">
+
+        <div class="panel" style="margin-bottom:0">
+          <div class="ph">
+            <h3>Agent Identity</h3>
+            <div class="pm" id="agent-status-badge" style="background:#f4f4f4;color:#9a9888;padding:3px 10px;border-radius:100px;font-size:10px;font-weight:700">NOT CONFIGURED</div>
+          </div>
+          <div class="pb">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
+              <div>
+                <label style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);display:block;margin-bottom:6px">Agent Name</label>
+                <input id="agent-name" type="text" placeholder="e.g. Bryce" value="Bryce"
+                  style="width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-weight:600;color:var(--ink);background:var(--bg2);outline:none">
+              </div>
+              <div>
+                <label style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);display:block;margin-bottom:6px">Your Name</label>
+                <input id="agent-owner" type="text" placeholder="e.g. Kelvin Sharp" value="Kelvin Sharp"
+                  style="width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;color:var(--ink);background:var(--bg2);outline:none">
+              </div>
+            </div>
+            <div style="margin-bottom:20px">
+              <label style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);display:block;margin-bottom:6px">Brokerage / Market</label>
+              <input id="agent-brokerage" type="text" placeholder="e.g. Williams & Co. — Utah County" value="Williams &amp; Co. — Utah County"
+                style="width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;color:var(--ink);background:var(--bg2);outline:none">
+            </div>
+            <div style="margin-bottom:20px">
+              <label style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);display:block;margin-bottom:6px">Agent Purpose</label>
+              <select id="agent-purpose" style="width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;color:var(--ink);background:var(--bg2);outline:none">
+                <option>Seller lead qualification &amp; listing appointments</option>
+                <option>Buyer lead qualification &amp; showing appointments</option>
+                <option>Both — full pipeline coverage</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="col" style="gap:12px">
+          <!-- Voice config -->
+          <div class="panel" style="margin-bottom:0">
+            <div class="ph"><h3>Voice &amp; Personality</h3><div class="pm">Tuned for real estate</div></div>
+            <div class="pb">
+              <div style="margin-bottom:14px">
+                <label style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);display:block;margin-bottom:8px">Speaking Pace</label>
+                <div style="display:flex;gap:6px">
+                  <button class="voice-opt on" onclick="selectVoiceOpt(this,'pace')">Natural</button>
+                  <button class="voice-opt" onclick="selectVoiceOpt(this,'pace')">Slightly Slow</button>
+                  <button class="voice-opt" onclick="selectVoiceOpt(this,'pace')">Deliberate</button>
+                </div>
+              </div>
+              <div style="margin-bottom:14px">
+                <label style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);display:block;margin-bottom:8px">Tone</label>
+                <div style="display:flex;gap:6px;flex-wrap:wrap">
+                  <button class="voice-opt on" onclick="selectVoiceOpt(this,'tone')">Warm</button>
+                  <button class="voice-opt" onclick="selectVoiceOpt(this,'tone')">Professional</button>
+                  <button class="voice-opt" onclick="selectVoiceOpt(this,'tone')">Direct</button>
+                  <button class="voice-opt" onclick="selectVoiceOpt(this,'tone')">Confident</button>
+                </div>
+              </div>
+              <div>
+                <label style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);display:block;margin-bottom:8px">Voice Model</label>
+                <div style="display:flex;gap:6px;flex-wrap:wrap">
+                  <button class="voice-opt on" onclick="selectVoiceOpt(this,'voice')">Default Male</button>
+                  <button class="voice-opt" onclick="selectVoiceOpt(this,'voice')">Default Female</button>
+                  <button class="voice-opt" onclick="selectVoiceOpt(this,'voice')">Clone My Voice ↗</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Call behavior -->
+          <div class="panel" style="margin-bottom:0">
+            <div class="ph"><h3>Call Behavior</h3></div>
+            <div class="pb" style="padding:12px 16px">
+              <div class="agent-setting">
+                <span class="as-label">Intro script</span>
+                <span class="as-val on-val">Hi, this is Bryce calling on behalf of Kelvin Sharp...</span>
+              </div>
+              <div class="agent-setting">
+                <span class="as-label">If no answer</span>
+                <select class="as-select">
+                  <option>Leave voicemail + send SMS</option>
+                  <option>Leave voicemail only</option>
+                  <option>Send SMS only</option>
+                  <option>Try again in 4 hrs</option>
+                </select>
+              </div>
+              <div class="agent-setting">
+                <span class="as-label">Max call attempts</span>
+                <select class="as-select">
+                  <option>3 attempts</option>
+                  <option>2 attempts</option>
+                  <option>5 attempts</option>
+                  <option>Unlimited</option>
+                </select>
+              </div>
+              <div class="agent-setting">
+                <span class="as-label">Call window</span>
+                <select class="as-select">
+                  <option>9am – 7pm local</option>
+                  <option>8am – 8pm local</option>
+                  <option>10am – 6pm local</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Fine-tuning / playground -->
+      <div class="panel" style="margin-bottom:14px">
+        <div class="ph">
+          <h3>Agent Training — Role Play</h3>
+          <div class="pm">Talk to Bryce. Shape how he communicates before anything goes live.</div>
+        </div>
+        <div style="background:#fafaf8;border-bottom:1px solid var(--border2);padding:14px 20px">
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+            <div>
+              <label style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);display:block;margin-bottom:5px">Your Phone Number</label>
+              <input id="training-phone" type="tel" placeholder="+1 (801) 555-0000"
+                style="padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;color:var(--ink);background:var(--bg2);outline:none;width:200px">
+            </div>
+            <div style="padding-top:18px">
+              <button onclick="startTraining()" style="background:var(--ink);color:#fff;border:none;border-radius:8px;padding:9px 20px;font-size:13px;font-weight:600;cursor:pointer">
+                ▷ &nbsp;Call Me Now — Start Training
+              </button>
+            </div>
+            <div style="padding-top:18px;font-size:12px;color:var(--ink3)">
+              Bryce will call you and walk through an onboarding conversation.<br>
+              Your answers shape his voice, tone, and approach going forward.
+            </div>
+          </div>
+        </div>
+
+        <!-- Training checklist -->
+        <div class="pb">
+          <div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);margin-bottom:12px">Onboarding Checklist — Completed in Call</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <div class="train-item pending" id="tc-intro">Intro &amp; greeting style</div>
+            <div class="train-item pending" id="tc-pitch">Value prop delivery</div>
+            <div class="train-item pending" id="tc-objection">Objection handling</div>
+            <div class="train-item pending" id="tc-qualify">Lead qualification flow</div>
+            <div class="train-item pending" id="tc-appt">Appointment setting close</div>
+            <div class="train-item pending" id="tc-voicemail">Voicemail script</div>
+            <div class="train-item pending" id="tc-sms">SMS follow-up tone</div>
+            <div class="train-item pending" id="tc-pace">Speaking pace &amp; pauses</div>
+          </div>
+        </div>
+
+        <!-- Conversation log -->
+        <div style="border-top:1px solid var(--border2);padding:16px 20px">
+          <div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);margin-bottom:10px">Training Session Log</div>
+          <div id="training-log" style="background:var(--bg);border-radius:8px;padding:14px;min-height:80px;font-size:12px;color:var(--ink3);font-style:italic">
+            No training sessions yet. Hit "Call Me Now" to start.
+          </div>
+        </div>
+      </div>
+
+      <!-- Activation -->
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+        <div class="panel" style="margin-bottom:0">
+          <div class="ph"><h3>Status</h3></div>
+          <div class="pb" style="text-align:center;padding:20px">
+            <div style="font-size:32px;margin-bottom:8px">⬜</div>
+            <div style="font-size:13px;font-weight:600;color:var(--ink3)">Not Configured</div>
+            <div style="font-size:11px;color:var(--ink3);margin-top:4px">Complete training to activate</div>
+          </div>
+        </div>
+        <div class="panel" style="margin-bottom:0">
+          <div class="ph"><h3>DNC Compliance</h3></div>
+          <div class="pb" style="padding:12px 16px">
+            <div class="agent-setting"><span class="as-label">Federal DNC List</span><span style="font-size:11px;font-weight:700;color:#dc2626">Not Registered</span></div>
+            <div class="agent-setting"><span class="as-label">Utah State DNC</span><span style="font-size:11px;font-weight:700;color:#dc2626">Not Registered</span></div>
+            <div class="agent-setting"><span class="as-label">Calling hours</span><span style="font-size:11px;font-weight:600;color:var(--green)">Enforced</span></div>
+            <div style="margin-top:12px">
+              <button style="width:100%;background:#fef2f2;color:#dc2626;border:1px solid rgba(220,38,38,.2);border-radius:7px;padding:8px;font-size:11px;font-weight:700;cursor:pointer">Register DNC — Required Before Launch</button>
+            </div>
+          </div>
+        </div>
+        <div class="panel" style="margin-bottom:0">
+          <div class="ph"><h3>Activate Agent</h3></div>
+          <div class="pb" style="padding:20px;text-align:center">
+            <div style="font-size:12px;color:var(--ink3);margin-bottom:14px">Complete training + DNC registration before going live</div>
+            <button onclick="activateAgent()" style="width:100%;background:var(--bg3);color:var(--ink3);border:1px solid var(--border);border-radius:8px;padding:11px;font-size:13px;font-weight:700;cursor:not-allowed">
+              Activate Bryce
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ══════════════════════
+         OUTREACH QUEUE
+    ══════════════════════ -->
+    <div class="pg" id="pg-outreach">
+
+      <div class="pg-hdr">
+        <h1>Outreach Queue</h1>
+        <p>Every lead the agent wants to contact shows up here first. Nothing goes out until you approve it. Review, edit, or skip — you have full control.</p>
+      </div>
+
+      <!-- Queue stats -->
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px">
+        <div class="kpi-card"><div class="lbl">Pending Approval</div><div class="val" id="q-pending">—</div><div class="kd">Awaiting your review</div></div>
+        <div class="kpi-card"><div class="lbl">Approved Today</div><div class="val green" id="q-approved">—</div><div class="kd">Contacts greenlit</div></div>
+        <div class="kpi-card"><div class="lbl">Calls Made</div><div class="val" id="q-calls">—</div><div class="kd">Agent activity today</div></div>
+        <div class="kpi-card"><div class="lbl">Appointments Set</div><div class="val gold" id="q-appts">—</div><div class="kd">Booked this cycle</div></div>
+      </div>
+
+      <!-- Queue table -->
+      <div class="panel">
+        <div class="ph">
+          <h3>Leads Pending Approval</h3>
+          <div style="display:flex;gap:8px">
+            <button onclick="approveAll()" style="background:var(--green-lt);color:var(--green);border:1px solid var(--green-bd);border-radius:7px;padding:6px 14px;font-size:11px;font-weight:700;cursor:pointer">Approve All</button>
+            <button style="background:var(--bg3);color:var(--ink3);border:1px solid var(--border);border-radius:7px;padding:6px 14px;font-size:11px;font-weight:700;cursor:pointer">Skip All</button>
+          </div>
+        </div>
+        <div style="padding:40px;text-align:center;color:var(--ink3)">
+          <div style="font-size:32px;margin-bottom:10px">◈</div>
+          <div style="font-size:14px;font-weight:600;color:var(--ink);margin-bottom:6px">Agent not yet active</div>
+          <div style="font-size:12px">Configure and activate Bryce in the AI Agent tab first.<br>Once active, leads from the Primed queue will appear here for your approval.</div>
+        </div>
+      </div>
+
+    </div>
+
   </div><!-- /content -->
 </main>
 
@@ -1082,6 +1353,47 @@ async function init() {
 
 init();
 setInterval(init, 60000);
+
+// ── AGENT PAGE JS ──────────────────────────────────────────────────────────
+function selectVoiceOpt(btn, group) {
+  const parent = btn.parentElement;
+  parent.querySelectorAll('.voice-opt').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+}
+
+function startTraining() {
+  const phone = document.getElementById('training-phone').value;
+  const name  = document.getElementById('agent-name').value || 'Bryce';
+  const owner = document.getElementById('agent-owner').value || 'Kelvin';
+  if (!phone || phone.length < 10) {
+    alert('Enter your phone number first.');
+    return;
+  }
+  const log = document.getElementById('training-log');
+  log.style.fontStyle = 'normal';
+  log.style.color = 'var(--ink2)';
+  log.innerHTML = `<div style="margin-bottom:8px"><strong>${new Date().toLocaleTimeString()}</strong> — Training session initiated</div>
+    <div style="color:var(--ink3)">Calling ${phone}...<br>${name} will introduce himself and begin the onboarding conversation with ${owner}.<br><br>
+    <em>VAPI integration required to activate live calling. Configure your VAPI key in settings to enable.</em></div>`;
+  // Mark first items as in-progress
+  document.getElementById('tc-intro').className = 'train-item done';
+  document.getElementById('tc-pitch').className = 'train-item done';
+}
+
+function approveAll() {
+  document.getElementById('q-approved').textContent = '0';
+  alert('No leads in queue yet. Activate your agent first.');
+}
+
+function activateAgent() {
+  alert('Complete the training session and DNC registration before activating Bryce.');
+}
+
+// Populate outreach queue placeholders
+document.getElementById('q-pending').textContent = '—';
+document.getElementById('q-approved').textContent = '0';
+document.getElementById('q-calls').textContent = '0';
+document.getElementById('q-appts').textContent = '0';
 </script>
 </body>
 </html>
