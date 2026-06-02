@@ -911,7 +911,13 @@ async function loadLeads(){
 }
 
 async function loadConv(){
-  const cv=await qt("pp_scraper_signals","select=raw_address,raw_owner_name,county,score,captured_at&source_slug=eq.convergence-engine&order=captured_at.desc&limit=10");
+  // Read from leads cache — instant
+  let cv=null;
+  try{
+    const rc=await qt("pp_leads_cache","select=conv_leads&id=eq.1&limit=1");
+    if(Array.isArray(rc)&&rc.length&&rc[0].conv_leads) cv=rc[0].conv_leads;
+  }catch(e){}
+  if(!cv) cv=await qt("pp_scraper_signals","select=raw_address,raw_owner_name,county,score,captured_at&source_slug=eq.convergence-engine&order=captured_at.desc&limit=10");
   const h=(Array.isArray(cv)&&cv.length)?cv.map(r=>`<div class="cc"><div class="cc-top"><span class="cc-flag">⊕ Convergence Mark</span><span class="cc-score">${r.score||85}</span></div><div class="cc-addr">${r.raw_address||r.raw_owner_name||"Address matched"}</div><div class="cc-meta">${r.county||"Utah"} County · ${r.captured_at?.split("T")[0]||"—"}</div></div>`).join(""):`<div class="cc"><div class="cc-top"><span class="cc-flag">⊕ Convergence Marks</span><span class="cc-score">88</span></div><div class="cc-addr">88 dual-side matches in database</div><div class="cc-meta">Seller distress + buyer interest · same address</div></div>`;
   document.getElementById("conv-mini").innerHTML=h;
   document.getElementById("conv-full").innerHTML=h;
