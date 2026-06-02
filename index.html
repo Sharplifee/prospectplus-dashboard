@@ -896,8 +896,13 @@ async function loadSources(){
 }
 
 async function loadLeads(){
-  const leads=await rpc("pp_top_leads",{lim:40});
-  if(!leads)return;
+  // Read from leads cache — instant pre-computed result
+  let leads=null;
+  try{
+    const rc=await qt("pp_leads_cache","select=leads&id=eq.1&limit=1");
+    if(Array.isArray(rc)&&rc.length&&rc[0].leads) leads=rc[0].leads;
+  }catch(e){}
+  if(!leads){const fb=await rpc("pp_top_leads",{lim:40});if(!fb)return;leads=fb;}
   const seen=new Set();
   const u=leads.filter(r=>{const k=(r.raw_address||r.raw_owner_name||"").slice(0,40);if(!k||seen.has(k))return false;seen.add(k);return true;}).slice(0,20);
   document.getElementById("lead-meta").textContent=u.length+" leads";
