@@ -861,17 +861,28 @@ function fl(tier,btn){
 }
 
 async function loadKPIs(){
-  const d=await rpc("pp_kpi_summary");
+  // Direct cache table read — sub-millisecond vs 447ms full scan
+  let d=null;
+  try{
+    const rows=await qt("pp_kpi_cache","select=*&id=eq.1&limit=1");
+    d=Array.isArray(rows)&&rows.length?rows[0]:null;
+  }catch(e){}
+  if(!d) d=await rpc("pp_kpi_summary"); // fallback
   if(!d)return;
-  ["k-total","k-today","k-conv","t-p","t-q","t-n","t-w"].forEach(id=>{
-    const map={"k-total":d.total,"k-today":d.added_today,"k-conv":d.convergence,"t-p":d.primed,"t-q":d.qualify,"t-n":d.nurture,"t-w":d.watch};
-    const el=document.getElementById(id);
-    if(el)el.textContent=fmt(map[id]);
-  });
+  const map={"k-total":d.total,"k-today":d.added_today||d.added_today,"k-conv":d.convergence,"t-p":d.primed,"t-q":d.qualify,"t-n":d.nurture,"t-w":d.watch};
+  Object.entries(map).forEach(([id,val])=>{const el=document.getElementById(id);if(el&&val!=null)el.textContent=fmt(val);});
+  if(d.updated_at){
+    const ago=Math.round((Date.now()-new Date(d.updated_at))/60000);
+    const ts=ago<2?"Just updated":ago<60?`Updated ${ago}m ago`:`Updated ${Math.round(ago/60)}h ago`;
+    ["tb-ts","foot-ts"].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=ts;});
+  }
 }
 
 async function loadSources(){
-  const data=await rpc("pp_source_summary");
+  // Direct cache table — pre-computed per source
+  const cacheRows=await qt("pp_source_cache","select=source_slug,signal_type,total,today,last_active&order=today.desc,total.desc");
+  const data=Array.isArray(cacheRows)&&cacheRows.length?cacheRows.map(r=>({slug:r.source_slug,type:r.signal_type,total:r.total,today:r.today,last:r.last_active})):null;
+  if(!data){const fb=await rpc("pp_source_summary");if(!fb)return;const data=fb;}
   if(!data)return;
   const live=data.filter(s=>s.today>0);
   document.getElementById("k-sources").textContent=live.length;
@@ -923,11 +934,9 @@ function startTrain(){
 }
 
 async function init(){
+  // Load KPIs first (instant from cache), then everything else in parallel
   await loadKPIs();
-  const now=new Date().toLocaleTimeString("en-US",{hour:"2-digit",minute:"2-digit"});
-  document.getElementById("tb-ts").textContent="Updated "+now;
-  document.getElementById("foot-ts").textContent="Updated "+now;
-  Promise.allSettled([loadSources(),loadLeads(),loadConv(),loadMarket()]);
+  Promise.allSettled([loadSources(),loadLeads(),loadConv(),loadMarket(),loadBuyerIntel()]);
 }
 init();setInterval(init,120000);
 </script>
