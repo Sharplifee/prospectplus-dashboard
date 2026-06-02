@@ -450,6 +450,15 @@ body {
       <div class="ni-ico">△</div>
       <div><div class="ni-t">Market</div><div class="ni-d">Values &amp; trends</div></div>
     </div>
+    <div class="nav-grp">Buyers</div>
+    <div class="ni" onclick="go('buyers',this);loadBuyerIntel()">
+      <div class="ni-ico">◉</div>
+      <div><div class="ni-t">Buyer Intel</div><div class="ni-d">Profiles &amp; intent</div></div>
+    </div>
+    <div class="ni" onclick="go('matches',this);loadBuyerIntel()">
+      <div class="ni-ico">⇌</div>
+      <div><div class="ni-t">Matched Pairs</div><div class="ni-d">Buyer ↔ Seller</div></div>
+    </div>
     <div class="nav-grp">Outreach</div>
     <div class="ni" onclick="go('agent',this)">
       <div class="ni-ico">◈</div>
@@ -618,7 +627,93 @@ body {
       </div>
     </div>
 
-    <!-- AI AGENT -->
+
+    <!-- BUYER INTELLIGENCE -->
+    <div class="pg" id="pg-buyers">
+      <div class="pg-hdr">
+        <h1>Buyer Intelligence</h1>
+        <p>1.5M+ buyer profiles scored by purchase intent. Mortgage applications, relocation signals, migration data, life events — every active buyer moving toward a purchase across all three counties.</p>
+      </div>
+      <div class="kpi-row" style="margin-bottom:10px">
+        <div class="kc"><div class="kc-l">Buyer Profiles</div><div class="kc-v amber" id="bk-total">—</div><div class="kc-d">All signal sources</div></div>
+        <div class="kc"><div class="kc-l">Primed Buyers</div><div class="kc-v" style="color:var(--red)" id="bk-primed">—</div><div class="kc-d">Score 75–100</div></div>
+        <div class="kc"><div class="kc-l">Buyer-Seller Matches</div><div class="kc-v green" id="bk-matches">—</div><div class="kc-d">Paired opportunities</div></div>
+        <div class="kc"><div class="kc-l">Portal Events</div><div class="kc-v amber" id="bk-events">—</div><div class="kc-d">Behavioral pixel</div></div>
+      </div>
+      <div class="tier-row" style="margin-bottom:20px">
+        <div class="tc p"><div class="tc-l">Primed</div><div class="tc-v" id="bt-p">—</div><div class="tc-d">Score 75–100</div><div class="tc-a">→ Contact today</div></div>
+        <div class="tc q"><div class="tc-l">Qualify</div><div class="tc-v" id="bt-q">—</div><div class="tc-d">Score 50–74</div><div class="tc-a">→ This week</div></div>
+        <div class="tc n"><div class="tc-l">Nurture</div><div class="tc-v" id="bt-n">—</div><div class="tc-d">Score 25–49</div><div class="tc-a">→ 30-day sequence</div></div>
+        <div class="tc w"><div class="tc-l">Mortgage Apps</div><div class="tc-v amber" id="bt-mort">—</div><div class="tc-d">HMDA total</div><div class="tc-a">→ Largest pool</div></div>
+      </div>
+      <div class="g3l">
+        <div>
+          <div class="sl">Top Buyer Profiles</div>
+          <div class="panel">
+            <div class="ph"><h3>Active Buyers — Highest Intent</h3><div class="meta" id="bp-meta">Loading...</div></div>
+            <div class="tw">
+              <table class="tbl">
+                <thead><tr><th>Name / Source</th><th>County</th><th>Signal</th><th>Budget</th><th>Timeline</th><th>Score</th><th>Tier</th></tr></thead>
+                <tbody id="bp-body"><tr><td colspan="7" class="loading">Loading...</td></tr></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div class="col">
+          <div>
+            <div class="sl">Signal Breakdown</div>
+            <div class="panel">
+              <div class="ph"><h3>By Type</h3><div class="meta">All profiles</div></div>
+              <div class="pb" id="bsig-breakdown"><div class="loading">Loading...</div></div>
+            </div>
+          </div>
+          <div>
+            <div class="sl">Portal Pixel</div>
+            <div class="panel">
+              <div class="ph"><h3>Behavioral Tracking</h3><div class="meta">Live</div></div>
+              <div class="pb">
+                <div class="sr"><div class="sr-dot lv"></div><div class="sr-name">Pixel status</div><div class="sr-n lv">Active</div></div>
+                <div class="sr"><div class="sr-dot lv"></div><div class="sr-name">Unique visitors</div><div class="sr-n lv" id="pix-visitors">—</div></div>
+                <div class="sr"><div class="sr-dot lv"></div><div class="sr-name">High-intent events</div><div class="sr-n lv" id="pix-events">—</div></div>
+                <div class="sr"><div class="sr-dot lv"></div><div class="sr-name">Contact form submits</div><div class="sr-n lv" id="pix-contacts">—</div></div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div class="sl">County Split</div>
+            <div class="panel">
+              <div class="ph"><h3>Buyer Distribution</h3></div>
+              <div class="pb" id="county-split"><div class="loading">Loading...</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MATCHED PAIRS -->
+    <div class="pg" id="pg-matches">
+      <div class="pg-hdr">
+        <h1>Buyer ↔ Seller Matches</h1>
+        <p>The matching engine pairs high-intent buyers with motivated sellers in the same county and price range. A ready buyer already matched to a seller who needs to move. Present both sides, close both ends of the transaction.</p>
+      </div>
+      <div class="kpi-row" style="margin-bottom:20px">
+        <div class="kc"><div class="kc-l">Total Matches</div><div class="kc-v amber" id="m-total">—</div><div class="kc-d">Buyer ↔ seller pairs</div></div>
+        <div class="kc"><div class="kc-l">High Quality</div><div class="kc-v green" id="m-hq">—</div><div class="kc-d">Match score ≥ 70</div></div>
+        <div class="kc"><div class="kc-l">New Today</div><div class="kc-v" id="m-today">—</div><div class="kc-d">Last 24 hours</div></div>
+        <div class="kc"><div class="kc-l">Avg Match Score</div><div class="kc-v" id="m-avg">—</div><div class="kc-d">Quality indicator</div></div>
+      </div>
+      <div class="panel">
+        <div class="ph"><h3>Top Matched Pairs</h3><div class="meta">Highest combined score first</div></div>
+        <div class="tw">
+          <table class="tbl">
+            <thead><tr><th>Buyer Signal</th><th>Seller Address</th><th>County</th><th>Geography</th><th>Buyer</th><th>Seller</th><th>Match</th><th>Action</th></tr></thead>
+            <tbody id="match-body"><tr><td colspan="8" class="loading">Loading...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ AI AGENT ══ -->
     <div class="pg" id="pg-agent">
       <div class="pg-hdr">
         <h1>AI Agent</h1>
