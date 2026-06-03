@@ -451,11 +451,11 @@ body {
       <div><div class="ni-t">Market</div><div class="ni-d">Values &amp; trends</div></div>
     </div>
     <div class="nav-grp">Buyers</div>
-    <div class="ni" onclick="go('buyers',this);loadBuyerIntel()">
+    <div class="ni" onclick="go('buyers',this);loadBuyerIntel(true)">
       <div class="ni-ico">◉</div>
       <div><div class="ni-t">Buyer Intel</div><div class="ni-d">Profiles &amp; intent</div></div>
     </div>
-    <div class="ni" onclick="go('matches',this);loadBuyerIntel()">
+    <div class="ni" onclick="go('matches',this);loadBuyerIntel(true)">
       <div class="ni-ico">⇌</div>
       <div><div class="ni-t">Matched Pairs</div><div class="ni-d">Buyer ↔ Seller</div></div>
     </div>
@@ -899,10 +899,32 @@ function go(pg,el){
 let _leads=[];
 function fl(tier,btn){
   document.querySelectorAll(".fb").forEach(b=>{b.classList.remove("on","on-p","on-q","on-n");});
-  btn.classList.add("on");
-  if(tier!=="all")btn.classList.add({"primed":"on-p","qualify":"on-q","nurture":"on-n"}[tier]||"");
-  const f=tier==="all"?_leads:_leads.filter(r=>tier==="primed"?r.score>=75:tier==="qualify"?r.score>=50&&r.score<75:tier==="nurture"?r.score>=25&&r.score<50:r.score<25);
-  document.getElementById("full-leads").innerHTML=f.length?f.map(r=>`<tr><td><div class="nm">${(r.raw_owner_name&&r.raw_owner_name!=="—"?r.raw_owner_name:r.raw_address||"—").slice(0,32)}</div></td><td style="font-size:12px;color:var(--ink3)">${r.county||"—"}</td><td style="font-size:12px;color:var(--ink3)">${sl(r.source_slug)}</td><td style="font-size:12px;color:var(--ink3)">${r.signal_type||"—"}</td><td>${bar(r.score||0)}</td><td>${badge(r.score||0)}</td><td style="font-size:12px;color:var(--ink3)">${r.first_seen||"—"}</td></tr>`).join(""):"<tr><td colspan='7' class='loading'>No leads in this tier</td></tr>";
+  if(btn){btn.classList.add("on");if(tier==="primed")btn.classList.add("on-p");else if(tier==="qualify")btn.classList.add("on-q");else if(tier==="nurture")btn.classList.add("on-n");}
+  const f=tier==="all"?_leads:_leads.filter(r=>
+    tier==="primed"?r.score>=75:
+    tier==="qualify"?(r.score>=50&&r.score<75):
+    tier==="nurture"?(r.score>=25&&r.score<50):
+    r.score<25
+  );
+  const el=document.getElementById("full-leads");
+  if(!el)return;
+  if(!f.length){el.innerHTML="<tr><td colspan='8' class='loading'>No leads in this tier</td></tr>";return;}
+  el.innerHTML=f.map(r=>{
+    const nm=r.raw_owner_name||r.raw_address||"—";
+    const s2=r.primed_stage?`<span class="b ${r.primed_stage===2?"p":"q"}">P${r.primed_stage}</span>`:badge(r.score||0);
+    const p2=r.motivation_probability?r.motivation_probability+"%":"—";
+    const rt=r.outreach_routing==="direct_agent"?"<b style='color:var(--red)'>Direct</b>":r.outreach_routing==="agent_first"?"<b style='color:var(--amber)'>Bryce</b>":"Seq";
+    return `<tr style="cursor:pointer" onclick="showLeadDetail(${JSON.stringify(r).replace(/"/g,'&quot;')})">
+      <td><div class="nm">${nm.slice(0,32)}</div></td>
+      <td style="font-size:12px;color:var(--ink3)">${r.county||"—"}</td>
+      <td style="font-size:12px;color:var(--ink3)">${sl(r.source_slug)}</td>
+      <td style="font-size:12px;color:var(--ink3)">${r.signal_type||"—"}</td>
+      <td>${bar(r.score||0)}</td>
+      <td>${s2}</td>
+      <td style="font-size:12px">${p2}</td>
+      <td style="font-size:11px">${rt}</td>
+    </tr>`;
+  }).join("");
 }
 
 async function loadKPIs(){
@@ -961,18 +983,41 @@ async function loadSources(){
 }
 
 async function loadLeads(){
-  // Read from leads cache — instant pre-computed result
   let leads=null;
   try{
     const rc=await qt("pp_leads_cache","select=leads&id=eq.1&limit=1");
     if(Array.isArray(rc)&&rc.length&&rc[0].leads) leads=rc[0].leads;
   }catch(e){}
-  if(!leads){const fb=await rpc("pp_top_leads",{lim:40});if(!fb)return;leads=fb;}
+  if(!leads){
+    const fb=await rpc("pp_top_leads",{lim:40});
+    if(fb) leads=fb;
+  }
+  if(!leads||!leads.length){
+    document.getElementById("lead-body").innerHTML="<tr><td colspan='7' class='loading'>No leads found</td></tr>";
+    document.getElementById("full-leads").innerHTML="<tr><td colspan='8' class='loading'>No leads found</td></tr>";
+    return;
+  }
+  // Dedupe
   const seen=new Set();
-  const u=leads.filter(r=>{const k=(r.raw_address||r.raw_owner_name||"").slice(0,40);if(!k||seen.has(k))return false;seen.add(k);return true;}).slice(0,20);
-  document.getElementById("lead-meta").textContent=u.length+" leads";
-  document.getElementById("lead-body").innerHTML=u.map(r=>`<tr><td><div class="nm">${(r.raw_owner_name&&r.raw_owner_name!=="—"?r.raw_owner_name:r.raw_address||"—").slice(0,30)}</div></td><td style="font-size:12px;color:var(--ink3)">${r.county||"—"}</td><td style="font-size:12px;color:var(--ink3)">${sl(r.source_slug)}</td><td>${bar(r.score||0)}</td><td>${badge(r.score||0)}</td></tr>`).join("")||"<tr><td colspan='5' class='loading'>No leads</td></tr>";
-  _leads=u;fl('all',document.querySelector(".fb.on"));
+  _leads=leads.filter(r=>{
+    const k=(r.raw_address||r.raw_owner_name||r.id||"").toString().slice(0,40);
+    if(!k||seen.has(k))return false;
+    seen.add(k);return true;
+  }).slice(0,20);
+
+  // Overview top leads
+  const meta=document.getElementById("lead-meta");
+  if(meta) meta.textContent=_leads.length+" leads";
+  document.getElementById("lead-body").innerHTML=_leads.map(r=>{
+    const nm=r.raw_owner_name||r.raw_address||"—";
+    const stg=r.primed_stage?`<span class="b ${r.primed_stage===2?"p":"q"}">P${r.primed_stage}</span>`:badge(r.score||0);
+    const prob=r.motivation_probability?`<span style="font-weight:700;color:${r.motivation_probability>=80?"var(--red)":"var(--amber)"}">${r.motivation_probability}%</span>`:"—";
+    const route=r.outreach_routing==="direct_agent"?"<b style='color:var(--red);font-size:10px'>Direct</b>":r.outreach_routing==="agent_first"?"<b style='color:var(--amber);font-size:10px'>Bryce</b>":"Seq";
+    return `<tr><td><div class="nm">${nm.slice(0,30)}</div></td><td style="font-size:12px;color:var(--ink3)">${r.county||"—"}</td><td style="font-size:12px;color:var(--ink3)">${sl(r.source_slug)}</td><td>${bar(r.score||0)}</td><td>${stg}</td><td>${prob}</td><td>${route}</td></tr>`;
+  }).join("");
+
+  // Full leads table — all tiers
+  fl("all",document.querySelector(".fb"));
 }
 
 async function loadConv(){
@@ -1040,10 +1085,50 @@ function startTrain(){
   document.getElementById("ti-2").className="ti done";
 }
 
+
+function showLeadDetail(r){
+  const nm=r.raw_owner_name||"Unknown Owner";
+  const addr=r.raw_address||"Address not in record";
+  const prob=r.motivation_probability||"—";
+  const stage=r.primed_stage===2?"Primed II — Direct to Agent":r.primed_stage===1?"Primed I — Agent Qualifies":"Qualify";
+  const routing=r.outreach_routing==="direct_agent"?"Direct → Agent (no AI pre-screen)":r.outreach_routing==="agent_first"?"Bryce qualifies first, then Agent":"Nurture sequence";
+  
+  // Create modal overlay
+  const existing=document.getElementById("lead-modal");
+  if(existing)existing.remove();
+  
+  const modal=document.createElement("div");
+  modal.id="lead-modal";
+  modal.style.cssText="position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px";
+  modal.innerHTML=`<div style="background:var(--card);border-radius:14px;padding:24px;max-width:520px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.2);position:relative">
+    <button onclick="document.getElementById('lead-modal').remove()" style="position:absolute;top:14px;right:14px;background:none;border:none;font-size:18px;cursor:pointer;color:var(--ink3)">×</button>
+    <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:${r.primed_stage===2?"var(--red)":"var(--amber)"};margin-bottom:8px">${stage}</div>
+    <div style="font-family:'DM Serif Display',serif;font-size:22px;color:var(--ink);margin-bottom:4px">${nm}</div>
+    <div style="font-size:13px;color:var(--ink2);margin-bottom:16px">${addr}</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
+      <div style="background:var(--bg);border-radius:8px;padding:12px"><div style="font-size:10px;color:var(--ink3);margin-bottom:4px">SIGNAL TYPE</div><div style="font-weight:600">${r.signal_type||"—"}</div></div>
+      <div style="background:var(--bg);border-radius:8px;padding:12px"><div style="font-size:10px;color:var(--ink3);margin-bottom:4px">COUNTY</div><div style="font-weight:600">${r.county||"—"}</div></div>
+      <div style="background:var(--bg);border-radius:8px;padding:12px"><div style="font-size:10px;color:var(--ink3);margin-bottom:4px">SCORE</div><div style="font-family:'DM Serif Display',serif;font-size:28px;color:var(--red)">${r.score||"—"}</div></div>
+      <div style="background:var(--bg);border-radius:8px;padding:12px"><div style="font-size:10px;color:var(--ink3);margin-bottom:4px">MOTIVATION PROB.</div><div style="font-family:'DM Serif Display',serif;font-size:28px;color:var(--amber)">${prob}%</div></div>
+    </div>
+    <div style="background:${r.outreach_routing==="direct_agent"?"var(--red-lt)":"var(--amber-lt)"};border:1px solid ${r.outreach_routing==="direct_agent"?"var(--red-bd)":"var(--amber-bd)"};border-radius:8px;padding:12px;margin-bottom:14px">
+      <div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:${r.outreach_routing==="direct_agent"?"var(--red)":"var(--amber)"};margin-bottom:4px">ROUTING</div>
+      <div style="font-size:13px;font-weight:600;color:var(--ink)">${routing}</div>
+    </div>
+    <div style="font-size:11px;color:var(--ink3);margin-bottom:14px">Source: ${sl(r.source_slug)} · Found: ${r.first_seen||r.captured_at||"—"}</div>
+    <div style="display:flex;gap:8px">
+      <button onclick="document.getElementById('lead-modal').remove()" style="flex:1;padding:10px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;background:var(--card);font-family:'DM Sans',sans-serif">Close</button>
+      <button style="flex:2;padding:10px;background:var(--ink);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif">Add to Outreach Queue</button>
+    </div>
+  </div>`;
+  document.body.appendChild(modal);
+  modal.addEventListener("click",e=>{if(e.target===modal)modal.remove();});
+}
+
 async function init(){
-  // Load KPIs first (instant from cache), then everything else in parallel
   await loadKPIs();
-  Promise.allSettled([loadSources(),loadLeads(),loadConv(),loadMarket(),loadBuyerIntel()]);
+  await loadLeads();
+  Promise.allSettled([loadSources(),loadConv(),loadMarket(),loadBuyerIntel()]);
 }
 init();setInterval(init,120000);
 </script>
