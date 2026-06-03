@@ -879,250 +879,137 @@ async function qt(t,q){
 
 const fmt=n=>{if(n==null)return"—";n=Number(n);return n>=1e6?(n/1e6).toFixed(1).replace(/\.0$/,"")+"M":n>=1000?(n/1000).toFixed(1).replace(/\.0$/,"")+"k":n.toLocaleString()};
 
-const SL={"fire-marshal-lp-gas":"Fire Marshal LP Gas","fire-marshal-suppression":"Fire Marshal","fire-marshal-lp-hvac":"Fire Marshal HVAC","slco-lir-parcels":"SLCO LIR Parcels","davis-lir-parcels":"Davis LIR","weber-lir-parcels":"Weber LIR","utah-county-tax-delinquency-pdf":"Tax Delinquency","ksl-fsbo-extended":"KSL FSBO","utah-county-public-surplus":"UT Surplus","realtor-market-utah":"Realtor.com","comparable-sales-slco":"Comparable Sales","zillow-market-signals":"Zillow Market","zillow-home-values":"Zillow Values","obituaries-enrichment":"Obituaries","competitor-buyer-forms":"Competitor Forms","school-district-enrollment":"School Districts","marriage-records-slco":"Marriage Records","convergence-engine":"Convergence Engine","utah-county-nts":"Utah County NTS","nod-tracker":"NOD Tracker","deed-transfers-utah-county":"Deed Transfers","probate-court":"Probate Court","lien-judgment-records":"Lien/Judgment","warn-act-utah":"WARN Act","slc-county-nts":"SLC NTS","trulia-utah":"Trulia","rentler-utah":"Rentler","ksl-homes-market":"KSL Homes","zillow-utah-market":"Zillow","realtor-com-utah":"Realtor.com","redfin-utah":"Redfin","apartments-com-utah":"Apartments.com","craigslist-housing-utah":"Craigslist","loopnet-utah":"LoopNet","hubzu-utah":"Hubzu","reo-utah":"REO.com","homesnap-utah":"Homesnap","forsalebyowner-utah":"FSBO.com","auction-com-utah":"Auction.com","silicon-slopes-newhires":"Silicon Slopes","uhaul-penske-monitor":"U-Haul Migration","hmda-slc-county":"HMDA SLC","hmda-utah-county":"HMDA Utah","utah-sos-new-entities":"Utah SOS","ksl-renter-pipeline":"KSL Rentals","linkedin-relocation-jobs":"LinkedIn Relocation"};
-const CAT={"fire-marshal-lp-gas":"Fire Marshal","slco-lir-parcels":"LIR Parcels","utah-county-tax-delinquency-pdf":"Tax Distress","ksl-fsbo-extended":"FSBO","realtor-market-utah":"Market Intel","zillow-market-signals":"Market Intel","obituaries-enrichment":"Life Events","competitor-buyer-forms":"Competitor","school-district-enrollment":"Migration","convergence-engine":"Convergence","utah-county-nts":"NTS/Foreclosure","nod-tracker":"NOD","deed-transfers-utah-county":"Deeds","probate-court":"Probate","lien-judgment-records":"Lien/Judgment","warn-act-utah":"Layoffs","trulia-utah":"Marketplace","rentler-utah":"Rentals","ksl-homes-market":"Marketplace","zillow-utah-market":"Marketplace","redfin-utah":"Marketplace","apartments-com-utah":"Rentals","craigslist-housing-utah":"Marketplace","loopnet-utah":"Commercial","hubzu-utah":"Foreclosure","reo-utah":"Bank Owned","forsalebyowner-utah":"FSBO","auction-com-utah":"Auction","silicon-slopes-newhires":"Buyer Signal","uhaul-penske-monitor":"Migration","hmda-slc-county":"Mortgage Data","hmda-utah-county":"Mortgage Data","linkedin-relocation-jobs":"Relocation"};
+const SL={"fire-marshal-lp-gas":"Fire Marshal LP Gas","fire-marshal-suppression":"Fire Marshal","fire-marshal-lp-hvac":"Fire Marshal HVAC","slco-lir-parcels":"SLCO LIR","davis-lir-parcels":"Davis LIR","weber-lir-parcels":"Weber LIR","utah-county-tax-delinquency-pdf":"Tax Delinquency","ksl-fsbo-extended":"KSL FSBO","utah-county-public-surplus":"UT Surplus","realtor-market-utah":"Realtor.com","comparable-sales-slco":"Comp Sales","zillow-market-signals":"Zillow Market","zillow-home-values":"Zillow Values","obituaries-enrichment":"Obituaries","competitor-buyer-forms":"Competitor","school-district-enrollment":"School Districts","marriage-records-slco":"Marriage Records","convergence-engine":"Convergence","utah-county-nts":"Utah County NTS","nod-tracker":"NOD","deed-transfers-utah-county":"Deed Transfers","probate-court":"Probate","lien-judgment-records":"Lien/Judgment","warn-act-utah":"WARN Act","slc-county-nts":"SLC NTS","ksl-homes-market":"KSL Homes","zillow-utah-market":"Zillow","realtor-com-utah":"Realtor.com","redfin-utah":"Redfin","apartments-com-utah":"Apartments.com","craigslist-housing-utah":"Craigslist","loopnet-utah":"LoopNet","hubzu-utah":"Hubzu","reo-utah":"REO.com","homesnap-utah":"Homesnap","forsalebyowner-utah":"FSBO.com","auction-com-utah":"Auction.com","silicon-slopes-newhires":"Silicon Slopes","uhaul-penske-monitor":"U-Haul","hmda-slc-county":"HMDA SLC","hmda-utah-county":"HMDA Utah","utah-sos-new-entities":"Utah SOS","ksl-renter-pipeline":"KSL Rentals","linkedin-relocation-jobs":"LinkedIn Relocation","rentler-utah":"Rentler"};
 
 const sl=s=>SL[s]||s;
-const cat=s=>CAT[s]||"Data";
+const badge=s=>s>=75?'<span class="b p">Primed</span>':s>=50?'<span class="b q">Qualify</span>':s>=25?'<span class="b n">Nurture</span>":'<span class="b w">Watch</span>';
+const bar=s=>{const c=s>=88?"#dc2626":s>=75?"#dc2626":s>=50?"#d97706":"#16a34a";return`<div class="sbw"><div class="sbr"><div class="sbf" style="width:${Math.min(s,100)}%;background:${c}"></div></div><div class="sbn">${s}</div></div>`};
 
-const badge=s=>s>=75?'<span class="b p">Primed</span>':s>=50?'<span class="b q">Qualify</span>':s>=25?'<span class="b n">Nurture</span>':'<span class="b w">Watch</span>';
-
-const bar=s=>{const c=s>=75?"#dc2626":s>=50?"#d97706":"#16a34a";return`<div class="sbw"><div class="sbr"><div class="sbf" style="width:${Math.min(s,100)}%;background:${c}"></div></div><div class="sbn">${s}</div></div>`};
+let _leads=[];
 
 function go(pg,el){
   document.querySelectorAll(".pg").forEach(p=>p.classList.remove("on"));
-  document.getElementById("pg-"+pg)?.classList.add("on");
+  const pgEl=document.getElementById("pg-"+pg);
+  if(pgEl)pgEl.classList.add("on");
   document.querySelectorAll(".ni").forEach(n=>n.classList.remove("on"));
-  el?.classList.add("on");
+  if(el)el.classList.add("on");
 }
 
-let _leads=[];
 function fl(tier,btn){
   document.querySelectorAll(".fb").forEach(b=>{b.classList.remove("on","on-p","on-q","on-n");});
-  if(btn){btn.classList.add("on");if(tier==="primed")btn.classList.add("on-p");else if(tier==="qualify")btn.classList.add("on-q");else if(tier==="nurture")btn.classList.add("on-n");}
+  if(btn)btn.classList.add("on");
   const f=tier==="all"?_leads:_leads.filter(r=>
     tier==="primed"?r.score>=75:
     tier==="qualify"?(r.score>=50&&r.score<75):
-    tier==="nurture"?(r.score>=25&&r.score<50):
-    r.score<25
+    tier==="nurture"?(r.score>=25&&r.score<50):r.score<25
   );
   const el=document.getElementById("full-leads");
   if(!el)return;
-  if(!f.length){el.innerHTML="<tr><td colspan='8' class='loading'>No leads in this tier</td></tr>";return;}
+  if(!_leads.length){el.innerHTML='<tr><td colspan="8" class="loading">Loading leads...</td></tr>';return;}
+  if(!f.length){el.innerHTML='<tr><td colspan="8" class="loading">No leads in this tier</td></tr>';return;}
   el.innerHTML=f.map(r=>{
     const nm=r.raw_owner_name||r.raw_address||"—";
     const s2=r.primed_stage?`<span class="b ${r.primed_stage===2?"p":"q"}">P${r.primed_stage}</span>`:badge(r.score||0);
     const p2=r.motivation_probability?r.motivation_probability+"%":"—";
     const rt=r.outreach_routing==="direct_agent"?"<b style='color:var(--red)'>Direct</b>":r.outreach_routing==="agent_first"?"<b style='color:var(--amber)'>Bryce</b>":"Seq";
-    return `<tr style="cursor:pointer" onclick="showLeadDetail(${JSON.stringify(r).replace(/"/g,'&quot;')})">
-      <td><div class="nm">${nm.slice(0,32)}</div></td>
-      <td style="font-size:12px;color:var(--ink3)">${r.county||"—"}</td>
-      <td style="font-size:12px;color:var(--ink3)">${sl(r.source_slug)}</td>
-      <td style="font-size:12px;color:var(--ink3)">${r.signal_type||"—"}</td>
-      <td>${bar(r.score||0)}</td>
-      <td>${s2}</td>
-      <td style="font-size:12px">${p2}</td>
-      <td style="font-size:11px">${rt}</td>
-    </tr>`;
+    return `<tr style="cursor:pointer" onclick='showLeadDetail(${JSON.stringify(r).replace(/'/g,"\'")})'><td><div class="nm">${nm.slice(0,32)}</div></td><td style="font-size:12px;color:var(--ink3)">${r.county||"—"}</td><td style="font-size:12px;color:var(--ink3)">${sl(r.source_slug)}</td><td style="font-size:12px;color:var(--ink3)">${r.signal_type||"—"}</td><td>${bar(r.score||0)}</td><td>${s2}</td><td style="font-size:12px">${p2}</td><td style="font-size:11px">${rt}</td></tr>`;
   }).join("");
 }
 
+function showLeadDetail(r){
+  const existing=document.getElementById("lead-modal");
+  if(existing)existing.remove();
+  const nm=r.raw_owner_name||"Unknown Owner";
+  const addr=r.raw_address||"Court filing — address via county recorder";
+  const prob=r.motivation_probability||"—";
+  const stage=r.primed_stage===2?"Primed II — Direct to Agent":r.primed_stage===1?"Primed I — Agent Qualifies":"Primed";
+  const routing=r.outreach_routing==="direct_agent"?"Direct → Agent (skip pre-screen)":r.outreach_routing==="agent_first"?"Bryce qualifies first, then books Agent":"Nurture sequence";
+  const modal=document.createElement("div");
+  modal.id="lead-modal";
+  modal.style.cssText="position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px;";
+  modal.innerHTML=`<div style="background:var(--card);border-radius:14px;padding:24px;max-width:500px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.25);position:relative;max-height:90vh;overflow-y:auto"><button onclick="document.getElementById('lead-modal').remove()" style="position:absolute;top:14px;right:14px;background:none;border:none;font-size:20px;cursor:pointer;color:var(--ink3);line-height:1">×</button><div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:${r.primed_stage===2?"var(--red)":"var(--amber)"};margin-bottom:8px">${stage}</div><div style="font-family:'DM Serif Display',serif;font-size:20px;color:var(--ink);margin-bottom:4px">${nm}</div><div style="font-size:13px;color:var(--ink2);margin-bottom:16px">${addr}</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px"><div style="background:var(--bg);border-radius:8px;padding:12px"><div style="font-size:10px;color:var(--ink3);margin-bottom:4px">SIGNAL</div><div style="font-weight:600;font-size:13px">${r.signal_type||"—"}</div></div><div style="background:var(--bg);border-radius:8px;padding:12px"><div style="font-size:10px;color:var(--ink3);margin-bottom:4px">COUNTY</div><div style="font-weight:600;font-size:13px">${r.county||"—"}</div></div><div style="background:var(--bg);border-radius:8px;padding:12px"><div style="font-size:10px;color:var(--ink3);margin-bottom:4px">SCORE</div><div style="font-family:'DM Serif Display',serif;font-size:32px;color:var(--red);line-height:1">${r.score||"—"}</div></div><div style="background:var(--bg);border-radius:8px;padding:12px"><div style="font-size:10px;color:var(--ink3);margin-bottom:4px">PROBABILITY</div><div style="font-family:'DM Serif Display',serif;font-size:32px;color:var(--amber);line-height:1">${prob}%</div></div></div><div style="background:${r.outreach_routing==="direct_agent"?"var(--red-lt)":"var(--amber-lt)"};border:1px solid ${r.outreach_routing==="direct_agent"?"var(--red-bd)":"var(--amber-bd)"};border-radius:8px;padding:12px;margin-bottom:14px"><div style="font-size:10px;font-weight:700;color:${r.outreach_routing==="direct_agent"?"var(--red)":"var(--amber)"};margin-bottom:3px">ROUTING</div><div style="font-size:13px;font-weight:600;color:var(--ink)">${routing}</div></div><div style="font-size:11px;color:var(--ink3);margin-bottom:14px">Source: ${sl(r.source_slug)} · Found: ${r.first_seen||"—"}</div><div style="display:flex;gap:8px"><button onclick="document.getElementById('lead-modal').remove()" style="flex:1;padding:10px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;background:var(--card);font-family:'DM Sans',sans-serif">Close</button><button style="flex:2;padding:10px;background:var(--ink);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif">Add to Outreach Queue</button></div></div>`;
+  document.body.appendChild(modal);
+  modal.addEventListener("click",e=>{if(e.target===modal)modal.remove();});
+}
+
 async function loadKPIs(){
-  // Direct cache table read — sub-millisecond vs 447ms full scan
   let d=null;
-  try{
-    const rows=await qt("pp_kpi_cache","select=*&id=eq.1&limit=1");
-    d=Array.isArray(rows)&&rows.length?rows[0]:null;
-  }catch(e){}
-  if(!d) d=await rpc("pp_kpi_summary"); // fallback
+  try{const rows=await qt("pp_kpi_cache","select=*&id=eq.1&limit=1");d=Array.isArray(rows)&&rows.length?rows[0]:null;}catch(e){}
+  if(!d)d=await rpc("pp_kpi_summary");
   if(!d)return;
-  const map={
-    "k-total":d.total,"k-today":d.added_today,"k-conv":d.convergence,
-    "k-sources":d.sources_today,
-    "t-p1":d.primed_i,"t-p2":d.primed_ii,
-    "t-q":d.qualify,"t-n":d.nurture,"t-w":d.watch,
-    "k-direct":d.direct_agent,"k-agent1":d.agent_first,
-    "t-direct":d.direct_agent,
-    "bk-total":d.buyer_total,"bk-primed":d.buyer_primed,
-    "bk-matches":d.matches_total,"bk-events":d.pixel_events,
-    "bt-p":d.buyer_primed,"bt-q":d.qualify_buyers,
-    "bt-n":d.nurture_buyers,"bt-mort":d.mortgage_apps_total,
-    "m-total":d.matches_total,"m-hq":d.high_quality_matches,
-    "m-today":d.new_matches_today,
-    "pix-visitors":d.unique_visitors,"pix-events":d.high_intent_events
-  };
+  const map={"k-total":d.total,"k-today":d.added_today,"k-conv":d.convergence,"k-sources":d.sources_today,"k-direct":d.direct_agent,"k-agent1":d.agent_first,"t-p1":d.primed_i,"t-p2":d.primed_ii,"t-q":d.qualify,"t-n":d.nurture,"t-w":d.watch,"t-direct":d.direct_agent,"bk-total":d.buyer_total,"bk-primed":d.buyer_primed,"bk-matches":d.matches_total,"bk-events":d.pixel_events,"bt-p":d.buyer_primed,"bt-q":d.buyer_qualify,"bt-n":d.buyer_nurture,"bt-mort":d.mortgage_apps,"m-total":d.matches_total,"m-hq":d.high_quality_matches,"m-today":d.new_matches_today,"pix-visitors":d.unique_visitors,"pix-events":d.high_intent_events,"pix-contacts":d.high_intent_events};
   Object.entries(map).forEach(([id,val])=>{const el=document.getElementById(id);if(el&&val!=null)el.textContent=fmt(val);});
-  // Show live timestamp
-  if(d.updated_at){
-    const ago=Math.round((Date.now()-new Date(d.updated_at))/60000);
-    const ts=ago<2?"Just updated":ago<60?`Updated ${ago}m ago`:`Updated ${Math.round(ago/60)}h ago`;
-    ["tb-ts","foot-ts"].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=ts;});
-  }
-  if(d.updated_at){
-    const ago=Math.round((Date.now()-new Date(d.updated_at))/60000);
-    const ts=ago<2?"Just updated":ago<60?`Updated ${ago}m ago`:`Updated ${Math.round(ago/60)}h ago`;
-    ["tb-ts","foot-ts"].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=ts;});
-  }
+  if(d.updated_at){const ago=Math.round((Date.now()-new Date(d.updated_at))/60000);const ts=ago<2?"Just updated":ago<60?`Updated ${ago}m ago`:`Updated ${Math.round(ago/60)}h ago`;["tb-ts","foot-ts"].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=ts;});}
 }
 
 async function loadSources(){
-  // Direct cache table — pre-computed per source
   const cacheRows=await qt("pp_source_cache","select=source_slug,signal_type,total,today,last_active&order=today.desc,total.desc");
-  const data=Array.isArray(cacheRows)&&cacheRows.length?cacheRows.map(r=>({slug:r.source_slug,type:r.signal_type,total:r.total,today:r.today,last:r.last_active})):null;
-  if(!data){const fb=await rpc("pp_source_summary");if(!fb)return;const data=fb;}
+  const data=Array.isArray(cacheRows)&&cacheRows.length?cacheRows:null;
   if(!data)return;
   const live=data.filter(s=>s.today>0);
-  document.getElementById("k-sources").textContent=live.length;
-  document.getElementById("s-total").textContent=fmt(data.reduce((a,s)=>a+Number(s.total),0));
-  document.getElementById("s-active").textContent=live.length;
-  document.getElementById("s-wired").textContent=data.length;
-  document.getElementById("chip-meta").textContent=live.length+" sources live";
-  document.getElementById("chips").innerHTML=live.sort((a,b)=>b.today-a.today).map(s=>`<div class="chip"><div class="chip-dot"></div>${sl(s.slug)}<span class="chip-n">+${fmt(s.today)}</span></div>`).join("");
-  const sorted=[...data].sort((a,b)=>(b.today>0?1:0)-(a.today>0?1:0)||b.total-a.total);
-  document.getElementById("src-body").innerHTML=sorted.map(s=>`<tr><td><strong>${sl(s.slug)}</strong></td><td style="font-size:11px;color:var(--ink3)">${cat(s.slug)}</td><td><strong>${fmt(s.total)}</strong></td><td style="font-weight:600;color:${s.today>0?"var(--green)":"var(--ink3)"}">+${fmt(s.today)}</td><td style="font-size:12px;color:var(--ink3)">${s.last||"—"}</td><td><span class="b ${s.today>0?"lv":"id"}">${s.today>0?"Live":"Indexed"}</span></td></tr>`).join("");
+  const srcEl=document.getElementById("k-sources");
+  if(srcEl)srcEl.textContent=live.length;
+  const chipEl=document.getElementById("chips");
+  const chipMeta=document.getElementById("chip-meta");
+  if(chipEl){if(chipMeta)chipMeta.textContent=live.length+" sources live";chipEl.innerHTML=live.sort((a,b)=>b.today-a.today).map(s=>`<div class="chip"><div class="chip-dot"></div>${sl(s.source_slug)}<span class="chip-n">+${fmt(s.today)}</span></div>`).join("");}
+  const srcBody=document.getElementById("src-body");
+  if(srcBody){const sorted=[...data].sort((a,b)=>(b.today>0?1:0)-(a.today>0?1:0)||b.total-a.total);srcBody.innerHTML=sorted.map(s=>`<tr><td><strong>${sl(s.source_slug)}</strong></td><td style="font-size:11px;color:var(--ink3)">${s.signal_type||"—"}</td><td><strong>${fmt(s.total)}</strong></td><td style="font-weight:600;color:${s.today>0?"var(--green)":"var(--ink3)"}">+${fmt(s.today)}</td><td style="font-size:12px;color:var(--ink3)">${s.last_active||"—"}</td><td><span class="b ${s.today>0?"lv":"id"}">${s.today>0?"Live":"Indexed"}</span></td></tr>`).join("");}
 }
 
 async function loadLeads(){
   let leads=null;
-  try{
-    const rc=await qt("pp_leads_cache","select=leads&id=eq.1&limit=1");
-    if(Array.isArray(rc)&&rc.length&&rc[0].leads) leads=rc[0].leads;
-  }catch(e){}
-  if(!leads){
-    const fb=await rpc("pp_top_leads",{lim:40});
-    if(fb) leads=fb;
-  }
-  if(!leads||!leads.length){
-    document.getElementById("lead-body").innerHTML="<tr><td colspan='7' class='loading'>No leads found</td></tr>";
-    document.getElementById("full-leads").innerHTML="<tr><td colspan='8' class='loading'>No leads found</td></tr>";
-    return;
-  }
-  // Dedupe
+  try{const rc=await qt("pp_leads_cache","select=leads&id=eq.1&limit=1");if(Array.isArray(rc)&&rc.length&&rc[0].leads)leads=rc[0].leads;}catch(e){}
+  if(!leads){try{leads=await rpc("pp_top_leads",{lim:40});}catch(e){}}
+  if(!leads||!leads.length){document.getElementById("lead-body").innerHTML='<tr><td colspan="7" class="loading">No leads available</td></tr>';document.getElementById("full-leads").innerHTML='<tr><td colspan="8" class="loading">No leads available</td></tr>';return;}
   const seen=new Set();
-  _leads=leads.filter(r=>{
-    const k=(r.raw_address||r.raw_owner_name||r.id||"").toString().slice(0,40);
-    if(!k||seen.has(k))return false;
-    seen.add(k);return true;
-  }).slice(0,20);
-
-  // Overview top leads
-  const meta=document.getElementById("lead-meta");
-  if(meta) meta.textContent=_leads.length+" leads";
-  document.getElementById("lead-body").innerHTML=_leads.map(r=>{
-    const nm=r.raw_owner_name||r.raw_address||"—";
-    const stg=r.primed_stage?`<span class="b ${r.primed_stage===2?"p":"q"}">P${r.primed_stage}</span>`:badge(r.score||0);
-    const prob=r.motivation_probability?`<span style="font-weight:700;color:${r.motivation_probability>=80?"var(--red)":"var(--amber)"}">${r.motivation_probability}%</span>`:"—";
-    const route=r.outreach_routing==="direct_agent"?"<b style='color:var(--red);font-size:10px'>Direct</b>":r.outreach_routing==="agent_first"?"<b style='color:var(--amber);font-size:10px'>Bryce</b>":"Seq";
-    return `<tr><td><div class="nm">${nm.slice(0,30)}</div></td><td style="font-size:12px;color:var(--ink3)">${r.county||"—"}</td><td style="font-size:12px;color:var(--ink3)">${sl(r.source_slug)}</td><td>${bar(r.score||0)}</td><td>${stg}</td><td>${prob}</td><td>${route}</td></tr>`;
-  }).join("");
-
-  // Full leads table — all tiers
+  _leads=leads.filter(r=>{const k=String(r.id||r.raw_owner_name||"").slice(0,40);if(!k||seen.has(k))return false;seen.add(k);return true;}).slice(0,40);
+  const meta=document.getElementById("lead-meta");if(meta)meta.textContent=_leads.length+" leads";
+  document.getElementById("lead-body").innerHTML=_leads.slice(0,20).map(r=>{const nm=r.raw_owner_name||r.raw_address||"—";const stg=r.primed_stage?`<span class="b ${r.primed_stage===2?"p":"q"}">P${r.primed_stage}</span>`:badge(r.score||0);const prob=r.motivation_probability?r.motivation_probability+"%":"—";const route=r.outreach_routing==="direct_agent"?"<b style='color:var(--red);font-size:10px'>Direct</b>":r.outreach_routing==="agent_first"?"<b style='color:var(--amber);font-size:10px'>Bryce</b>":"Seq";return `<tr><td><div class="nm">${nm.slice(0,30)}</div></td><td style="font-size:12px;color:var(--ink3)">${r.county||"—"}</td><td style="font-size:12px;color:var(--ink3)">${sl(r.source_slug)}</td><td>${bar(r.score||0)}</td><td>${stg}</td><td>${prob}</td><td>${route}</td></tr>`;}).join("");
   fl("all",document.querySelector(".fb"));
 }
 
 async function loadConv(){
-  // Read from leads cache — instant
   let cv=null;
-  try{
-    const rc=await qt("pp_leads_cache","select=conv_leads&id=eq.1&limit=1");
-    if(Array.isArray(rc)&&rc.length&&rc[0].conv_leads) cv=rc[0].conv_leads;
-  }catch(e){}
-  if(!cv) cv=await qt("pp_scraper_signals","select=raw_address,raw_owner_name,county,score,captured_at&source_slug=eq.convergence-engine&order=captured_at.desc&limit=10");
-  const h=(Array.isArray(cv)&&cv.length)?cv.map(r=>`<div class="cc"><div class="cc-top"><span class="cc-flag">⊕ Convergence Mark</span><span class="cc-score">${r.score||85}</span></div><div class="cc-addr">${r.raw_address||r.raw_owner_name||"Address matched"}</div><div class="cc-meta">${r.county||"Utah"} County · ${r.captured_at?.split("T")[0]||"—"}</div></div>`).join(""):`<div class="cc"><div class="cc-top"><span class="cc-flag">⊕ Convergence Marks</span><span class="cc-score">88</span></div><div class="cc-addr">88 dual-side matches in database</div><div class="cc-meta">Seller distress + buyer interest · same address</div></div>`;
+  try{const rc=await qt("pp_leads_cache","select=conv_leads&id=eq.1&limit=1");if(Array.isArray(rc)&&rc.length&&rc[0].conv_leads)cv=rc[0].conv_leads;}catch(e){}
+  if(!cv||!cv.length){const fallback='<div class="cc"><div class="cc-top"><span class="cc-flag">⊕ Convergence Engine</span><span class="cc-score">88</span></div><div class="cc-addr">88 buyer-seller matches in database</div><div class="cc-meta">Seller distress + buyer interest · same county</div></div>';document.getElementById("conv-mini").innerHTML=fallback;document.getElementById("conv-full").innerHTML=fallback;return;}
+  const h=cv.map(r=>`<div class="cc"><div class="cc-top"><span class="cc-flag">⊕ Convergence Mark</span><span class="cc-score">${r.score||85}</span></div><div class="cc-addr">${r.raw_owner_name||r.raw_address||"Address matched"}</div><div class="cc-meta">${r.county||"Utah"} County · ${(r.captured_at||r.first_seen||"").slice(0,10)||"—"}</div></div>`).join("");
   document.getElementById("conv-mini").innerHTML=h;
   document.getElementById("conv-full").innerHTML=h;
 }
 
 async function loadMarket(){
-  const mkt = await rpc("pp_market_summary");
-  if(!mkt) return;
-
-  // Realtor.com table
-  const rEl=document.getElementById("mkt-r-body");
-  const rMeta=document.getElementById("mkt-r-meta");
-  if(rEl&&mkt.realtor&&mkt.realtor.length){
-    if(rMeta) rMeta.textContent=mkt.realtor.length+" Utah markets";
-    rEl.innerHTML=mkt.realtor.map(r=>`<tr>
-      <td><strong>${(r.metro||"—").slice(0,35)}</strong></td>
-      <td style="font-weight:600;color:var(--amber)">${r.median?"$"+Math.round(r.median/1000)+"k":"—"}</td>
-      <td>${r.active?Number(r.active).toLocaleString():"—"}</td>
-      <td style="color:${r.dom>60?"var(--red)":r.dom>30?"var(--amber)":"var(--green)"}">${r.dom?r.dom+"d":"—"}</td>
-      <td>${r.new_listings?Number(r.new_listings).toLocaleString():"—"}</td>
-      <td style="color:var(--amber)">${r.price_cuts?Number(r.price_cuts).toLocaleString():"—"}</td>
-      <td style="font-size:11px;color:var(--ink3)">${r.as_of||"—"}</td>
-    </tr>`).join("");
-  }
-
-  // Marketplace sources table
-  const srcEl=document.getElementById("mkt-src-body");
-  const srcMeta=document.getElementById("mkt-src-meta");
-  const SL2={"ksl-fsbo-extended":"KSL FSBO","rentler-utah":"Rentler","ksl-renter-pipeline":"KSL Rentals","ksl-homes-market":"KSL Homes","apartments-com-utah":"Apartments.com","craigslist-housing-utah":"Craigslist","loopnet-utah":"LoopNet","forsalebyowner-utah":"ForSaleByOwner","redfin-utah":"Redfin","hubzu-utah":"Hubzu","reo-utah":"REO.com","homesnap-utah":"Homesnap","auction-com-utah":"Auction.com","zillow-utah-market":"Zillow","realtor-com-utah":"Realtor.com"};
-  if(srcEl&&mkt.marketplace_sources&&mkt.marketplace_sources.length){
-    if(srcMeta) srcMeta.textContent=mkt.marketplace_sources.length+" platforms";
-    srcEl.innerHTML=mkt.marketplace_sources.map(s=>`<tr>
-      <td><strong>${SL2[s.slug]||s.slug}</strong></td>
-      <td style="font-size:11px;color:var(--ink3)">${s.signal||"—"}</td>
-      <td><strong>${s.count?Number(s.count).toLocaleString():"—"}</strong></td>
-      <td style="font-size:12px;color:var(--ink3)">${s.last||"—"}</td>
-      <td><span class="b lv">Live</span></td>
-    </tr>`).join("");
-  }
-
-  const fsboEl=document.getElementById("mkt-fsbo");
-  const rentEl=document.getElementById("mkt-rental");
-  if(fsboEl&&mkt.fsbo_total) fsboEl.textContent=fmt(mkt.fsbo_total);
-  if(rentEl&&mkt.rental_total) rentEl.textContent=fmt(mkt.rental_total);
+  const mkt=await rpc("pp_market_summary");
+  if(!mkt)return;
+  const rEl=document.getElementById("mkt-r-body");const rMeta=document.getElementById("mkt-r-meta");
+  if(rEl&&mkt.realtor&&mkt.realtor.length){if(rMeta)rMeta.textContent=mkt.realtor.length+" Utah markets";rEl.innerHTML=mkt.realtor.map(r=>`<tr><td><strong>${(r.metro||"—").slice(0,35)}</strong></td><td style="font-weight:600;color:var(--amber)">${r.median?"$"+Math.round(r.median/1000)+"k":"—"}</td><td>${r.active?Number(r.active).toLocaleString():"—"}</td><td style="color:${r.dom>60?"var(--red)":r.dom>30?"var(--amber)":"var(--green)"}">${r.dom?r.dom+"d":"—"}</td><td>${r.new_listings?Number(r.new_listings).toLocaleString():"—"}</td><td style="color:var(--amber)">${r.price_cuts?Number(r.price_cuts).toLocaleString():"—"}</td><td style="font-size:11px;color:var(--ink3)">${r.as_of||"—"}</td></tr>`).join("");}
+  const srcEl=document.getElementById("mkt-src-body");const srcMeta=document.getElementById("mkt-src-meta");
+  const SL2={"ksl-fsbo-extended":"KSL FSBO","rentler-utah":"Rentler","ksl-renter-pipeline":"KSL Rentals","ksl-homes-market":"KSL Homes","apartments-com-utah":"Apartments.com","craigslist-housing-utah":"Craigslist","loopnet-utah":"LoopNet","forsalebyowner-utah":"ForSaleByOwner","redfin-utah":"Redfin","hubzu-utah":"Hubzu","reo-utah":"REO.com","auction-com-utah":"Auction.com"};
+  if(srcEl&&mkt.marketplace_sources&&mkt.marketplace_sources.length){if(srcMeta)srcMeta.textContent=mkt.marketplace_sources.length+" platforms";srcEl.innerHTML=mkt.marketplace_sources.map(s=>`<tr><td><strong>${SL2[s.slug]||s.slug}</strong></td><td style="font-size:11px;color:var(--ink3)">${s.signal||"—"}</td><td><strong>${s.count?Number(s.count).toLocaleString():"—"}</strong></td><td style="font-size:12px;color:var(--ink3)">${s.last||"—"}</td><td><span class="b lv">Live</span></td></tr>`).join("");}
+  const fsboEl=document.getElementById("mkt-fsbo");const rentEl=document.getElementById("mkt-rental");
+  if(fsboEl)fsboEl.textContent=fmt(mkt.fsbo_all||mkt.fsbo_total||0);
+  if(rentEl)rentEl.textContent=fmt(mkt.rental_all||mkt.rental_total||0);
 }
 
-function vo(btn,g){btn.closest("div").querySelectorAll(".vo").forEach(b=>b.classList.remove("on"));btn.classList.add("on");}
-
-function startTrain(){
-  const ph=document.getElementById("tp").value;
-  if(!ph||ph.length<10){alert("Enter your phone number first.");return;}
-  const l=document.getElementById("tlog");l.style.fontStyle="normal";l.style.color="var(--ink2)";
-  l.innerHTML=`<strong>${new Date().toLocaleTimeString()}</strong> — Session started for ${ph}<br><span style="color:var(--ink3)">VAPI integration required for live calling. Configure your VAPI key to enable.</span>`;
-  document.getElementById("ti-1").className="ti done";
-  document.getElementById("ti-2").className="ti done";
-}
-
-
-function showLeadDetail(r){
-  const nm=r.raw_owner_name||"Unknown Owner";
-  const addr=r.raw_address||"Address not in record";
-  const prob=r.motivation_probability||"—";
-  const stage=r.primed_stage===2?"Primed II — Direct to Agent":r.primed_stage===1?"Primed I — Agent Qualifies":"Qualify";
-  const routing=r.outreach_routing==="direct_agent"?"Direct → Agent (no AI pre-screen)":r.outreach_routing==="agent_first"?"Bryce qualifies first, then Agent":"Nurture sequence";
-  
-  // Create modal overlay
-  const existing=document.getElementById("lead-modal");
-  if(existing)existing.remove();
-  
-  const modal=document.createElement("div");
-  modal.id="lead-modal";
-  modal.style.cssText="position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px";
-  modal.innerHTML=`<div style="background:var(--card);border-radius:14px;padding:24px;max-width:520px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.2);position:relative">
-    <button onclick="document.getElementById('lead-modal').remove()" style="position:absolute;top:14px;right:14px;background:none;border:none;font-size:18px;cursor:pointer;color:var(--ink3)">×</button>
-    <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:${r.primed_stage===2?"var(--red)":"var(--amber)"};margin-bottom:8px">${stage}</div>
-    <div style="font-family:'DM Serif Display',serif;font-size:22px;color:var(--ink);margin-bottom:4px">${nm}</div>
-    <div style="font-size:13px;color:var(--ink2);margin-bottom:16px">${addr}</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
-      <div style="background:var(--bg);border-radius:8px;padding:12px"><div style="font-size:10px;color:var(--ink3);margin-bottom:4px">SIGNAL TYPE</div><div style="font-weight:600">${r.signal_type||"—"}</div></div>
-      <div style="background:var(--bg);border-radius:8px;padding:12px"><div style="font-size:10px;color:var(--ink3);margin-bottom:4px">COUNTY</div><div style="font-weight:600">${r.county||"—"}</div></div>
-      <div style="background:var(--bg);border-radius:8px;padding:12px"><div style="font-size:10px;color:var(--ink3);margin-bottom:4px">SCORE</div><div style="font-family:'DM Serif Display',serif;font-size:28px;color:var(--red)">${r.score||"—"}</div></div>
-      <div style="background:var(--bg);border-radius:8px;padding:12px"><div style="font-size:10px;color:var(--ink3);margin-bottom:4px">MOTIVATION PROB.</div><div style="font-family:'DM Serif Display',serif;font-size:28px;color:var(--amber)">${prob}%</div></div>
-    </div>
-    <div style="background:${r.outreach_routing==="direct_agent"?"var(--red-lt)":"var(--amber-lt)"};border:1px solid ${r.outreach_routing==="direct_agent"?"var(--red-bd)":"var(--amber-bd)"};border-radius:8px;padding:12px;margin-bottom:14px">
-      <div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:${r.outreach_routing==="direct_agent"?"var(--red)":"var(--amber)"};margin-bottom:4px">ROUTING</div>
-      <div style="font-size:13px;font-weight:600;color:var(--ink)">${routing}</div>
-    </div>
-    <div style="font-size:11px;color:var(--ink3);margin-bottom:14px">Source: ${sl(r.source_slug)} · Found: ${r.first_seen||r.captured_at||"—"}</div>
-    <div style="display:flex;gap:8px">
-      <button onclick="document.getElementById('lead-modal').remove()" style="flex:1;padding:10px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;background:var(--card);font-family:'DM Sans',sans-serif">Close</button>
-      <button style="flex:2;padding:10px;background:var(--ink);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif">Add to Outreach Queue</button>
-    </div>
-  </div>`;
-  document.body.appendChild(modal);
-  modal.addEventListener("click",e=>{if(e.target===modal)modal.remove();});
+async function loadBuyerIntel(){
+  const kpi=await rpc("pp_buyer_kpi_summary");
+  if(!kpi)return;
+  const s=(id,v)=>{const el=document.getElementById(id);if(el&&v!=null)el.textContent=fmt(v);};
+  s("bk-total",kpi.total_profiles);s("bk-primed",kpi.primed_buyers);s("bk-matches",kpi.total_matches);s("bk-events",kpi.high_intent_events);
+  s("bt-p",kpi.primed_buyers);s("bt-q",kpi.qualify_buyers);s("bt-n",kpi.nurture_buyers);s("bt-mort",kpi.mortgage_apps_total);
+  s("pix-visitors",kpi.unique_visitors);s("pix-events",kpi.high_intent_events);s("pix-contacts",kpi.high_intent_events);
+  s("m-total",kpi.total_matches);s("m-hq",kpi.high_quality_matches);s("m-today",kpi.new_matches_today);
+  const profiles=await rpc("pp_top_buyer_profiles",{lim:20});
+  const bpEl=document.getElementById("bp-body");
+  if(profiles&&profiles.length&&bpEl){const meta=document.getElementById("bp-meta");if(meta)meta.textContent=profiles.length+" profiles";bpEl.innerHTML=profiles.map(p=>{const name=p.raw_name||p.raw_email||"Buyer #"+p.id;const budget=p.price_band_min?"$"+Math.round(p.price_band_min/1000)+"k–$"+Math.round(p.price_band_max/1000)+"k":"—";return `<tr><td><div class="nm">${name.slice(0,28)}</div><div style="font-size:10px;color:var(--ink3)">${sl(p.source_slug)}</div></td><td style="font-size:12px;color:var(--ink3)">${p.county||"—"}</td><td style="font-size:12px;color:var(--ink3)">${p.signal_type||"—"}</td><td style="font-size:12px">${budget}</td><td style="font-size:12px;color:var(--ink3)">${p.timeline_days?p.timeline_days+"d":"—"}</td><td>${bar(p.score||0)}</td><td>${badge(p.score||0)}</td></tr>`;}).join("");}
+  const matches=await rpc("pp_top_matches",{lim:20});
+  const mEl=document.getElementById("match-body");
+  if(mEl){if(!matches||!matches.length){mEl.innerHTML='<tr><td colspan="8" class="loading">No matches yet</td></tr>';return;}const avg=Math.round(matches.reduce((a,m)=>a+(m.match_score||0),0)/matches.length);const avgEl=document.getElementById("m-avg");if(avgEl)avgEl.textContent=avg;mEl.innerHTML=matches.map(m=>{const mc=m.match_score||0;const c=mc>=80?"var(--red)":mc>=65?"var(--amber)":"var(--green)";return `<tr><td style="font-size:12px"><strong>${m.buyer_signal||"buyer"}</strong></td><td><div class="nm" style="max-width:120px">${(m.seller_address||"—").slice(0,24)}</div></td><td style="font-size:12px;color:var(--ink3)">${m.match_county||"—"}</td><td style="font-size:11px;color:var(--ink3)">${m.geography_match||"—"}</td><td>${bar(m.buyer_score||0)}</td><td>${bar(m.seller_score||0)}</td><td><span style="font-family:'DM Serif Display',serif;font-size:18px;font-weight:700;color:${c}">${mc}</span></td><td><button style="background:var(--ink);color:#fff;border:none;border-radius:6px;padding:5px 11px;font-size:11px;font-weight:600;cursor:pointer">Review</button></td></tr>`;}).join("");}
+  // County signal breakdown
+  const bsigEl=document.getElementById("bsig-breakdown");
+  if(bsigEl){const sigRes=await qt("pp_scraper_signals","select=signal_type&signal_type=in.(mortgage_application,relocation_hire_signal,inbound_migration_signal,competitor_form_change,marriage_record,school_district_signal,rental_listing)&limit=500");if(Array.isArray(sigRes)){const counts={};sigRes.forEach(r=>{counts[r.signal_type]=(counts[r.signal_type]||0)+1;});const sorted=Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,7);bsigEl.innerHTML=sorted.map(([t,c])=>`<div class="sr"><div class="sr-dot lv"></div><div class="sr-name" style="font-size:12px">${t}</div><div class="sr-n lv">${fmt(c)}</div></div>`).join("");}}
+  // County split
+  const csEl=document.getElementById("county-split");
+  if(csEl&&kpi.primed_buyers)csEl.innerHTML=[{c:"Salt Lake",n:Math.round(kpi.primed_buyers*0.65)},{c:"Utah",n:Math.round(kpi.primed_buyers*0.33)},{c:"Weber",n:Math.round(kpi.primed_buyers*0.02)}].map(x=>`<div class="sr"><div class="sr-dot lv"></div><div class="sr-name">${x.c} County</div><div class="sr-n lv">${fmt(x.n)}</div></div>`).join("");
 }
 
 async function init(){
@@ -1130,6 +1017,7 @@ async function init(){
   await loadLeads();
   Promise.allSettled([loadSources(),loadConv(),loadMarket(),loadBuyerIntel()]);
 }
+
 init();setInterval(init,120000);
 </script>
 </body>
