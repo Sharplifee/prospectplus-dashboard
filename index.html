@@ -618,16 +618,57 @@ body {
     <div class="pg" id="pg-market">
       <div class="pg-hdr">
         <h1>Market Pulse</h1>
-        <p>Live market data across Utah, Salt Lake, and Weber Counties.</p>
+        <p>Live market data across Utah, Salt Lake, and Weber Counties — pulled from Realtor.com, Zillow, KSL, Rentler, and all active marketplace sources.</p>
       </div>
+
+      <!-- Home value strip -->
+      <div class="sl">Zillow Home Values</div>
       <div class="kpi-row" style="grid-template-columns:repeat(3,1fr);margin-bottom:20px">
-        <div class="kc"><div class="kc-l">Salt Lake City</div><div class="kc-v">$569k</div><div class="kc-d">Zillow Home Value</div></div>
-        <div class="kc"><div class="kc-l">Provo</div><div class="kc-v">$546k</div><div class="kc-d">Zillow Home Value</div></div>
+        <div class="kc"><div class="kc-l">Salt Lake City</div><div class="kc-v">$557k</div><div class="kc-d">Zillow · Dec 2025</div></div>
+        <div class="kc"><div class="kc-l">Provo-Orem-Lehi</div><div class="kc-v">$560k</div><div class="kc-d">Zillow · Nov 2025</div></div>
         <div class="kc"><div class="kc-l">Ogden</div><div class="kc-v">$518k</div><div class="kc-d">Zillow Home Value</div></div>
       </div>
-      <div class="g2">
-        <div class="panel"><div class="ph"><h3>Realtor.com Signals</h3><div class="meta">Live</div></div><div class="pb" id="mkt-r"><div class="loading">Loading...</div></div></div>
-        <div class="panel"><div class="ph"><h3>Zillow Market Signals</h3><div class="meta">Live</div></div><div class="pb" id="mkt-z"><div class="loading">Loading...</div></div></div>
+
+      <!-- Realtor.com Utah market data -->
+      <div class="sl">Realtor.com — Utah Markets</div>
+      <div class="panel" style="margin-bottom:14px">
+        <div class="ph"><h3>Active Market Inventory</h3><div class="meta" id="mkt-r-meta">Loading...</div></div>
+        <div class="tw">
+          <table class="tbl">
+            <thead><tr><th>Metro</th><th>Median Price</th><th>Active Listings</th><th>Days on Market</th><th>New Listings</th><th>Price Cuts</th><th>As Of</th></tr></thead>
+            <tbody id="mkt-r-body"><tr><td colspan="7" class="loading">Loading...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Marketplace sources -->
+      <div class="sl">Marketplace Sources — Active Signal Feeds</div>
+      <div class="panel" style="margin-bottom:14px">
+        <div class="ph"><h3>All Monitored Platforms</h3><div class="meta" id="mkt-src-meta">Loading...</div></div>
+        <div class="tw">
+          <table class="tbl">
+            <thead><tr><th>Platform</th><th>Signal Type</th><th>Total Records</th><th>Last Active</th><th>Status</th></tr></thead>
+            <tbody id="mkt-src-body"><tr><td colspan="5" class="loading">Loading...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- FSBO + Rental counts -->
+      <div class="g2" style="margin-bottom:0">
+        <div class="panel" style="margin-bottom:0">
+          <div class="ph"><h3>KSL FSBO Listings</h3><div class="meta">Live</div></div>
+          <div class="pb" style="text-align:center;padding:24px">
+            <div style="font-family:'DM Serif Display',serif;font-size:48px;color:var(--amber)" id="mkt-fsbo">—</div>
+            <div style="font-size:12px;color:var(--ink3);margin-top:6px">Active FSBO listings in Utah County market</div>
+          </div>
+        </div>
+        <div class="panel" style="margin-bottom:0">
+          <div class="ph"><h3>Rental Listings — Rentler</h3><div class="meta">Live</div></div>
+          <div class="pb" style="text-align:center;padding:24px">
+            <div style="font-family:'DM Serif Display',serif;font-size:48px;color:var(--teal)" id="mkt-rental">—</div>
+            <div style="font-size:12px;color:var(--ink3);margin-top:6px">Active rental listings — buyer intent signal pool</div>
+          </div>
+        </div>
       </div>
     </div>
 
