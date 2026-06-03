@@ -495,19 +495,23 @@ body {
     <div class="pg on" id="pg-overview">
 
       <div class="sl">System Totals</div>
-      <div class="kpi-row">
+      <div class="kpi-row" style="grid-template-columns:repeat(6,1fr)">
         <div class="kc"><div class="kc-l">Signals Indexed</div><div class="kc-v amber" id="k-total">—</div><div class="kc-d">All sources · all time</div></div>
         <div class="kc"><div class="kc-l">Added Today</div><div class="kc-v green" id="k-today">—</div><div class="kc-d">Last 24 hours</div></div>
         <div class="kc"><div class="kc-l">Sources Active</div><div class="kc-v" id="k-sources">—</div><div class="kc-d">Running today</div></div>
-        <div class="kc"><div class="kc-l">Convergence Marks</div><div class="kc-v amber" id="k-conv">—</div><div class="kc-d">Buyer + seller match</div></div>
+        <div class="kc"><div class="kc-l">Convergence Marks</div><div class="kc-v amber" id="k-conv">—</div><div class="kc-d">Multi-source confirms</div></div>
+        <div class="kc"><div class="kc-l">Direct to Agent</div><div class="kc-v" style="color:var(--red)" id="k-direct">—</div><div class="kc-d">Primed II · 84%+ prob.</div></div>
+        <div class="kc"><div class="kc-l">Agent Qualifies</div><div class="kc-v" style="color:var(--amber)" id="k-agent1">—</div><div class="kc-d">Primed I · 58%+ prob.</div></div>
       </div>
 
       <div class="sl">Lead Queue by Priority</div>
-      <div class="tier-row">
-        <div class="tc p"><div class="tc-l">Primed</div><div class="tc-v" id="t-p">—</div><div class="tc-d">Score 75–100</div><div class="tc-a">→ Call today</div></div>
-        <div class="tc q"><div class="tc-l">Qualify</div><div class="tc-v" id="t-q">—</div><div class="tc-d">Score 50–74</div><div class="tc-a">→ Reach out this week</div></div>
-        <div class="tc n"><div class="tc-l">Nurture</div><div class="tc-v" id="t-n">—</div><div class="tc-d">Score 25–49</div><div class="tc-a">→ 30-day follow</div></div>
-        <div class="tc w"><div class="tc-l">Watch</div><div class="tc-v" id="t-w">—</div><div class="tc-d">Score 0–24</div><div class="tc-a">→ Monitor</div></div>
+      <div class="tier-row" style="grid-template-columns:repeat(6,1fr)">
+        <div class="tc" style="background:#fff0f0;border-color:#fca5a5"><div class="tc-l" style="color:#dc2626">Primed II</div><div class="tc-v" style="color:#dc2626;font-size:26px" id="t-p2">—</div><div class="tc-d">Score 88–100<br>Multi-signal</div><div class="tc-a" style="color:#dc2626">→ Direct to agent</div></div>
+        <div class="tc p"><div class="tc-l">Primed I</div><div class="tc-v" style="font-size:26px" id="t-p1">—</div><div class="tc-d">Score 75–87<br>Single signal</div><div class="tc-a">→ Agent qualifies</div></div>
+        <div class="tc q"><div class="tc-l">Qualify</div><div class="tc-v" style="font-size:26px" id="t-q">—</div><div class="tc-d">Score 50–74</div><div class="tc-a">→ This week</div></div>
+        <div class="tc n"><div class="tc-l">Nurture</div><div class="tc-v" style="font-size:26px" id="t-n">—</div><div class="tc-d">Score 25–49</div><div class="tc-a">→ 30-day follow</div></div>
+        <div class="tc w"><div class="tc-l">Watch</div><div class="tc-v" style="font-size:26px" id="t-w">—</div><div class="tc-d">Score 0–24</div><div class="tc-a">→ Monitor</div></div>
+        <div class="tc" style="background:var(--blue-lt);border-color:var(--blue-bd)"><div class="tc-l" style="color:var(--blue)">Routing</div><div class="tc-v" style="color:var(--blue);font-size:26px" id="t-direct">—</div><div class="tc-d">Direct to agent<br>right now</div><div class="tc-a" style="color:var(--blue)">→ Highest priority</div></div>
       </div>
 
       <div class="g3l">
@@ -518,7 +522,7 @@ body {
             <div class="tw">
               <table class="tbl">
                 <thead><tr>
-                  <th>Property / Owner</th><th>County</th><th>Source</th><th>Score</th><th>Priority</th>
+                  <th>Property / Owner</th><th>County</th><th>Source</th><th>Score</th><th>Stage</th><th>Probability</th><th>Routing</th>
                 </tr></thead>
                 <tbody id="lead-body"><tr><td colspan="5" class="loading">Loading...</td></tr></tbody>
               </table>
@@ -869,7 +873,13 @@ async function loadKPIs(){
   }catch(e){}
   if(!d) d=await rpc("pp_kpi_summary"); // fallback
   if(!d)return;
-  const map={"k-total":d.total,"k-today":d.added_today||d.added_today,"k-conv":d.convergence,"t-p":d.primed,"t-q":d.qualify,"t-n":d.nurture,"t-w":d.watch};
+  const map={
+    "k-total":d.total,"k-today":d.added_today,"k-conv":d.convergence,
+    "t-p1":d.primed_i,"t-p2":d.primed_ii,
+    "t-q":d.qualify,"t-n":d.nurture,"t-w":d.watch,
+    "k-direct":d.direct_agent,"k-agent1":d.agent_first,
+    "t-direct":d.direct_agent
+  };
   Object.entries(map).forEach(([id,val])=>{const el=document.getElementById(id);if(el&&val!=null)el.textContent=fmt(val);});
   if(d.updated_at){
     const ago=Math.round((Date.now()-new Date(d.updated_at))/60000);
