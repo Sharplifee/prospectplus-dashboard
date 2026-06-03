@@ -989,13 +989,44 @@ async function loadConv(){
 }
 
 async function loadMarket(){
-  const m=await qt("pp_scraper_signals","select=raw_payload,source_slug,raw_address,captured_at&source_slug=in.(realtor-market-utah,zillow-market-signals)&order=captured_at.desc&limit=60");
-  if(!Array.isArray(m))return;
-  const pp=x=>{try{return JSON.parse(x.raw_payload||"{}")}catch(e){return{}}};
-  const rv=m.filter(x=>x.source_slug==="realtor-market-utah").slice(0,6);
-  const zv=m.filter(x=>x.source_slug==="zillow-market-signals").slice(0,6);
-  document.getElementById("mkt-r").innerHTML=rv.length?rv.map(x=>{const p=pp(x);return`<div class="sr"><div class="sr-dot lv"></div><div class="sr-name">${p.metro||x.raw_address?.slice(0,32)||"Signal"}</div><div class="sr-n lv">${p.active_listing_count||p.value||"—"}</div></div>`}).join(""):"<div class='loading'>Loading...</div>";
-  document.getElementById("mkt-z").innerHTML=zv.length?zv.map(x=>{const p=pp(x);return`<div class="sr"><div class="sr-dot lv"></div><div class="sr-name">${p.indicator_name||x.raw_address?.slice(0,32)||"Signal"}</div><div class="sr-n lv">${p.value?"$"+Number(p.value).toLocaleString():(p.signal_value||"—")}</div></div>`}).join(""):"<div class='loading'>Loading...</div>";
+  const mkt = await rpc("pp_market_summary");
+  if(!mkt) return;
+
+  // Realtor.com table
+  const rEl=document.getElementById("mkt-r-body");
+  const rMeta=document.getElementById("mkt-r-meta");
+  if(rEl&&mkt.realtor&&mkt.realtor.length){
+    if(rMeta) rMeta.textContent=mkt.realtor.length+" Utah markets";
+    rEl.innerHTML=mkt.realtor.map(r=>`<tr>
+      <td><strong>${(r.metro||"—").slice(0,35)}</strong></td>
+      <td style="font-weight:600;color:var(--amber)">${r.median?"$"+Math.round(r.median/1000)+"k":"—"}</td>
+      <td>${r.active?Number(r.active).toLocaleString():"—"}</td>
+      <td style="color:${r.dom>60?"var(--red)":r.dom>30?"var(--amber)":"var(--green)"}">${r.dom?r.dom+"d":"—"}</td>
+      <td>${r.new_listings?Number(r.new_listings).toLocaleString():"—"}</td>
+      <td style="color:var(--amber)">${r.price_cuts?Number(r.price_cuts).toLocaleString():"—"}</td>
+      <td style="font-size:11px;color:var(--ink3)">${r.as_of||"—"}</td>
+    </tr>`).join("");
+  }
+
+  // Marketplace sources table
+  const srcEl=document.getElementById("mkt-src-body");
+  const srcMeta=document.getElementById("mkt-src-meta");
+  const SL2={"ksl-fsbo-extended":"KSL FSBO","rentler-utah":"Rentler","ksl-renter-pipeline":"KSL Rentals","ksl-homes-market":"KSL Homes","apartments-com-utah":"Apartments.com","craigslist-housing-utah":"Craigslist","loopnet-utah":"LoopNet","forsalebyowner-utah":"ForSaleByOwner","redfin-utah":"Redfin","hubzu-utah":"Hubzu","reo-utah":"REO.com","homesnap-utah":"Homesnap","auction-com-utah":"Auction.com","zillow-utah-market":"Zillow","realtor-com-utah":"Realtor.com"};
+  if(srcEl&&mkt.marketplace_sources&&mkt.marketplace_sources.length){
+    if(srcMeta) srcMeta.textContent=mkt.marketplace_sources.length+" platforms";
+    srcEl.innerHTML=mkt.marketplace_sources.map(s=>`<tr>
+      <td><strong>${SL2[s.slug]||s.slug}</strong></td>
+      <td style="font-size:11px;color:var(--ink3)">${s.signal||"—"}</td>
+      <td><strong>${s.count?Number(s.count).toLocaleString():"—"}</strong></td>
+      <td style="font-size:12px;color:var(--ink3)">${s.last||"—"}</td>
+      <td><span class="b lv">Live</span></td>
+    </tr>`).join("");
+  }
+
+  const fsboEl=document.getElementById("mkt-fsbo");
+  const rentEl=document.getElementById("mkt-rental");
+  if(fsboEl&&mkt.fsbo_total) fsboEl.textContent=fmt(mkt.fsbo_total);
+  if(rentEl&&mkt.rental_total) rentEl.textContent=fmt(mkt.rental_total);
 }
 
 function vo(btn,g){btn.closest("div").querySelectorAll(".vo").forEach(b=>b.classList.remove("on"));btn.classList.add("on");}
