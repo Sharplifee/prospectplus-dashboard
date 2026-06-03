@@ -683,7 +683,7 @@ body {
         <div class="kc"><div class="kc-l">Buyer Profiles</div><div class="kc-v amber" id="bk-total">—</div><div class="kc-d">All signal sources</div></div>
         <div class="kc"><div class="kc-l">Primed Buyers</div><div class="kc-v" style="color:var(--red)" id="bk-primed">—</div><div class="kc-d">Score 75–100</div></div>
         <div class="kc"><div class="kc-l">Buyer-Seller Matches</div><div class="kc-v green" id="bk-matches">—</div><div class="kc-d">Paired opportunities</div></div>
-        <div class="kc"><div class="kc-l">Portal Events</div><div class="kc-v amber" id="bk-events">—</div><div class="kc-d">Behavioral pixel</div></div>
+
       </div>
       <div class="tier-row" style="margin-bottom:20px">
         <div class="tc p"><div class="tc-l">Primed</div><div class="tc-v" id="bt-p">—</div><div class="tc-d">Score 75–100</div><div class="tc-a">→ Contact today</div></div>
@@ -712,18 +712,7 @@ body {
               <div class="pb" id="bsig-breakdown"><div class="loading">Loading...</div></div>
             </div>
           </div>
-          <div>
-            <div class="sl">Portal Pixel</div>
-            <div class="panel">
-              <div class="ph"><h3>Behavioral Tracking</h3><div class="meta">Live</div></div>
-              <div class="pb">
-                <div class="sr"><div class="sr-dot lv"></div><div class="sr-name">Pixel status</div><div class="sr-n lv">Active</div></div>
-                <div class="sr"><div class="sr-dot lv"></div><div class="sr-name">Unique visitors</div><div class="sr-n lv" id="pix-visitors">—</div></div>
-                <div class="sr"><div class="sr-dot lv"></div><div class="sr-name">High-intent events</div><div class="sr-n lv" id="pix-events">—</div></div>
-                <div class="sr"><div class="sr-dot lv"></div><div class="sr-name">Contact form submits</div><div class="sr-n lv" id="pix-contacts">—</div></div>
-              </div>
-            </div>
-          </div>
+
           <div>
             <div class="sl">County Split</div>
             <div class="panel">
@@ -937,8 +926,7 @@ async function loadKPIs(){
   try{const rows=await qt("pp_kpi_cache","select=*&id=eq.1&limit=1");d=Array.isArray(rows)&&rows.length?rows[0]:null;}catch(e){}
   if(!d)d=await rpc("pp_kpi_summary");
   if(!d)return;
-  const map={"k-total":d.total,"k-today":d.added_today,"k-conv":d.convergence,"k-sources":d.sources_today,"k-direct":d.direct_agent,"k-agent1":d.agent_first,"t-p1":d.primed_i,"t-p2":d.primed_ii,"t-q":d.qualify,"t-n":d.nurture,"t-w":d.watch,"t-direct":d.direct_agent,"bk-total":d.buyer_total,"bk-primed":d.buyer_primed,"bk-matches":d.matches_total,"bk-events":d.pixel_events,"bt-p":d.buyer_primed,"bt-q":d.buyer_qualify,"bt-n":d.buyer_nurture,"bt-mort":d.mortgage_apps,"m-total":d.matches_total,"m-hq":d.high_quality_matches,"m-today":d.new_matches_today,"pix-visitors":d.unique_visitors,"pix-events":d.high_intent_events,"pix-contacts":d.high_intent_events};
-  Object.entries(map).forEach(([id,val])=>{const el=document.getElementById(id);if(el&&val!=null)el.textContent=fmt(val);});
+  const map={"k-total":d.total,"k-today":d.added_today,"k-conv":d.convergence,"k-sources":d.sources_today,"k-direct":d.direct_agent,"k-agent1":d.agent_first,"t-p1":d.primed_i,"t-p2":d.primed_ii,"t-q":d.qualify,"t-n":d.nurture,"t-w":d.watch,"t-direct":d.direct_agent,"bk-total":d.buyer_total,"bk-primed":d.buyer_primed,"bk-matches":d.matches_total,"bk-events":d.pixel_events,"bt-p":d.buyer_primed,"bt-q":d.buyer_qualify,"bt-n":d.buyer_nurture,"bt-mort":d.mortgage_apps,"m-total":d.matches_total,"m-hq":d.high_quality_matches,"m-today":d.new_matches_today,val])=>{const el=document.getElementById(id);if(el&&val!=null)el.textContent=fmt(val);});
   if(d.updated_at){const ago=Math.round((Date.now()-new Date(d.updated_at))/60000);const ts=ago<2?"Just updated":ago<60?`Updated ${ago}m ago`:`Updated ${Math.round(ago/60)}h ago`;["tb-ts","foot-ts"].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=ts;});}
 }
 
@@ -994,9 +982,7 @@ async function loadBuyerIntel(){
   const kpi=await rpc("pp_buyer_kpi_summary");
   if(!kpi)return;
   const s=(id,v)=>{const el=document.getElementById(id);if(el&&v!=null)el.textContent=fmt(v);};
-  s("bk-total",kpi.total_profiles);s("bk-primed",kpi.primed_buyers);s("bk-matches",kpi.total_matches);s("bk-events",kpi.high_intent_events);
-  s("bt-p",kpi.primed_buyers);s("bt-q",kpi.qualify_buyers);s("bt-n",kpi.nurture_buyers);s("bt-mort",kpi.mortgage_apps_total);
-  s("pix-visitors",kpi.unique_visitors);s("pix-events",kpi.high_intent_events);s("pix-contacts",kpi.high_intent_events);
+  s("bk-total",kpi.total_profiles);s("bk-primed",kpi.primed_buyers);s("bk-matches",kpi.total_matches);s("bt-p",kpi.primed_buyers);s("bt-q",kpi.qualify_buyers);s("bt-n",kpi.nurture_buyers);s("bt-mort",kpi.mortgage_apps_total);
   s("m-total",kpi.total_matches);s("m-hq",kpi.high_quality_matches);s("m-today",kpi.new_matches_today);
   const profiles=await rpc("pp_top_buyer_profiles",{lim:20});
   const bpEl=document.getElementById("bp-body");
