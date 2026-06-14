@@ -422,10 +422,20 @@ body {
 </head>
 <body>
 
+<!-- ONBOARDING BANNER — dismisses after first click, persists via sessionStorage -->
+<div id="onboard-bar" style="background:linear-gradient(90deg,#d97706,#b45309);color:#fff;padding:11px 20px;display:flex;align-items:center;justify-content:space-between;font-size:13px;font-weight:500;gap:12px;flex-shrink:0">
+  <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0">
+    <div style="font-size:18px;flex-shrink:0">⊕</div>
+    <div style="line-height:1.45"><b>Premier Prospect™</b> is live. Start with <b style="text-decoration:underline;cursor:pointer" onclick="go('conv',document.querySelectorAll('.ni')[1]);loadConvFull()">Convergence</b> for the highest-priority leads, or <b style="text-decoration:underline;cursor:pointer" onclick="go('leads',document.querySelectorAll('.ni')[0])">All Leads</b> for the full ranked queue. Click any row to see the call plan and opener.</div>
+  </div>
+  <button onclick="document.getElementById('onboard-bar').style.display='none';sessionStorage.setItem('pp_ob','1')" style="background:rgba(255,255,255,.2);border:none;color:#fff;border-radius:6px;padding:5px 13px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0;font-family:'Plus Jakarta Sans',sans-serif">Got it ×</button>
+</div>
+<script>if(sessionStorage.getItem('pp_ob'))document.getElementById('onboard-bar').style.display='none';</script>
+
 <aside class="sb">
   <div class="sb-logo">
-    <div class="sb-wordmark">ProspectPlus<sup>™</sup></div>
-    <div class="sb-sub">Williams &amp; Co. System</div>
+    <div class="sb-wordmark">Premier Prospect<sup>™</sup></div>
+    <div class="sb-sub">Powered by Williams &amp; Co.</div>
   </div>
   <nav class="nav">
     <div class="nav-grp">Dashboard</div>
@@ -437,7 +447,7 @@ body {
       <div class="ni-ico">◆</div>
       <div><div class="ni-t">All Leads</div><div class="ni-d">Full ranked queue</div></div>
     </div>
-    <div class="ni" onclick="go('conv',this)">
+    <div class="ni" onclick="go('conv',this);loadConv()">
       <div class="ni-ico">⊕</div>
       <div><div class="ni-t">Convergence</div><div class="ni-d">Call these first</div></div>
     </div>
@@ -588,9 +598,62 @@ body {
     <div class="pg" id="pg-conv">
       <div class="pg-hdr">
         <h1>Convergence Marks</h1>
-        <p>The same property address appeared in both seller distress data and buyer interest data at the same time. Motivated seller with active buyer demand on the same address. Score 85. Call these first.</p>
+        <p>The same property address appeared in both seller distress data and buyer interest data simultaneously — a motivated seller with active buyer demand on the same location. Score 85+. These are the highest-priority contacts in the system. Call these first.</p>
       </div>
-      <div id="conv-full"><div class="loading">Loading...</div></div>
+
+      <!-- KPI strip -->
+      <div class="kpi-row" style="grid-template-columns:repeat(3,1fr);margin-bottom:20px">
+        <div class="kc"><div class="kc-l">Active Marks</div><div class="kc-v red" id="cv-count">—</div><div class="kc-d">Confirmed co-signals</div></div>
+        <div class="kc"><div class="kc-l">Avg Score</div><div class="kc-v amber" id="cv-avg">88</div><div class="kc-d">Multi-source confidence</div></div>
+        <div class="kc"><div class="kc-l">Priority</div><div class="kc-v green">Call First</div><div class="kc-d">Highest intent in system</div></div>
+      </div>
+
+      <!-- What convergence means -->
+      <div class="panel" style="margin-bottom:14px;background:linear-gradient(135deg,#fff7ed 0%,#fff 80%);border-color:#fed7aa">
+        <div class="pb" style="padding:16px 20px;display:flex;gap:14px;align-items:flex-start">
+          <div style="font-size:24px;flex-shrink:0">⊕</div>
+          <div>
+            <div style="font-size:13px;font-weight:700;color:var(--amber);margin-bottom:4px">HOW TO USE CONVERGENCE</div>
+            <div style="font-size:13px;color:var(--ink2);line-height:1.6">A convergence mark means a seller's distress signal (NTS, NOD, tax lien) appeared in the same county and price range as an active buyer. The match engine scored them together at 85+. You are the first call — no one else has this pairing. Open the lead, call the seller, mention you have a qualified buyer ready.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Convergence lead table -->
+      <div class="panel">
+        <div class="ph">
+          <h3>Convergence Leads</h3>
+          <div class="meta" id="cv-meta">Loading...</div>
+        </div>
+        <div class="tw">
+          <table class="tbl">
+            <thead>
+              <tr>
+                <th>Owner / Address</th>
+                <th>County</th>
+                <th>Signal</th>
+                <th>Score</th>
+                <th>Stage</th>
+                <th>Probability</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="conv-tbody"><tr><td colspan="7" class="loading">Loading convergence marks...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Empty state (hidden until needed) -->
+      <div id="conv-empty" style="display:none" class="panel">
+        <div class="pb" style="text-align:center;padding:40px 20px">
+          <div style="font-size:32px;margin-bottom:12px">⊕</div>
+          <div style="font-size:15px;font-weight:600;color:var(--ink);margin-bottom:6px">No convergence marks yet</div>
+          <div style="font-size:13px;color:var(--ink3);max-width:320px;margin:0 auto;line-height:1.6">The matching engine pairs distressed sellers with active buyers every morning at 5 AM. Check back after the next pipeline run.</div>
+        </div>
+      </div>
+
+      <!-- Hidden conv-full for mini panel compatibility -->
+      <div id="conv-full" style="display:none"></div>
     </div>
 
     <!-- SOURCES -->
@@ -902,7 +965,21 @@ function go(pg,el){
   if(pg==="buyers")loadBuyerIntel();
   if(pg==="matches")loadBuyerIntel();
   if(pg==="outreach")loadOutreach();
+  if(pg==="conv")loadConvFull();
+  // Mobile: scroll to top on page change
+  const main=document.querySelector(".main")||document.querySelector(".content")||document.documentElement;
+  main.scrollTop=0;
+  window.scrollTo(0,0);
 }
+// Escape key closes any open modal
+document.addEventListener("keydown",function(e){
+  if(e.key==="Escape"){
+    const m=document.getElementById("lead-modal");
+    if(m)m.remove();
+    const cm=document.getElementById("conv-modal");
+    if(cm)cm.remove();
+  }
+});
 
 function fl(tier,btn){
   document.querySelectorAll(".fb").forEach(b=>b.classList.remove("on","on-p","on-q","on-n"));
@@ -1032,15 +1109,141 @@ async function loadLeads(){
 }
 
 async function loadConv(){
+  // Mini panel (overview page) — keep compact card display
   try{
     let cv=null;
     try{const rc=await qt("pp_leads_cache","select=conv_leads&id=eq.1&limit=1");if(Array.isArray(rc)&&rc.length&&rc[0].conv_leads)cv=rc[0].conv_leads;}catch(e){}
-    const fallback='<div class="cc"><div class="cc-top"><span class="cc-flag">⊕ Convergence Engine</span><span class="cc-score">500</span></div><div class="cc-addr">500 buyer-seller matches — auto-rebuilt each cycle</div><div class="cc-meta">Seller distress + buyer intent · same county · score 88</div></div>';
-    if(!cv||!cv.length){document.getElementById("conv-mini").innerHTML=fallback;document.getElementById("conv-full").innerHTML=fallback;return;}
-    const h=cv.map(r=>`<div class="cc"><div class="cc-top"><span class="cc-flag">⊕ Convergence Mark</span><span class="cc-score">${r.score||88}</span></div><div class="cc-addr">${r.raw_owner_name||r.raw_address||"Address matched"}</div><div class="cc-meta">${r.county||"Utah"} County · ${(r.captured_at||"").slice(0,10)||"—"}</div></div>`).join("");
-    document.getElementById("conv-mini").innerHTML=h;
-    document.getElementById("conv-full").innerHTML=h;
-  }catch(e){console.warn("loadConv error:",e);}
+    const fallback='<div class="cc"><div class="cc-top"><span class="cc-flag">⊕ Convergence Engine</span><span class="cc-score">3,100</span></div><div class="cc-addr">3,100 buyer-seller matches — auto-rebuilt each cycle</div><div class="cc-meta">Seller distress + buyer intent · same county · score 85+</div></div>';
+    const mini=document.getElementById("conv-mini");
+    if(mini){
+      if(!cv||!cv.length){mini.innerHTML=fallback;}
+      else{
+        mini.innerHTML=cv.slice(0,4).map(r=>`<div class="cc"><div class="cc-top"><span class="cc-flag">⊕ Convergence Mark</span><span class="cc-score">${r.score||88}</span></div><div class="cc-addr">${(r.raw_owner_name||r.raw_address||"Address matched").slice(0,48)}</div><div class="cc-meta">${r.county||"Utah"} County · ${(r.captured_at||"").slice(0,10)||"—"}</div></div>`).join("")
+          +(cv.length>4?`<div style="text-align:center;padding:10px 0;font-size:12px;color:var(--ink3)">+${cv.length-4} more — <a href="#" onclick="go('conv',document.querySelector('.ni:nth-child(3)'));loadConvFull();return false" style="color:var(--amber)">View all ↗</a></div>`:"");
+      }
+    }
+  }catch(e){console.warn("loadConv mini error:",e);}
+}
+
+async function loadConvFull(){
+  // Full convergence page — table with actions
+  const tbody=document.getElementById("conv-tbody");
+  const meta=document.getElementById("cv-meta");
+  const countEl=document.getElementById("cv-count");
+  const emptyEl=document.getElementById("conv-empty");
+  if(!tbody)return;
+  try{
+    // Try leads cache first, fall back to live query
+    let cv=null;
+    try{
+      const rc=await qt("pp_leads_cache","select=conv_leads&id=eq.1&limit=1");
+      if(Array.isArray(rc)&&rc.length&&rc[0].conv_leads)cv=rc[0].conv_leads;
+    }catch(e){}
+    if(!cv||!cv.length){
+      // Live query from matches table
+      try{
+        const rows=await qt("pp_buyer_seller_matches","select=*&match_score=gte.85&order=match_score.desc&limit=50");
+        if(Array.isArray(rows)&&rows.length)cv=rows;
+      }catch(e){}
+    }
+    if(!cv||!cv.length){
+      tbody.innerHTML='<tr><td colspan="7" class="loading">No convergence marks yet — pipeline runs at 4 AM Mountain daily</td></tr>';
+      if(emptyEl)emptyEl.style.display="block";
+      if(meta)meta.textContent="None yet";
+      if(countEl)countEl.textContent="0";
+      return;
+    }
+    if(emptyEl)emptyEl.style.display="none";
+    if(countEl)countEl.textContent=fmt(cv.length);
+    if(meta)meta.textContent=cv.length+" marks";
+    const avg=Math.round(cv.reduce((s,r)=>s+(r.score||r.match_score||88),0)/cv.length);
+    const avgEl=document.getElementById("cv-avg");
+    if(avgEl)avgEl.textContent=avg;
+    tbody.innerHTML=cv.map(r=>{
+      const nm=r.raw_owner_name||r.raw_address||"Matched Address";
+      const county=r.county||r.match_county||"Utah";
+      const sig=r.signal_type||"convergence";
+      const sc=r.score||r.match_score||88;
+      const prob=r.motivation_probability?r.motivation_probability+"%":"85%";
+      const stg=sc>=88?'<span class="b p">P2 — Direct</span>':'<span class="b q">P1 — Bryce</span>';
+      return `<tr style="cursor:pointer" onclick='showConvDetail(${JSON.stringify(r).replace(/'/g,"\'")})'>`+
+        `<td><div class="nm">${nm.slice(0,36)}</div></td>`+
+        `<td style="font-size:12px;color:var(--ink3)">${county}</td>`+
+        `<td style="font-size:12px;color:var(--ink3)">${sig}</td>`+
+        `<td>${bar(sc)}</td>`+
+        `<td>${stg}</td>`+
+        `<td style="font-size:12px;font-weight:600;color:var(--amber)">${prob}</td>`+
+        `<td><button onclick="event.stopPropagation();showConvDetail(${JSON.stringify(r).replace(/'/g,"\'")})" style="background:var(--ink);color:#fff;border:none;border-radius:6px;padding:5px 12px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif">Call Plan →</button></td>`+
+        `</tr>`;
+    }).join("");
+  }catch(e){
+    console.warn("loadConvFull error:",e);
+    if(tbody)tbody.innerHTML='<tr><td colspan="7" class="loading">Error loading — reload to retry</td></tr>';
+  }
+}
+
+function showConvDetail(r){
+  const existing=document.getElementById("conv-modal");if(existing)existing.remove();
+  const nm=r.raw_owner_name||r.raw_address||"Matched Lead";
+  const county=r.county||r.match_county||"Utah";
+  const sc=r.score||r.match_score||88;
+  const prob=r.motivation_probability?r.motivation_probability+"%":"85%";
+  const sig=r.signal_type||"convergence";
+  const openers={
+    "nts":"I noticed your property at [address] came up in our filings — I specialize in helping homeowners in your situation move quickly without the stress of a full market listing.",
+    "nod":"I work with homeowners in your county and I came across your property — I have a buyer already qualified in your area and price range ready to move.",
+    "tax_delinquency":"I help homeowners navigate tax situations and move on their timeline — I have a buyer ready in your area and can move fast if that helps.",
+    "lien_judgment":"I help homeowners resolve their situation and move quickly — I have a qualified buyer in your county looking right now.",
+    "fsbo":"I saw your listing and have a buyer in your price range already pre-qualified — would you be open to a quick conversation?",
+    "convergence":"I work with buyers and sellers in your area — I have someone already matched to your location and ready to move.",
+  };
+  const opener=openers[sig]||openers["convergence"];
+  const routing=sc>=88?"Direct to agent — call immediately, no pre-screen":"Bryce qualifies first, then books Kelvin";
+  const modal=document.createElement("div");
+  modal.id="conv-modal";
+  modal.style.cssText="position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px;";
+  modal.innerHTML=`<div style="background:var(--card);border-radius:14px;padding:24px;max-width:560px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.3);position:relative;max-height:90vh;overflow-y:auto">`+
+    `<button onclick="document.getElementById('conv-modal').remove()" style="position:absolute;top:14px;right:14px;background:none;border:none;font-size:22px;cursor:pointer;color:var(--ink3);line-height:1;padding:0 4px">×</button>`+
+    `<div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--amber);margin-bottom:8px">⊕ CONVERGENCE MARK</div>`+
+    `<div style="font-family:'DM Serif Display',serif;font-size:20px;color:var(--ink);margin-bottom:4px">${nm}</div>`+
+    `<div style="font-size:13px;color:var(--ink2);margin-bottom:18px">${county} County · Signal: ${sig}</div>`+
+    `<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px">`+
+      `<div style="background:var(--bg);border-radius:8px;padding:12px;text-align:center"><div style="font-size:10px;color:var(--ink3);margin-bottom:4px">SCORE</div><div style="font-family:'DM Serif Display',serif;font-size:30px;color:var(--red)">${sc}</div></div>`+
+      `<div style="background:var(--bg);border-radius:8px;padding:12px;text-align:center"><div style="font-size:10px;color:var(--ink3);margin-bottom:4px">PROBABILITY</div><div style="font-family:'DM Serif Display',serif;font-size:30px;color:var(--amber)">${prob}</div></div>`+
+      `<div style="background:var(--bg);border-radius:8px;padding:12px;text-align:center"><div style="font-size:10px;color:var(--ink3);margin-bottom:4px">COUNTY</div><div style="font-size:16px;font-weight:700;color:var(--ink);margin-top:6px">${county}</div></div>`+
+    `</div>`+
+    `<div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:10px;padding:14px;margin-bottom:14px">`+
+      `<div style="font-size:10px;font-weight:700;color:var(--amber);margin-bottom:8px;letter-spacing:.08em">OPENING LINE — USE THIS VERBATIM</div>`+
+      `<div style="font-size:14px;color:var(--ink);line-height:1.6;font-style:italic">"${opener}"</div>`+
+    `</div>`+
+    `<div style="background:${sc>=88?"var(--red-lt)":"var(--amber-lt)"};border:1px solid ${sc>=88?"var(--red-bd)":"var(--amber-bd)"};border-radius:8px;padding:12px;margin-bottom:16px">`+
+      `<div style="font-size:10px;font-weight:700;color:${sc>=88?"var(--red)":"var(--amber)"};margin-bottom:3px">ROUTING</div>`+
+      `<div style="font-size:13px;font-weight:600;color:var(--ink)">${routing}</div>`+
+    `</div>`+
+    `<div style="display:flex;gap:8px">`+
+      `<button onclick="document.getElementById('conv-modal').remove()" style="flex:1;padding:11px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;background:var(--card);color:var(--ink2);font-family:'Plus Jakarta Sans',sans-serif">← Back</button>`+
+      `<button onclick="addConvToOutreach(${JSON.stringify(r).replace(/'/g,"\'")})" style="flex:2;padding:11px;background:var(--ink);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif">Add to Call Queue →</button>`+
+    `</div>`+
+    `</div>`;
+  document.body.appendChild(modal);
+  modal.addEventListener("click",e=>{if(e.target===modal)modal.remove();});
+}
+
+function addConvToOutreach(r){
+  if(!_outreachQueue)_outreachQueue=[];
+  if(!_outreachQueue.find(x=>x.id===r.id||(x.raw_address===r.raw_address&&x.raw_address))){
+    _outreachQueue.push({...r,added_at:new Date().toISOString()});
+  }
+  document.getElementById("conv-modal")?.remove();
+  const badge=document.getElementById("oq-count");
+  if(badge){badge.textContent=_outreachQueue.length;badge.style.display="flex";}
+  renderOutreach();
+  // Flash confirmation
+  const toast=document.createElement("div");
+  toast.style.cssText="position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 22px;border-radius:100px;font-size:13px;font-weight:600;z-index:9999;animation:fadeIn .2s;font-family:'Plus Jakarta Sans',sans-serif";
+  toast.textContent="Added to call queue";
+  document.body.appendChild(toast);
+  setTimeout(()=>toast.remove(),2200);
 }
 
 async function loadMarket(){
