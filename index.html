@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>ProspectPlus™ — Lead Intelligence</title>
+<title>Premier Prospect™ — Lead Intelligence</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
@@ -490,7 +490,7 @@ body {
 <main class="main">
   <div class="topbar">
     <div class="tb-l">
-      <span class="tb-title">ProspectPlus™</span>
+      <span class="tb-title">Premier Prospect™</span>
       <span class="tb-county">Utah · Salt Lake · Weber</span>
     </div>
     <div class="tb-r">
@@ -518,9 +518,9 @@ body {
       <div class="tier-row" style="grid-template-columns:repeat(6,1fr)">
         <div class="tc" style="background:#fff0f0;border-color:#fca5a5"><div class="tc-l" style="color:#dc2626">Primed II</div><div class="tc-v" style="color:#dc2626;font-size:26px" id="t-p2">—</div><div class="tc-d">Score 88–100<br>Multi-signal</div><div class="tc-a" style="color:#dc2626">→ Direct to agent</div></div>
         <div class="tc p"><div class="tc-l">Primed I</div><div class="tc-v" style="font-size:26px" id="t-p1">—</div><div class="tc-d">Score 75–87<br>Single signal</div><div class="tc-a">→ Agent qualifies</div></div>
-        <div class="tc q"><div class="tc-l">Qualify</div><div class="tc-v" style="font-size:26px" id="t-q">—</div><div class="tc-d">Score 50–74</div><div class="tc-a">→ This week</div></div>
-        <div class="tc n"><div class="tc-l">Nurture</div><div class="tc-v" style="font-size:26px" id="t-n">—</div><div class="tc-d">Score 25–49</div><div class="tc-a">→ 30-day follow</div></div>
-        <div class="tc w"><div class="tc-l">Watch</div><div class="tc-v" style="font-size:26px" id="t-w">—</div><div class="tc-d">Score 0–24</div><div class="tc-a">→ Monitor</div></div>
+        <div class="tc q"><div class="tc-l">Qualify</div><div class="tc-v" style="font-size:26px" id="t-q">—</div><div class="tc-d">Score 60–74</div><div class="tc-a">→ This week</div></div>
+        <div class="tc n"><div class="tc-l">Nurture</div><div class="tc-v" style="font-size:26px" id="t-n">—</div><div class="tc-d">Score 45–59</div><div class="tc-a">→ 30-day follow</div></div>
+        <div class="tc w"><div class="tc-l">Watch</div><div class="tc-v" style="font-size:26px" id="t-w">—</div><div class="tc-d">Score 0–44</div><div class="tc-a">→ Monitor</div></div>
         <div class="tc" style="background:var(--blue-lt);border-color:var(--blue-bd)"><div class="tc-l" style="color:var(--blue)">Routing</div><div class="tc-v" style="color:var(--blue);font-size:26px" id="t-direct">—</div><div class="tc-d">Direct to agent<br>right now</div><div class="tc-a" style="color:var(--blue)">→ Highest priority</div></div>
       </div>
 
@@ -750,9 +750,9 @@ body {
       </div>
       <div class="tier-row" style="margin-bottom:20px">
         <div class="tc p"><div class="tc-l">Primed</div><div class="tc-v" id="bt-p">—</div><div class="tc-d">Score 75–100</div><div class="tc-a">→ Contact today</div></div>
-        <div class="tc q"><div class="tc-l">Qualify</div><div class="tc-v" id="bt-q">—</div><div class="tc-d">Score 50–74</div><div class="tc-a">→ This week</div></div>
-        <div class="tc n"><div class="tc-l">Nurture</div><div class="tc-v" id="bt-n">—</div><div class="tc-d">Score 25–49</div><div class="tc-a">→ 30-day sequence</div></div>
-        <div class="tc w"><div class="tc-l">Mortgage Apps</div><div class="tc-v amber" id="bt-mort">—</div><div class="tc-d">HMDA total</div><div class="tc-a">→ Largest pool</div></div>
+        <div class="tc q"><div class="tc-l">Qualify</div><div class="tc-v" id="bt-q">—</div><div class="tc-d">Score 60–74</div><div class="tc-a">→ This week</div></div>
+        <div class="tc n"><div class="tc-l">Nurture</div><div class="tc-v" id="bt-n">—</div><div class="tc-d">Score 45–59</div><div class="tc-a">→ 30-day sequence</div></div>
+        <div class="tc w"><div class="tc-l">All Buyer Signals</div><div class="tc-v amber" id="bt-mort">—</div><div class="tc-d">Full profile pool</div><div class="tc-a">→ Total indexed</div></div>
       </div>
       <div class="g3l">
         <div>
@@ -984,7 +984,7 @@ document.addEventListener("keydown",function(e){
 function fl(tier,btn){
   document.querySelectorAll(".fb").forEach(b=>b.classList.remove("on","on-p","on-q","on-n"));
   if(btn)btn.classList.add("on");
-  const f=tier==="all"?_leads:_leads.filter(r=>tier==="primed"?r.score>=75:tier==="qualify"?(r.score>=50&&r.score<75):tier==="nurture"?(r.score>=25&&r.score<50):r.score<25);
+  const f=tier==="all"?_leads:_leads.filter(r=>tier==="primed"?r.score>=75:tier==="qualify"?(r.score>=60&&r.score<75):tier==="nurture"?(r.score>=45&&r.score<60):r.score<25);
   const el=document.getElementById("full-leads");
   if(!el)return;
   if(!_leads.length){el.innerHTML='<tr><td colspan="8" class="loading">Loading leads...</td></tr>';return;}
@@ -995,7 +995,7 @@ function fl(tier,btn){
     const location=city?`${city}, ${r.county||""}`:r.county||"—";
     const s2=r.primed_stage?`<span class="b ${r.primed_stage===2?"p":"q"}">P${r.primed_stage}</span>`:badge(r.score||0);
     const p2=r.motivation_probability?r.motivation_probability+"%":"—";
-    const rt=r.outreach_routing==="direct_agent"?"<b style='color:var(--red)'>Direct</b>":r.outreach_routing==="agent_first"?"<b style='color:var(--amber)'>Bryce</b>":"Seq";
+    const rt=r.outreach_routing==="direct"?"<b style='color:var(--red)'>Direct</b>":r.outreach_routing==="agent"?"<b style='color:var(--amber)'>Bryce</b>":"Seq";
     return `<tr style="cursor:pointer" onclick='showLeadDetail(${JSON.stringify(r).replace(/'/g,"\'")})'><td><div class="nm">${nm.slice(0,32)}</div></td><td style="font-size:12px;color:var(--ink3)">${location.slice(0,20)}</td><td style="font-size:12px;color:var(--ink3)">${sl(r.source_slug)}</td><td style="font-size:12px;color:var(--ink3)">${r.signal_type||"—"}</td><td>${bar(r.score||0)}</td><td>${s2}</td><td style="font-size:12px">${p2}</td><td style="font-size:11px">${rt}</td></tr>`;
   }).join("");
 }
@@ -1008,11 +1008,11 @@ function showLeadDetail(r){
   const fullAddr=city&&!addr.includes(city)?`${addr}, ${city}`:addr;
   const prob=r.motivation_probability||"—";
   const stage=r.primed_stage===2?"Primed II — Direct to Agent":r.primed_stage===1?"Primed I — Bryce Qualifies First":"Primed";
-  const routing=r.outreach_routing==="direct_agent"?"Direct → Agent (no pre-screen)":r.outreach_routing==="agent_first"?"Bryce qualifies first, then books Kelvin":"Nurture sequence";
+  const routing=r.outreach_routing==="direct"?"Direct → Agent (no pre-screen)":r.outreach_routing==="agent"?"Bryce qualifies first, then books Kelvin":"Nurture sequence";
   const modal=document.createElement("div");
   modal.id="lead-modal";
   modal.style.cssText="position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px;";
-  modal.innerHTML=`<div style="background:var(--card);border-radius:14px;padding:24px;max-width:500px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.25);position:relative;max-height:90vh;overflow-y:auto"><button onclick="document.getElementById('lead-modal').remove()" style="position:absolute;top:14px;right:14px;background:none;border:none;font-size:20px;cursor:pointer;color:var(--ink3);line-height:1">×</button><div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:${r.primed_stage===2?"var(--red)":"var(--amber)"};margin-bottom:8px">${stage}</div><div style="font-family:'DM Serif Display',serif;font-size:20px;color:var(--ink);margin-bottom:4px">${nm}</div><div style="font-size:13px;color:var(--ink2);margin-bottom:16px">${fullAddr}</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px"><div style="background:var(--bg);border-radius:8px;padding:12px"><div style="font-size:10px;color:var(--ink3);margin-bottom:4px">SIGNAL</div><div style="font-weight:600;font-size:13px">${r.signal_type||"—"}</div></div><div style="background:var(--bg);border-radius:8px;padding:12px"><div style="font-size:10px;color:var(--ink3);margin-bottom:4px">COUNTY</div><div style="font-weight:600;font-size:13px">${r.county||"—"}</div></div><div style="background:var(--bg);border-radius:8px;padding:12px"><div style="font-size:10px;color:var(--ink3);margin-bottom:4px">SCORE</div><div style="font-family:'DM Serif Display',serif;font-size:32px;color:var(--red);line-height:1">${r.score||"—"}</div></div><div style="background:var(--bg);border-radius:8px;padding:12px"><div style="font-size:10px;color:var(--ink3);margin-bottom:4px">PROBABILITY</div><div style="font-family:'DM Serif Display',serif;font-size:32px;color:var(--amber);line-height:1">${prob}%</div></div></div><div style="background:${r.outreach_routing==="direct_agent"?"var(--red-lt)":"var(--amber-lt)"};border:1px solid ${r.outreach_routing==="direct_agent"?"var(--red-bd)":"var(--amber-bd)"};border-radius:8px;padding:12px;margin-bottom:14px"><div style="font-size:10px;font-weight:700;color:${r.outreach_routing==="direct_agent"?"var(--red)":"var(--amber)"};margin-bottom:3px">ROUTING</div><div style="font-size:13px;font-weight:600;color:var(--ink)">${routing}</div></div><div style="font-size:11px;color:var(--ink3);margin-bottom:14px">Source: ${sl(r.source_slug)} · Found: ${r.first_seen||"—"}</div><div style="display:flex;gap:8px"><button onclick="document.getElementById('lead-modal').remove()" style="flex:1;padding:10px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;background:var(--card);font-family:'DM Sans',sans-serif">Close</button><button onclick="addToOutreach(${JSON.stringify(r).replace(/'/g,"\'")})" style="flex:2;padding:10px;background:var(--ink);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif">Add to Outreach Queue</button></div></div>`;
+  modal.innerHTML=`<div style="background:var(--card);border-radius:14px;padding:24px;max-width:500px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.25);position:relative;max-height:90vh;overflow-y:auto"><button onclick="document.getElementById('lead-modal').remove()" style="position:absolute;top:14px;right:14px;background:none;border:none;font-size:20px;cursor:pointer;color:var(--ink3);line-height:1">×</button><div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:${r.primed_stage===2?"var(--red)":"var(--amber)"};margin-bottom:8px">${stage}</div><div style="font-family:'DM Serif Display',serif;font-size:20px;color:var(--ink);margin-bottom:4px">${nm}</div><div style="font-size:13px;color:var(--ink2);margin-bottom:16px">${fullAddr}</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px"><div style="background:var(--bg);border-radius:8px;padding:12px"><div style="font-size:10px;color:var(--ink3);margin-bottom:4px">SIGNAL</div><div style="font-weight:600;font-size:13px">${r.signal_type||"—"}</div></div><div style="background:var(--bg);border-radius:8px;padding:12px"><div style="font-size:10px;color:var(--ink3);margin-bottom:4px">COUNTY</div><div style="font-weight:600;font-size:13px">${r.county||"—"}</div></div><div style="background:var(--bg);border-radius:8px;padding:12px"><div style="font-size:10px;color:var(--ink3);margin-bottom:4px">SCORE</div><div style="font-family:'DM Serif Display',serif;font-size:32px;color:var(--red);line-height:1">${r.score||"—"}</div></div><div style="background:var(--bg);border-radius:8px;padding:12px"><div style="font-size:10px;color:var(--ink3);margin-bottom:4px">PROBABILITY</div><div style="font-family:'DM Serif Display',serif;font-size:32px;color:var(--amber);line-height:1">${prob}%</div></div></div><div style="background:${r.outreach_routing==="direct"?"var(--red-lt)":"var(--amber-lt)"};border:1px solid ${r.outreach_routing==="direct"?"var(--red-bd)":"var(--amber-bd)"};border-radius:8px;padding:12px;margin-bottom:14px"><div style="font-size:10px;font-weight:700;color:${r.outreach_routing==="direct"?"var(--red)":"var(--amber)"};margin-bottom:3px">ROUTING</div><div style="font-size:13px;font-weight:600;color:var(--ink)">${routing}</div></div><div style="font-size:11px;color:var(--ink3);margin-bottom:14px">Source: ${sl(r.source_slug)} · Found: ${r.first_seen||"—"}</div><div style="display:flex;gap:8px"><button onclick="document.getElementById('lead-modal').remove()" style="flex:1;padding:10px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;background:var(--card);font-family:'DM Sans',sans-serif">Close</button><button onclick="addToOutreach(${JSON.stringify(r).replace(/'/g,"\'")})" style="flex:2;padding:10px;background:var(--ink);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif">Add to Outreach Queue</button></div></div>`;
   document.body.appendChild(modal);
   modal.addEventListener("click",e=>{if(e.target===modal)modal.remove();});
 }
@@ -1035,7 +1035,7 @@ function renderOutreach(){
   if(!_outreachQueue.length){el.innerHTML='<tr><td colspan="6" class="loading">No leads queued — click a lead and press "Add to Outreach Queue"</td></tr>';return;}
   el.innerHTML=_outreachQueue.map((r,i)=>{
     const nm=r.raw_owner_name||"—";
-    const rt=r.outreach_routing==="direct_agent"?"<b style='color:var(--red)'>Direct</b>":"<b style='color:var(--amber)'>Bryce</b>";
+    const rt=r.outreach_routing==="direct"?"<b style='color:var(--red)'>Direct</b>":"<b style='color:var(--amber)'>Bryce</b>";
     return `<tr><td><div class="nm">${nm.slice(0,28)}</div></td><td style="font-size:12px;color:var(--ink3)">${r.county||"—"}</td><td style="font-size:12px;color:var(--ink3)">${r.signal_type||"—"}</td><td>${bar(r.score||0)}</td><td>${rt}</td><td><button onclick="_outreachQueue.splice(${i},1);renderOutreach();" style="background:none;border:1px solid var(--border);border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer;color:var(--ink3)">Remove</button></td></tr>`;
   }).join("");
 }
@@ -1056,7 +1056,7 @@ async function loadKPIs(){
     try{const rows=await qt("pp_kpi_cache","select=*&id=eq.1&limit=1");d=Array.isArray(rows)&&rows.length?rows[0]:null;}catch(e){}
     if(!d)d=await rpc("pp_kpi_summary");
     if(!d)return;
-    const map={"k-total":d.total,"k-today":d.added_today,"k-conv":d.convergence,"k-sources":d.sources_today,"k-direct":d.direct_agent,"k-agent1":d.agent_first,"t-p1":d.primed_i,"t-p2":d.primed_ii,"t-q":d.qualify,"t-n":d.nurture,"t-w":d.watch,"t-direct":d.direct_agent,"bk-total":d.buyer_total,"bk-primed":d.buyer_primed,"bk-matches":d.matches_total,"bt-p":d.buyer_primed,"bt-q":d.buyer_qualify,"bt-n":d.buyer_nurture,"bt-mort":d.mortgage_apps_total||d.mortgage_apps,"m-total":d.matches_total,"m-hq":d.high_quality_matches,"m-today":d.new_matches_today};
+    const map={"k-total":d.total,"k-today":d.added_today,"k-conv":d.convergence,"k-sources":d.sources_today,"k-direct":d.direct_agent,"k-agent1":d.agent_first,"t-p1":d.primed_i,"t-p2":d.primed_ii,"t-q":d.qualify,"t-n":d.nurture,"t-w":d.watch,"t-direct":d.direct_agent,"bk-total":d.buyer_total,"bk-primed":d.buyer_primed,"bk-matches":d.matches_total,"bt-p":d.buyer_primed,"bt-q":d.buyer_qualify,"bt-n":d.buyer_nurture,"bt-mort":d.buyer_total,"m-total":d.matches_total,"m-hq":d.high_quality_matches,"m-today":d.new_matches_today};
     Object.entries(map).forEach(([id,val])=>{const el=document.getElementById(id);if(el&&val!=null)el.textContent=fmt(val);});
     if(d.updated_at){
       const ago=Math.round((Date.now()-new Date(d.updated_at))/60000);
@@ -1101,7 +1101,7 @@ async function loadLeads(){
       const city=r.city||parseCity(r.raw_address)||"";
       const stg=r.primed_stage?`<span class="b ${r.primed_stage===2?"p":"q"}">P${r.primed_stage}</span>`:badge(r.score||0);
       const prob=r.motivation_probability?r.motivation_probability+"%":"—";
-      const route=r.outreach_routing==="direct_agent"?"<b style='color:var(--red);font-size:10px'>Direct</b>":r.outreach_routing==="agent_first"?"<b style='color:var(--amber);font-size:10px'>Bryce</b>":"Seq";
+      const route=r.outreach_routing==="direct"?"<b style='color:var(--red);font-size:10px'>Direct</b>":r.outreach_routing==="agent"?"<b style='color:var(--amber);font-size:10px'>Bryce</b>":"Seq";
       return `<tr style="cursor:pointer" onclick='showLeadDetail(${JSON.stringify(r).replace(/'/g,"\'")})'><td><div class="nm">${nm.slice(0,28)}</div>${city?`<div style="font-size:10px;color:var(--ink3)">${city}</div>`:""}</td><td style="font-size:12px;color:var(--ink3)">${r.county||"—"}</td><td style="font-size:12px;color:var(--ink3)">${sl(r.source_slug)}</td><td>${bar(r.score||0)}</td><td>${stg}</td><td>${prob}</td><td>${route}</td></tr>`;
     }).join("");
     fl("all",document.querySelector(".fb"));
