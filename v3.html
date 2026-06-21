@@ -1,0 +1,1496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Premier Prospect™</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:       #F2F0EA;
+  --card:     #F8F8F8;
+  --ink:      #151515;
+  --ink2:     #7A7A7A;
+  --ink3:     #ABABAB;
+  --border:   #E4E1D8;
+  --gold:     #E8B23A;
+  --gold-lt:  #FDF6E3;
+  --gold-bd:  #F0CC7A;
+  --sky:      #5CB5F7;
+  --sky-lt:   #EBF6FF;
+  --sky-bd:   #A8D8F8;
+  --mint:     #5BD08D;
+  --mint-lt:  #EAFAF1;
+  --mint-bd:  #A3E6C0;
+  --lav:      #9B7CF5;
+  --lav-lt:   #F3EFFF;
+  --lav-bd:   #CBBAFC;
+  --org:      #D99147;
+  --org-lt:   #FDF3E7;
+  --org-bd:   #ECC48A;
+  --red:      #DC2626;
+  --r:        12px;
+  --rsm:      8px;
+  --sh:       0 1px 3px rgba(21,21,21,.05),0 4px 16px rgba(21,21,21,.04);
+  --sh-lg:    0 8px 40px rgba(21,21,21,.12);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden}
+body{
+  font-family:'DM Sans',system-ui,sans-serif;
+  background:var(--bg);
+  color:var(--ink);
+  font-size:14px;
+  line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* ─ SHELL ─────────────────────────────────────── */
+.shell{display:flex;height:100vh;overflow:hidden}
+
+/* ─ SIDEBAR ───────────────────────────────────── */
+.sb{
+  width:236px;flex-shrink:0;
+  background:var(--card);
+  border-right:1px solid var(--border);
+  display:flex;flex-direction:column;
+  overflow:hidden;
+}
+.sb-logo{
+  padding:22px 20px 16px;
+  border-bottom:1px solid var(--border);
+  flex-shrink:0;
+}
+.logo-name{
+  font-family:'DM Serif Display',serif;
+  font-size:17px;color:var(--ink);
+  letter-spacing:-.02em;line-height:1.2;
+}
+.logo-name em{color:var(--gold);font-style:normal}
+.logo-tag{
+  font-size:9px;font-weight:700;
+  letter-spacing:.12em;text-transform:uppercase;
+  color:var(--ink3);margin-top:3px;
+}
+.sb-nav{flex:1;padding:10px 8px;overflow-y:auto}
+.nav-grp{
+  font-size:9px;font-weight:700;
+  letter-spacing:.1em;text-transform:uppercase;
+  color:var(--ink3);padding:10px 12px 4px;
+  margin-top:4px;
+}
+.ni{
+  display:flex;align-items:center;gap:9px;
+  padding:8px 12px;border-radius:var(--rsm);
+  cursor:pointer;font-size:13px;font-weight:500;
+  color:var(--ink2);transition:background .1s,color .1s;
+  margin-bottom:1px;position:relative;user-select:none;
+}
+.ni:hover{background:var(--bg);color:var(--ink)}
+.ni.on{background:var(--bg);color:var(--ink)}
+.ni.on::before{
+  content:'';position:absolute;
+  left:0;top:5px;bottom:5px;
+  width:3px;border-radius:0 2px 2px 0;
+  background:var(--gold);
+}
+.ni-ico{font-size:14px;width:18px;text-align:center;flex-shrink:0;opacity:.6}
+.ni.on .ni-ico{opacity:1}
+.ni-lbl{flex:1;white-space:nowrap}
+.ni-ct{
+  margin-left:auto;font-size:10px;font-weight:700;
+  background:var(--gold);color:#fff;
+  padding:1px 7px;border-radius:20px;min-width:22px;text-align:center;
+}
+.ni-ct.sky{background:var(--sky)}
+.ni-ct.mint{background:var(--mint)}
+.ni-ct.lav{background:var(--lav)}
+.ni-ct.org{background:var(--org)}
+.sb-foot{
+  padding:14px 16px;
+  border-top:1px solid var(--border);
+  font-size:11px;color:var(--ink3);flex-shrink:0;
+}
+.sb-foot strong{color:var(--ink2);font-weight:600}
+.pulse-dot{
+  display:inline-block;width:6px;height:6px;
+  border-radius:50%;background:var(--mint);
+  margin-right:5px;vertical-align:middle;
+  animation:pulse 2.4s ease-in-out infinite;
+}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
+
+/* ─ MAIN ──────────────────────────────────────── */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+
+/* ─ TOPBAR ────────────────────────────────────── */
+.topbar{
+  height:56px;flex-shrink:0;
+  background:var(--card);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;
+  padding:0 26px;gap:20px;
+}
+.topbar-title{
+  font-family:'DM Serif Display',serif;
+  font-size:19px;color:var(--ink);flex:1;
+  letter-spacing:-.01em;
+}
+.topbar-pills{display:flex;gap:18px}
+.tp{text-align:right}
+.tp-v{
+  font-family:'DM Serif Display',serif;
+  font-size:17px;color:var(--ink);line-height:1;
+}
+.tp-l{
+  font-size:9px;font-weight:700;
+  letter-spacing:.08em;text-transform:uppercase;
+  color:var(--ink3);margin-top:2px;
+}
+.topbar-ts{font-size:11px;color:var(--ink3);white-space:nowrap}
+
+/* ─ CONTENT AREA ─────────────────────────────── */
+.content{flex:1;overflow-y:auto;padding:22px 26px}
+.pg{display:none}
+.pg.on{display:block}
+
+/* ─ CARD ──────────────────────────────────────── */
+.card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:var(--r);
+  box-shadow:var(--sh);
+}
+.ch{
+  display:flex;align-items:center;gap:10px;
+  padding:14px 18px 13px;
+  border-bottom:1px solid var(--border);
+}
+.ch-title{font-size:13px;font-weight:700;color:var(--ink);letter-spacing:-.01em}
+.ch-meta{font-size:11px;color:var(--ink3);margin-left:auto}
+.cb{padding:16px 18px}
+.cb0{padding:0}
+
+/* ─ GRID ──────────────────────────────────────── */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.g5{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
+.gcol{display:flex;flex-direction:column;gap:14px}
+.mb14{margin-bottom:14px}
+.mb20{margin-bottom:20px}
+
+/* ─ KPI TILE ──────────────────────────────────── */
+.kpi{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:var(--r);padding:16px 18px 14px;
+  box-shadow:var(--sh);position:relative;overflow:hidden;
+}
+.kpi::after{
+  content:'';position:absolute;
+  bottom:0;left:0;right:0;height:3px;
+  border-radius:0 0 var(--r) var(--r);
+}
+.kpi.gold::after{background:var(--gold)}
+.kpi.sky::after{background:var(--sky)}
+.kpi.mint::after{background:var(--mint)}
+.kpi.lav::after{background:var(--lav)}
+.kpi.org::after{background:var(--org)}
+.kpi-lbl{
+  font-size:9px;font-weight:700;
+  letter-spacing:.1em;text-transform:uppercase;
+  color:var(--ink3);margin-bottom:8px;
+}
+.kpi-val{
+  font-family:'DM Serif Display',serif;
+  font-size:34px;color:var(--ink);line-height:1;
+}
+.kpi-sub{font-size:11px;color:var(--ink3);margin-top:5px}
+
+/* ─ STAGE STRIP ───────────────────────────────── */
+.stage-strip{
+  display:grid;grid-template-columns:repeat(6,1fr);
+  gap:1px;background:var(--border);
+  border:1px solid var(--border);
+  border-radius:var(--r);overflow:hidden;
+  margin-bottom:18px;
+}
+.sc{background:var(--card);padding:14px 16px}
+.sc-val{
+  font-family:'DM Serif Display',serif;
+  font-size:26px;color:var(--ink);line-height:1;
+}
+.sc-lbl{
+  font-size:9px;font-weight:700;
+  letter-spacing:.08em;text-transform:uppercase;
+  color:var(--ink3);margin-top:4px;
+}
+.sc-bar{height:3px;border-radius:2px;margin-top:9px}
+
+/* ─ FILTER ROW ────────────────────────────────── */
+.frow{
+  display:flex;align-items:center;
+  gap:8px;flex-wrap:wrap;margin-bottom:14px;
+}
+.fb{
+  padding:6px 14px;border-radius:20px;
+  border:1px solid var(--border);
+  background:var(--card);
+  font-family:'DM Sans',sans-serif;
+  font-size:12px;font-weight:600;
+  color:var(--ink2);cursor:pointer;
+  transition:all .1s;white-space:nowrap;
+}
+.fb:hover{border-color:var(--ink2);color:var(--ink)}
+.fb.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.fb.on-gold{background:var(--gold-lt);color:#9A6E00;border-color:var(--gold-bd)}
+.fb.on-sky{background:var(--sky-lt);color:#1270B0;border-color:var(--sky-bd)}
+.fb.on-mint{background:var(--mint-lt);color:#1A7A48;border-color:var(--mint-bd)}
+.fsel{
+  padding:6px 10px;
+  border:1px solid var(--border);border-radius:var(--rsm);
+  background:var(--card);font-family:'DM Sans',sans-serif;
+  font-size:12px;font-weight:500;color:var(--ink);
+  cursor:pointer;outline:none;min-width:130px;
+  transition:border-color .1s;
+}
+.fsel:focus{border-color:var(--gold)}
+.fsep{width:1px;height:26px;background:var(--border);flex-shrink:0}
+.fclear{
+  padding:6px 12px;border:1px solid var(--border);
+  border-radius:var(--rsm);background:var(--card);
+  font-family:'DM Sans',sans-serif;font-size:11px;
+  color:var(--ink3);cursor:pointer;transition:all .1s;
+}
+.fclear:hover{color:var(--ink);border-color:var(--ink3)}
+.fct{font-size:11px;color:var(--ink3);padding:4px 2px}
+
+/* ─ TABLE ─────────────────────────────────────── */
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+th{
+  font-size:9px;font-weight:700;
+  letter-spacing:.09em;text-transform:uppercase;
+  color:var(--ink3);padding:10px 14px;
+  text-align:left;border-bottom:1px solid var(--border);
+  white-space:nowrap;
+}
+td{
+  padding:11px 14px;
+  border-bottom:1px solid var(--border);
+  font-size:13px;color:var(--ink);
+  vertical-align:middle;
+}
+tr:last-child td{border-bottom:none}
+tr.cl{cursor:pointer;transition:background .08s}
+tr.cl:hover td{background:var(--bg)}
+.nm{font-weight:600;font-size:13px;color:var(--ink);line-height:1.3}
+.nm-sub{font-size:10px;color:var(--ink3);font-weight:400;margin-top:2px}
+.ld td{text-align:center;color:var(--ink3);padding:30px;font-size:13px}
+
+/* ─ BADGES ────────────────────────────────────── */
+.b{
+  display:inline-flex;align-items:center;
+  font-size:9px;font-weight:700;
+  letter-spacing:.07em;text-transform:uppercase;
+  padding:2px 8px;border-radius:20px;white-space:nowrap;
+}
+.b-p2{background:var(--gold-lt);color:#9A6E00;border:1px solid var(--gold-bd)}
+.b-p1{background:var(--sky-lt);color:#1270B0;border:1px solid var(--sky-bd)}
+.b-q{background:var(--org-lt);color:#8A4E10;border:1px solid var(--org-bd)}
+.b-n{background:var(--mint-lt);color:#1A7A48;border:1px solid var(--mint-bd)}
+.b-w{background:#f4f4f4;color:var(--ink3);border:1px solid var(--border)}
+.b-dir{background:var(--lav-lt);color:#5020C0;border:1px solid var(--lav-bd)}
+.b-bryce{background:var(--sky-lt);color:#1270B0;border:1px solid var(--sky-bd)}
+.b-live{background:var(--mint-lt);color:#1A7A48;border:1px solid var(--mint-bd)}
+.b-idx{background:#f4f4f4;color:var(--ink3);border:1px solid var(--border)}
+
+/* ─ SCORE BAR ─────────────────────────────────── */
+.sbar{display:flex;align-items:center;gap:8px;min-width:80px}
+.sbar-bg{flex:1;height:4px;background:var(--border);border-radius:2px;overflow:hidden}
+.sbar-fill{height:100%;border-radius:2px;transition:width .3s}
+.sbar-n{
+  font-family:'DM Mono',monospace;font-size:11px;
+  font-weight:500;min-width:22px;text-align:right;
+}
+
+/* ─ SIG CHIP ──────────────────────────────────── */
+.sig{
+  font-family:'DM Mono',monospace;font-size:10px;
+  background:var(--bg);border:1px solid var(--border);
+  padding:2px 6px;border-radius:4px;color:var(--ink2);
+  white-space:nowrap;
+}
+
+/* ─ COUNTY / CITY ROWS ────────────────────────── */
+.county-row{
+  display:flex;align-items:center;gap:10px;
+  padding:9px 0;border-bottom:1px solid var(--border);
+}
+.county-row:last-child{border-bottom:none}
+.cr-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.cr-name{font-size:13px;font-weight:600;flex:1}
+.cr-bar-bg{flex:1;height:4px;background:var(--border);border-radius:2px;overflow:hidden;max-width:100px}
+.cr-bar-fill{height:100%;border-radius:2px}
+.cr-n{
+  font-family:'DM Mono',monospace;font-size:11px;
+  color:var(--ink2);min-width:44px;text-align:right;
+}
+.cr-pct{font-size:10px;color:var(--ink3);min-width:32px;text-align:right}
+.city-row{
+  display:flex;align-items:center;gap:8px;
+  padding:8px 0;border-bottom:1px solid var(--border);
+  cursor:pointer;transition:background .08s;
+}
+.city-row:last-child{border-bottom:none}
+.city-row:hover{background:var(--bg);margin:0 -18px;padding:8px 18px}
+.cty-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.cty-name{font-size:13px;font-weight:500;flex:1}
+.cty-tag{
+  font-size:9px;background:var(--bg);
+  border:1px solid var(--border);
+  padding:1px 6px;border-radius:4px;color:var(--ink3);
+}
+.cty-n{
+  font-family:'DM Mono',monospace;font-size:11px;
+  color:var(--ink3);min-width:36px;text-align:right;
+}
+
+/* ─ SOURCE ROW ────────────────────────────────── */
+.src-row{
+  display:flex;align-items:center;gap:10px;
+  padding:9px 0;border-bottom:1px solid var(--border);
+}
+.src-row:last-child{border-bottom:none}
+.src-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.src-n{font-size:12px;font-weight:600;flex:1}
+.src-type{font-size:10px;color:var(--ink3);min-width:80px}
+.src-today{font-family:'DM Mono',monospace;font-size:11px;min-width:44px;text-align:right}
+.src-total{font-family:'DM Mono',monospace;font-size:11px;color:var(--ink3);min-width:50px;text-align:right}
+
+/* ─ PIPELINE STATUS ───────────────────────────── */
+.ps-row{
+  display:flex;align-items:center;gap:10px;
+  padding:9px 0;border-bottom:1px solid var(--border);
+}
+.ps-row:last-child{border-bottom:none}
+.ps-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.ps-name{font-size:12px;font-weight:600;flex:1}
+.ps-note{font-size:10px;color:var(--ink3)}
+.ps-status{font-size:10px;font-weight:700;white-space:nowrap}
+
+/* ─ CONVERGENCE CARD ──────────────────────────── */
+.conv-card{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:var(--r);padding:14px 16px;
+  box-shadow:var(--sh);margin-bottom:10px;
+  transition:box-shadow .1s;cursor:pointer;
+}
+.conv-card:hover{box-shadow:var(--sh-lg)}
+.cc-tag{
+  font-size:9px;font-weight:700;
+  letter-spacing:.1em;text-transform:uppercase;
+  color:var(--lav);margin-bottom:5px;
+}
+.cc-addr{font-weight:600;font-size:13px;color:var(--ink)}
+.cc-meta{font-size:11px;color:var(--ink3);margin-top:3px}
+.cc-score{
+  font-family:'DM Serif Display',serif;
+  font-size:20px;color:var(--gold);margin-left:auto;
+}
+
+/* ─ OUTREACH QUEUE ────────────────────────────── */
+.oq-empty{
+  text-align:center;padding:40px 20px;
+  color:var(--ink3);font-size:13px;
+}
+
+/* ─ MODAL ─────────────────────────────────────── */
+.modal-bg{
+  position:fixed;inset:0;
+  background:rgba(21,21,21,.5);
+  z-index:9000;display:flex;
+  align-items:center;justify-content:center;
+  padding:20px;backdrop-filter:blur(3px);
+}
+.modal{
+  background:var(--card);border-radius:16px;
+  padding:26px;max-width:500px;width:100%;
+  max-height:90vh;overflow-y:auto;
+  box-shadow:var(--sh-lg);position:relative;
+}
+.modal-x{
+  position:absolute;top:16px;right:16px;
+  background:var(--bg);border:1px solid var(--border);
+  width:28px;height:28px;border-radius:50%;
+  font-size:14px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  color:var(--ink2);transition:all .1s;
+}
+.modal-x:hover{background:var(--border);color:var(--ink)}
+.modal-stage{
+  font-size:9px;font-weight:700;
+  letter-spacing:.12em;text-transform:uppercase;
+  margin-bottom:7px;
+}
+.modal-name{
+  font-family:'DM Serif Display',serif;
+  font-size:21px;color:var(--ink);margin-bottom:3px;
+}
+.modal-addr{font-size:12px;color:var(--ink2);margin-bottom:16px}
+.mgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.mc{background:var(--bg);border-radius:var(--rsm);padding:10px 12px}
+.mc-lbl{
+  font-size:8px;font-weight:700;
+  text-transform:uppercase;letter-spacing:.1em;
+  color:var(--ink3);margin-bottom:3px;
+}
+.mc-val{font-weight:600;font-size:13px}
+.mc-val.big{
+  font-family:'DM Serif Display',serif;
+  font-size:28px;line-height:1;
+}
+.modal-route{
+  border-radius:var(--rsm);padding:11px 13px;
+  margin-bottom:12px;
+}
+.modal-route-lbl{
+  font-size:8px;font-weight:700;
+  text-transform:uppercase;letter-spacing:.1em;margin-bottom:3px;
+}
+.modal-route-val{font-size:13px;font-weight:600;color:var(--ink)}
+.modal-src{font-size:11px;color:var(--ink3);margin-bottom:16px}
+.btn-row{display:flex;gap:8px}
+.btn{
+  padding:9px 16px;border-radius:var(--rsm);
+  font-family:'DM Sans',sans-serif;font-size:13px;
+  font-weight:600;cursor:pointer;
+  transition:all .1s;border:none;
+}
+.btn-ghost{
+  background:var(--bg);border:1px solid var(--border);
+  color:var(--ink);
+}
+.btn-ghost:hover{border-color:var(--ink2)}
+.btn-dark{background:var(--ink);color:#fff;flex:2}
+.btn-dark:hover{background:#2a2a2a}
+.btn-gold{background:var(--gold);color:#fff}
+.btn-gold:hover{background:#d0a030}
+
+/* ─ SCROLLBAR ─────────────────────────────────── */
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+
+/* ─ COUNTY CARDS ──────────────────────────────── */
+.county-card-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+
+/* ─ MOBILE ────────────────────────────────────── */
+@media(max-width:800px){
+  .sb{position:fixed;left:-236px;top:0;bottom:0;z-index:500;transition:left .2s}
+  .sb.open{left:0}
+  .topbar-pills{display:none}
+  .content{padding:14px 16px}
+  .g4,.g5{grid-template-columns:1fr 1fr}
+  .g3,.county-card-grid{grid-template-columns:1fr}
+  .g2{grid-template-columns:1fr}
+  .stage-strip{grid-template-columns:1fr 1fr 1fr}
+  .mgrid{grid-template-columns:1fr 1fr}
+  #mob-toggle{display:block!important}
+}
+#mob-toggle{display:none;background:none;border:none;font-size:20px;cursor:pointer;color:var(--ink2)}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<!-- ══ SIDEBAR ══════════════════════════════════════════ -->
+<aside class="sb" id="sb">
+  <div class="sb-logo">
+    <div class="logo-name">Premier Prospect<em>™</em></div>
+    <div class="logo-tag">Intelligence · CRM · Pipeline</div>
+  </div>
+  <nav class="sb-nav">
+    <div class="nav-grp">Dashboard</div>
+    <div class="ni on" onclick="go('overview',this)">
+      <span class="ni-ico">◈</span><span class="ni-lbl">Overview</span>
+    </div>
+
+    <div class="nav-grp">Leads</div>
+    <div class="ni" onclick="go('leads',this)">
+      <span class="ni-ico">⊞</span><span class="ni-lbl">All Leads</span>
+      <span class="ni-ct" id="nb-all">—</span>
+    </div>
+    <div class="ni" onclick="go('p2',this)">
+      <span class="ni-ico">⬥</span><span class="ni-lbl">Primed II · Direct</span>
+      <span class="ni-ct gold" id="nb-p2">—</span>
+    </div>
+    <div class="ni" onclick="go('p1',this)">
+      <span class="ni-ico">⬦</span><span class="ni-lbl">Primed I · Qualify</span>
+      <span class="ni-ct sky" id="nb-p1">—</span>
+    </div>
+
+    <div class="nav-grp">Geography</div>
+    <div class="ni" onclick="go('by-county',this)">
+      <span class="ni-ico">◉</span><span class="ni-lbl">By County</span>
+    </div>
+    <div class="ni" onclick="go('by-city',this)">
+      <span class="ni-ico">◎</span><span class="ni-lbl">By City</span>
+    </div>
+
+    <div class="nav-grp">Intelligence</div>
+    <div class="ni" onclick="go('convergence',this)">
+      <span class="ni-ico">⊕</span><span class="ni-lbl">Convergence</span>
+      <span class="ni-ct lav" id="nb-conv">—</span>
+    </div>
+    <div class="ni" onclick="go('buyers',this)">
+      <span class="ni-ico">⊛</span><span class="ni-lbl">Buyers</span>
+    </div>
+
+    <div class="nav-grp">Pipeline</div>
+    <div class="ni" onclick="go('sources',this)">
+      <span class="ni-ico">⊡</span><span class="ni-lbl">Sources</span>
+    </div>
+    <div class="ni" onclick="go('pipeline',this)">
+      <span class="ni-ico">◷</span><span class="ni-lbl">Pipeline Status</span>
+    </div>
+
+    <div class="nav-grp">Outreach</div>
+    <div class="ni" onclick="go('outreach',this)">
+      <span class="ni-ico">◻</span><span class="ni-lbl">Outreach Queue</span>
+      <span class="ni-ct org" id="nb-oq" style="display:none">0</span>
+    </div>
+  </nav>
+  <div class="sb-foot">
+    <div><span class="pulse-dot"></span><strong id="sb-ts">Syncing…</strong></div>
+    <div style="margin-top:3px">Williams &amp; Co. · Utah Market</div>
+  </div>
+</aside>
+
+<!-- ══ MAIN ═════════════════════════════════════════════ -->
+<main class="main">
+  <div class="topbar">
+    <button id="mob-toggle" onclick="document.getElementById('sb').classList.toggle('open')">☰</button>
+    <div class="topbar-title" id="page-title">Overview</div>
+    <div class="topbar-pills">
+      <div class="tp"><div class="tp-v" id="tp-total">—</div><div class="tp-l">Total Signals</div></div>
+      <div class="tp"><div class="tp-v" id="tp-primed">—</div><div class="tp-l">Primed</div></div>
+      <div class="tp"><div class="tp-v" id="tp-today">—</div><div class="tp-l">Today</div></div>
+      <div class="tp"><div class="tp-v" id="tp-conv">—</div><div class="tp-l">Matches</div></div>
+    </div>
+    <div class="topbar-ts" id="topbar-ts"></div>
+  </div>
+
+  <div class="content">
+
+    <!-- ── OVERVIEW ────────────────────────────────── -->
+    <div class="pg on" id="pg-overview">
+      <div class="stage-strip mb20">
+        <div class="sc"><div class="sc-val" id="ov-total">—</div><div class="sc-lbl">Total Signals</div><div class="sc-bar" style="background:var(--border)"></div></div>
+        <div class="sc"><div class="sc-val" id="ov-p2">—</div><div class="sc-lbl">Primed II · Direct</div><div class="sc-bar" style="background:var(--gold)"></div></div>
+        <div class="sc"><div class="sc-val" id="ov-p1">—</div><div class="sc-lbl">Primed I · Qualify</div><div class="sc-bar" style="background:var(--sky)"></div></div>
+        <div class="sc"><div class="sc-val" id="ov-conv">—</div><div class="sc-lbl">Convergence</div><div class="sc-bar" style="background:var(--lav)"></div></div>
+        <div class="sc"><div class="sc-val" id="ov-buyers">—</div><div class="sc-lbl">Buyer Profiles</div><div class="sc-bar" style="background:var(--mint)"></div></div>
+        <div class="sc"><div class="sc-val" id="ov-today">—</div><div class="sc-lbl">Added Today</div><div class="sc-bar" style="background:var(--org)"></div></div>
+      </div>
+
+      <div class="g2 mb14">
+        <div class="card">
+          <div class="ch"><div class="ch-title">Top Primed Leads</div><div class="ch-meta" id="ov-lead-ct">—</div></div>
+          <div class="cb0">
+            <div class="tw"><table>
+              <thead><tr><th>Owner / Property</th><th>County</th><th>Score</th><th>Stage</th><th>Route</th></tr></thead>
+              <tbody id="ov-lead-body"><tr class="ld"><td colspan="5">Loading…</td></tr></tbody>
+            </table></div>
+          </div>
+        </div>
+        <div class="gcol">
+          <div class="card">
+            <div class="ch"><div class="ch-title">Distribution by County</div></div>
+            <div class="cb" id="ov-county">
+              <div class="ld" style="padding:20px;text-align:center;color:var(--ink3);font-size:13px">Loading…</div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="ch"><div class="ch-title">Pipeline Status</div></div>
+            <div class="cb" style="padding:0 18px" id="ov-pipeline"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="ch"><div class="ch-title">Sources Active Today</div><div class="ch-meta" id="ov-src-ct"></div></div>
+        <div class="cb" style="padding:0 18px" id="ov-src-list"></div>
+      </div>
+    </div>
+
+    <!-- ── ALL LEADS ───────────────────────────────── -->
+    <div class="pg" id="pg-leads">
+      <div class="frow">
+        <button class="fb on" onclick="setTier('all',this)">All</button>
+        <button class="fb" onclick="setTier('p2',this)" style="color:var(--gold)">● Primed II</button>
+        <button class="fb" onclick="setTier('p1',this)" style="color:var(--sky)">● Primed I</button>
+        <button class="fb" onclick="setTier('qualify',this)" style="color:var(--org)">● Qualify</button>
+        <button class="fb" onclick="setTier('nurture',this)" style="color:var(--mint)">● Nurture</button>
+        <button class="fb" onclick="setTier('watch',this)">Watch</button>
+        <div class="fsep"></div>
+        <select class="fsel" id="f-county" onchange="onCountyChange('f-county','f-city');renderLeads()">
+          <option value="">All Counties</option>
+          <option>Salt Lake</option><option>Utah</option><option>Weber</option>
+          <option>Davis</option><option>Wasatch</option><option>Summit</option>
+        </select>
+        <select class="fsel" id="f-city" onchange="renderLeads()">
+          <option value="">All Cities</option>
+        </select>
+        <select class="fsel" id="f-sort" onchange="renderLeads()">
+          <option value="score">Score ↓</option>
+          <option value="score_asc">Score ↑</option>
+          <option value="prob">Probability ↓</option>
+          <option value="name">Name A–Z</option>
+          <option value="city">City A–Z</option>
+          <option value="date">Date Found</option>
+        </select>
+        <button class="fclear" onclick="clearLeadFilters()">✕ Clear</button>
+        <span class="fct" id="f-count"></span>
+      </div>
+      <div class="card">
+        <div class="cb0"><div class="tw"><table>
+          <thead><tr>
+            <th>Owner / Property</th><th>Location</th><th>Source</th>
+            <th>Signal</th><th>Score</th><th>Stage</th><th>Prob.</th><th>Route</th>
+          </tr></thead>
+          <tbody id="leads-body"><tr class="ld"><td colspan="8">Loading…</td></tr></tbody>
+        </table></div></div>
+      </div>
+    </div>
+
+    <!-- ── PRIMED II ───────────────────────────────── -->
+    <div class="pg" id="pg-p2">
+      <div class="frow">
+        <select class="fsel" id="p2-county" onchange="onCountyChange('p2-county','p2-city');renderP2()">
+          <option value="">All Counties</option>
+          <option>Salt Lake</option><option>Utah</option><option>Weber</option>
+          <option>Davis</option><option>Wasatch</option><option>Summit</option>
+        </select>
+        <select class="fsel" id="p2-city" onchange="renderP2()"><option value="">All Cities</option></select>
+        <span class="fct" id="p2-count"></span>
+      </div>
+      <div class="card">
+        <div class="ch">
+          <div class="ch-title">Primed II — Direct to Agent</div>
+          <div class="ch-meta">Score ≥ 75 · Immediate outreach</div>
+        </div>
+        <div class="cb0"><div class="tw"><table>
+          <thead><tr>
+            <th>Owner / Property</th><th>Location</th><th>Signal</th>
+            <th>Score</th><th>Probability</th><th>Found</th>
+          </tr></thead>
+          <tbody id="p2-body"><tr class="ld"><td colspan="6">Loading…</td></tr></tbody>
+        </table></div></div>
+      </div>
+    </div>
+
+    <!-- ── PRIMED I ────────────────────────────────── -->
+    <div class="pg" id="pg-p1">
+      <div class="frow">
+        <select class="fsel" id="p1-county" onchange="onCountyChange('p1-county','p1-city');renderP1()">
+          <option value="">All Counties</option>
+          <option>Salt Lake</option><option>Utah</option><option>Weber</option>
+          <option>Davis</option><option>Wasatch</option><option>Summit</option>
+        </select>
+        <select class="fsel" id="p1-city" onchange="renderP1()"><option value="">All Cities</option></select>
+        <span class="fct" id="p1-count"></span>
+      </div>
+      <div class="card">
+        <div class="ch">
+          <div class="ch-title">Primed I — Bryce Qualifies First</div>
+          <div class="ch-meta">Bryce pre-screens before agent contact</div>
+        </div>
+        <div class="cb0"><div class="tw"><table>
+          <thead><tr>
+            <th>Owner / Property</th><th>Location</th><th>Signal</th>
+            <th>Score</th><th>Probability</th><th>Found</th>
+          </tr></thead>
+          <tbody id="p1-body"><tr class="ld"><td colspan="6">Loading…</td></tr></tbody>
+        </table></div></div>
+      </div>
+    </div>
+
+    <!-- ── BY COUNTY ───────────────────────────────── -->
+    <div class="pg" id="pg-by-county">
+      <div class="county-card-grid" id="county-cards">
+        <div class="card"><div class="cb"><div class="ld" style="text-align:center;color:var(--ink3)">Loading…</div></div></div>
+      </div>
+    </div>
+
+    <!-- ── BY CITY ─────────────────────────────────── -->
+    <div class="pg" id="pg-by-city">
+      <div class="frow">
+        <select class="fsel" id="city-county-f" onchange="renderCityPage()">
+          <option value="">All Counties</option>
+          <option>Salt Lake</option><option>Utah</option><option>Weber</option>
+          <option>Davis</option><option>Wasatch</option><option>Summit</option>
+        </select>
+        <span class="fct" id="city-count"></span>
+      </div>
+      <div class="card">
+        <div class="ch"><div class="ch-title">Leads by City</div></div>
+        <div class="cb" style="padding:0 18px" id="city-list"></div>
+      </div>
+    </div>
+
+    <!-- ── CONVERGENCE ─────────────────────────────── -->
+    <div class="pg" id="pg-convergence">
+      <div class="card mb14">
+        <div class="ch"><div class="ch-title">⊕ Convergence Engine</div><div class="ch-meta" id="conv-meta">—</div></div>
+        <div class="cb" style="font-size:13px;color:var(--ink2);line-height:1.75">
+          A convergence mark fires when a seller's distress signal (NTS, NOD, tax lien) lands in the same county and price range as an active buyer — both scored at 85+. You hold this pairing exclusively. No one else has been notified.
+        </div>
+      </div>
+      <div class="card">
+        <div class="cb0"><div class="tw"><table>
+          <thead><tr>
+            <th>Signal Pair</th><th>Seller Address</th><th>County</th>
+            <th>Geography</th><th>Buyer</th><th>Seller</th><th>Match</th><th></th>
+          </tr></thead>
+          <tbody id="conv-body"><tr class="ld"><td colspan="8">Loading…</td></tr></tbody>
+        </table></div></div>
+      </div>
+    </div>
+
+    <!-- ── BUYERS ──────────────────────────────────── -->
+    <div class="pg" id="pg-buyers">
+      <div class="g4 mb14">
+        <div class="kpi gold"><div class="kpi-lbl">Total Buyers</div><div class="kpi-val" id="bk-total">—</div></div>
+        <div class="kpi sky"><div class="kpi-lbl">Primed</div><div class="kpi-val" id="bk-primed">—</div></div>
+        <div class="kpi mint"><div class="kpi-lbl">Qualify</div><div class="kpi-val" id="bk-qualify">—</div></div>
+        <div class="kpi lav"><div class="kpi-lbl">Matches</div><div class="kpi-val" id="bk-matches">—</div></div>
+      </div>
+      <div class="card">
+        <div class="cb0"><div class="tw"><table>
+          <thead><tr>
+            <th>Profile</th><th>Source</th><th>County</th><th>Signal</th><th>Score</th><th>Stage</th>
+          </tr></thead>
+          <tbody id="buyer-body"><tr class="ld"><td colspan="6">Loading…</td></tr></tbody>
+        </table></div></div>
+      </div>
+    </div>
+
+    <!-- ── SOURCES ─────────────────────────────────── -->
+    <div class="pg" id="pg-sources">
+      <div class="card">
+        <div class="ch"><div class="ch-title">Signal Sources</div><div class="ch-meta" id="src-meta"></div></div>
+        <div class="cb0"><div class="tw"><table>
+          <thead><tr>
+            <th>Source</th><th>Type</th><th>Total</th><th>Today</th><th>Last Active</th><th>Status</th>
+          </tr></thead>
+          <tbody id="src-body"><tr class="ld"><td colspan="6">Loading…</td></tr></tbody>
+        </table></div></div>
+      </div>
+    </div>
+
+    <!-- ── PIPELINE STATUS ─────────────────────────── -->
+    <div class="pg" id="pg-pipeline">
+      <div class="g2 mb14">
+        <div class="card">
+          <div class="ch"><div class="ch-title">Outreach Stack</div></div>
+          <div class="cb" style="padding:0 18px">
+            <div class="ps-row"><div class="ps-dot" style="background:var(--org)"></div><div class="ps-name">Tracerfy Skip Trace</div><div class="ps-note">$0.02/record · awaiting funding</div><div class="ps-status" style="color:var(--org)">Pending</div></div>
+            <div class="ps-row"><div class="ps-dot" style="background:var(--org)"></div><div class="ps-name">VAPI Voice Agent</div><div class="ps-note">Human-assisted only · staged</div><div class="ps-status" style="color:var(--org)">Staged</div></div>
+            <div class="ps-row"><div class="ps-dot" style="background:var(--red)"></div><div class="ps-name">Federal DNC SAN</div><div class="ps-note">Required before any call activation</div><div class="ps-status" style="color:var(--red)">Required</div></div>
+            <div class="ps-row"><div class="ps-dot" style="background:var(--org)"></div><div class="ps-name">A2P 10DLC</div><div class="ps-note">TCR registration pending</div><div class="ps-status" style="color:var(--org)">Pending</div></div>
+            <div class="ps-row"><div class="ps-dot" style="background:var(--sky)"></div><div class="ps-name">Bryce Agent</div><div class="ps-note">Pre-screen active · config live</div><div class="ps-status" style="color:var(--sky)">Configured</div></div>
+            <div class="ps-row"><div class="ps-dot" style="background:var(--mint)"></div><div class="ps-name">Sendblue iMessage</div><div class="ps-note">Dedicated outbound number provisioned</div><div class="ps-status" style="color:var(--mint)">Active</div></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="ch"><div class="ch-title">MLS Auth Stack</div></div>
+          <div class="cb" style="padding:0 18px">
+            <div class="ps-row"><div class="ps-dot" style="background:var(--mint)"></div><div class="ps-name">URE Session Cookie</div><div class="ps-note">ure-session.yml keepalive active</div><div class="ps-status" style="color:var(--mint)">Live</div></div>
+            <div class="ps-row"><div class="ps-dot" style="background:var(--mint)"></div><div class="ps-name">MLS Expired Listings</div><div class="ps-note">Score 95 · session-dependent</div><div class="ps-status" style="color:var(--mint)">Staged</div></div>
+            <div class="ps-row"><div class="ps-dot" style="background:var(--mint)"></div><div class="ps-name">MLS Price Reductions</div><div class="ps-note">Score 78 · session-dependent</div><div class="ps-status" style="color:var(--mint)">Staged</div></div>
+            <div class="ps-row"><div class="ps-dot" style="background:var(--mint)"></div><div class="ps-name">MLS High DOM</div><div class="ps-note">Score 75–85 · session-dependent</div><div class="ps-status" style="color:var(--mint)">Staged</div></div>
+            <div class="ps-row"><div class="ps-dot" style="background:var(--mint)"></div><div class="ps-name">MLS Withdrawn</div><div class="ps-note">Score 82 · session-dependent</div><div class="ps-status" style="color:var(--mint)">Staged</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="ch"><div class="ch-title">Recent Pipeline Runs</div><div class="ch-meta" id="run-meta"></div></div>
+        <div class="cb0"><div class="tw"><table>
+          <thead><tr><th>Source</th><th>Status</th><th>Run At</th><th>Signals</th><th>Error</th></tr></thead>
+          <tbody id="run-body"><tr class="ld"><td colspan="5">Loading…</td></tr></tbody>
+        </table></div></div>
+      </div>
+    </div>
+
+    <!-- ── OUTREACH ────────────────────────────────── -->
+    <div class="pg" id="pg-outreach">
+      <div class="card mb14">
+        <div class="ch"><div class="ch-title">Outreach Queue</div><div class="ch-meta" id="oq-meta">0 leads</div></div>
+        <div class="cb0"><div class="tw"><table>
+          <thead><tr><th>Owner</th><th>County</th><th>Signal</th><th>Score</th><th>Route</th><th></th></tr></thead>
+          <tbody id="oq-body"><tr class="ld"><td colspan="6">No leads queued — open any lead and press Add to Outreach</td></tr></tbody>
+        </table></div></div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</main>
+</div>
+
+<script>
+// ── CONSTANTS ───────────────────────────────────────────
+const SB_URL  = 'https://lbvaosyfikkpvcwksiph.supabase.co';
+const SB_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxidmFvc3lmaWtrcHZjd2tzaXBoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTA4Nzg4MDAsImV4cCI6MjAyNjQ1NDgwMH0.placeholder';
+
+const COUNTY_COLORS = {
+  'Salt Lake':'#E8B23A','Utah':'#5CB5F7','Weber':'#5BD08D',
+  'Davis':'#9B7CF5','Wasatch':'#D99147','Summit':'#ABABAB'
+};
+
+const COUNTY_CITIES = {
+  'Salt Lake':['Alta','Bluffdale','Copperton','Cottonwood Heights','Draper','Emigration Canyon','Herriman','Holladay','Kearns','Magna','Midvale','Millcreek','Murray','Riverton','Salt Lake City','Sandy','South Jordan','South Salt Lake','Taylorsville','West Jordan','West Valley City','White City'],
+  'Utah':['Alpine','American Fork','Benjamin','Cedar Hills','Cedar Valley','Eagle Mountain','Elk Ridge','Eureka','Fairfield','Genola','Goshen','Highland','Lake Shore','Lake View','Lehi','Lindon','Mapleton','Orem','Payson','Pleasant Grove','Provo','Salem','Santaquin','Saratoga Springs','Spanish Fork','Springville','Vineyard','West Mountain','Woodland Hills'],
+  'Weber':['Eden','Farr West','Harrisville','Hooper','Huntsville','Liberty','Marriott-Slaterville','Mountain Green','North Ogden','Ogden','Plain City','Pleasant View','Riverdale','Roy','South Ogden','Taylor','Uintah','Warren','Washington Terrace','West Haven'],
+  'Davis':['Bountiful','Centerville','Clearfield','Clinton','Eaglewood','Farmington','Fruit Heights','HAFB','Kaysville','Layton','North Salt Lake','South Weber','Sunset','Syracuse','West Bountiful','West Point','Woods Cross'],
+  'Wasatch':['Center Creek','Charleston','Daniel','Heber City','Independence','Lake Creek','Midway','Peoa','Timber Lakes','Wallsburg','Wolf Creek'],
+  'Summit':['Coalville','Echo','Francis','Henefer','Hoytsville','Kamas','Kimball Junction','Marion','Oakley','Park City','Silver Summit','Snyderville','Wanship']
+};
+
+const CITY_COUNTY = {
+  'bountiful':'Davis','centerville':'Davis','clearfield':'Davis','clinton':'Davis','eaglewood':'Davis','farmington':'Davis','fruit heights':'Davis','hafb':'Davis','hill air force base':'Davis','kaysville':'Davis','layton':'Davis','north salt lake':'Davis','south weber':'Davis','sunset':'Davis','syracuse':'Davis','west bountiful':'Davis','west point':'Davis','woods cross':'Davis',
+  'alta':'Salt Lake','bluffdale':'Salt Lake','copperton':'Salt Lake','cottonwood heights':'Salt Lake','draper':'Salt Lake','emigration canyon':'Salt Lake','herriman':'Salt Lake','holladay':'Salt Lake','kearns':'Salt Lake','little cottonwood canyon':'Salt Lake','magna':'Salt Lake','midvale':'Salt Lake','millcreek':'Salt Lake','murray':'Salt Lake','riverton':'Salt Lake','salt lake city':'Salt Lake','sandy':'Salt Lake','slc':'Salt Lake','south jordan':'Salt Lake','south salt lake':'Salt Lake','taylorsville':'Salt Lake','west jordan':'Salt Lake','west valley':'Salt Lake','west valley city':'Salt Lake','white city':'Salt Lake',
+  'coalville':'Summit','echo':'Summit','francis':'Summit','henefer':'Summit','hoytsville':'Summit','kamas':'Summit','kimball junction':'Summit','marion':'Summit','oakley':'Summit','park city':'Summit','silver summit':'Summit','snyderville':'Summit','wanship':'Summit',
+  'alpine':'Utah','american fork':'Utah','benjamin':'Utah','cedar hills':'Utah','cedar valley':'Utah','eagle mountain':'Utah','elk ridge':'Utah','eureka':'Utah','fairfield':'Utah','genola':'Utah','goshen':'Utah','highland':'Utah','lake shore':'Utah','lake view':'Utah','lehi':'Utah','lindon':'Utah','mapleton':'Utah','orem':'Utah','payson':'Utah','pleasant grove':'Utah','provo':'Utah','salem':'Utah','santaquin':'Utah','saratoga springs':'Utah','spanish fork':'Utah','springville':'Utah','vineyard':'Utah','west mountain':'Utah','woodland hills':'Utah',
+  'center creek':'Wasatch','charleston':'Wasatch','daniel':'Wasatch','heber':'Wasatch','heber city':'Wasatch','independence':'Wasatch','lake creek':'Wasatch','midway':'Wasatch','peoa':'Wasatch','timber lakes':'Wasatch','wallsburg':'Wasatch','wolf creek':'Wasatch',
+  'eden':'Weber','farr west':'Weber','harrisville':'Weber','hooper':'Weber','huntsville':'Weber','liberty':'Weber','marriott-slaterville':'Weber','mountain green':'Weber','north ogden':'Weber','ogden':'Weber','plain city':'Weber','pleasant view':'Weber','riverdale':'Weber','roy':'Weber','south ogden':'Weber','taylor':'Weber','uintah':'Weber','warren':'Weber','washington terrace':'Weber','west haven':'Weber'
+};
+
+const SL_MAP = {
+  'utah-county-tax-delinquency-pdf':'Tax Delinquency','utah-county-nts':'Utah NTS',
+  'ksl-fsbo-extended':'KSL FSBO','nod-tracker':'NOD','convergence-engine':'Convergence',
+  'obituaries-herald':'Obituaries','slco-recorder-live':'SLCO Recorder',
+  'utah-county-codev-browser':'Utah CodeV','utah-county-codev':'Utah CodeV',
+  'silicon-slopes-newhires':'Silicon Slopes','obituaries-enrichment':'Obituaries',
+  'slc-county-public-surplus-manus':'Public Surplus','utah-county-tax-sale-manus':'Tax Sale',
+  'fire-marshal-lp-gas':'Fire Marshal LP','fire-marshal-suppression':'Fire Marshal',
+  'fire-marshal-lp-hvac':'Fire Marshal HVAC','slco-lir-parcels':'SLCO LIR',
+  'davis-lir-parcels':'Davis LIR','weber-lir-parcels':'Weber LIR',
+  'utah-lir-parcels':'Utah LIR','wasatch-lir-parcels':'Wasatch LIR',
+  'summit-lir-parcels':'Summit LIR','ksl-renter-pipeline':'KSL Rentals',
+  'hmda-slc-county':'HMDA SLC','hmda-utah-county':'HMDA Utah','hmda_slc_county':'HMDA SLC','hmda_utah_county':'HMDA Utah',
+  'mls-expired-listings':'MLS Expired','mls-price-reductions':'MLS Price Drop',
+  'mls-high-dom':'MLS High DOM','mls-withdrawn-listings':'MLS Withdrawn',
+  'probate-court':'Probate','lien-judgment-records':'Lien/Judgment',
+  'deed-transfers-utah-county':'Deed Transfers','warn-act-utah':'WARN Act',
+  'realtor-market-utah':'Realtor.com','zillow-home-values':'Zillow Values',
+  'comparable-sales-slco':'Comp Sales','marriage-records-slco':'Marriage Records',
+  'forsalebyowner-utah':'FSBO.com','rentler-utah':'Rentler',
+  'school-district-enrollment':'School Districts','competitor-buyer-forms':'Competitor Forms',
+  'dnc-compliance':'DNC Compliance','vapi-outreach':'VAPI','tracerfy-enrichment':'Tracerfy'
+};
+function sl(s){ return SL_MAP[s]||s||'—'; }
+
+// ── STATE ────────────────────────────────────────────────
+let _leads   = [];
+let _kpis    = {};
+let _oq      = [];
+let _tier    = 'all';
+
+// ── UTILS ────────────────────────────────────────────────
+function fmt(n){
+  if(n==null)return '—';
+  if(n>=1000000)return (n/1000000).toFixed(1)+'M';
+  if(n>=1000)return (n/1000).toFixed(1)+'k';
+  return String(n);
+}
+async function qt(table,qs){
+  const r=await fetch(`${SB_URL}/rest/v1/${table}?${qs}`,{
+    headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}
+  });
+  return r.json();
+}
+function getCity(r){ return r.city||parseCity(r.raw_address)||''; }
+function getCounty(r){
+  if(r.county)return r.county;
+  const c=getCity(r);
+  if(c)return CITY_COUNTY[c.toLowerCase()]||'';
+  return '';
+}
+function parseCity(addr){
+  if(!addr)return '';
+  const lo=addr.toLowerCase();
+  for(const c of Object.keys(CITY_COUNTY)){ if(lo.includes(c))return c.replace(/\b\w/g,x=>x.toUpperCase()); }
+  const m=addr.match(/,\s*([A-Za-z\s]+),?\s*(?:UT|Utah)\s*\d{5}/);
+  if(m)return m[1].trim();
+  return '';
+}
+function scoreCol(s){
+  if(s>=80)return 'var(--gold)';
+  if(s>=65)return 'var(--sky)';
+  if(s>=50)return 'var(--mint)';
+  return 'var(--ink3)';
+}
+function sbar(s){
+  const c=scoreCol(s), p=Math.min(100,s||0);
+  return `<div class="sbar"><div class="sbar-bg"><div class="sbar-fill" style="width:${p}%;background:${c}"></div></div><span class="sbar-n" style="color:${c}">${s||'—'}</span></div>`;
+}
+function stageBadge(r){
+  if(r.primed_stage===2)return '<span class="b b-p2">P-II</span>';
+  if(r.primed_stage===1)return '<span class="b b-p1">P-I</span>';
+  const s=r.score||0;
+  if(s>=75)return '<span class="b b-q">Qualify</span>';
+  if(s>=60)return '<span class="b b-n">Nurture</span>';
+  return '<span class="b b-w">Watch</span>';
+}
+function routeBadge(r){
+  if(r.outreach_routing==='direct')return '<span class="b b-dir">Direct</span>';
+  if(r.outreach_routing==='agent')return '<span class="b b-bryce">Bryce</span>';
+  return '<span style="font-size:10px;color:var(--ink3)">Seq</span>';
+}
+function popCities(countyEl,cityEl){
+  const county=document.getElementById(countyEl)?.value||'';
+  const el=document.getElementById(cityEl);
+  if(!el)return;
+  el.innerHTML='<option value="">All Cities</option>';
+  if(county&&COUNTY_CITIES[county]){
+    COUNTY_CITIES[county].forEach(c=>{
+      const o=document.createElement('option');
+      o.value=c;o.textContent=c;el.appendChild(o);
+    });
+  }
+}
+function onCountyChange(countyEl,cityEl){ popCities(countyEl,cityEl); }
+function set(id,v){ const el=document.getElementById(id); if(el&&v!=null)el.textContent=fmt(v); }
+
+// ── NAVIGATION ───────────────────────────────────────────
+const PAGE_TITLES={
+  'overview':'Overview','leads':'All Leads','p2':'Primed II — Direct',
+  'p1':'Primed I — Qualify','by-county':'By County','by-city':'By City',
+  'convergence':'Convergence','buyers':'Buyers','sources':'Sources',
+  'pipeline':'Pipeline Status','outreach':'Outreach Queue'
+};
+function go(page,el){
+  document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('on'));
+  document.getElementById('pg-'+page)?.classList.add('on');
+  if(el)el.classList.add('on');
+  const tt=document.getElementById('page-title');
+  if(tt)tt.textContent=PAGE_TITLES[page]||page;
+  document.getElementById('sb')?.classList.remove('open');
+  // lazy loaders
+  if(page==='by-county')renderCountyCards();
+  if(page==='by-city')renderCityPage();
+  if(page==='convergence')loadConv();
+  if(page==='buyers')loadBuyers();
+  if(page==='pipeline')loadRunLog();
+  if(page==='leads'){_tier='all';renderLeads();}
+  if(page==='p2')renderP2();
+  if(page==='p1')renderP1();
+}
+
+// ── TIER FILTER ──────────────────────────────────────────
+function setTier(tier,btn){
+  _tier=tier;
+  document.querySelectorAll('.fb').forEach(b=>b.classList.remove('on','on-gold','on-sky','on-mint'));
+  if(btn){
+    const map={all:'on',p2:'on-gold',p1:'on-sky',qualify:'on-mint',nurture:'on',watch:'on'};
+    btn.classList.add(map[tier]||'on');
+  }
+  renderLeads();
+}
+function clearLeadFilters(){
+  _tier='all';
+  document.querySelectorAll('.fb').forEach(b=>b.classList.remove('on','on-gold','on-sky','on-mint'));
+  document.querySelector('.fb')?.classList.add('on');
+  ['f-county','f-city','f-sort'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el){ el.value=''; if(id==='f-sort')el.value='score'; }
+  });
+  document.getElementById('f-city').innerHTML='<option value="">All Cities</option>';
+  renderLeads();
+}
+
+// ── RENDER LEADS ─────────────────────────────────────────
+function applyFilters(arr,countyElId,cityElId){
+  const cof=(document.getElementById(countyElId)?.value||'').toLowerCase();
+  const cif=(document.getElementById(cityElId)?.value||'').toLowerCase();
+  let f=arr;
+  if(cof)f=f.filter(r=>(getCounty(r)||'').toLowerCase()===cof);
+  if(cif)f=f.filter(r=>(getCity(r)||'').toLowerCase()===cif);
+  return f;
+}
+function applySort(arr,sortId){
+  const s=document.getElementById(sortId)?.value||'score';
+  return [...arr].sort((a,b)=>{
+    if(s==='score_asc')return(a.score||0)-(b.score||0);
+    if(s==='prob')return(b.motivation_probability||0)-(a.motivation_probability||0);
+    if(s==='name')return(a.raw_owner_name||'').localeCompare(b.raw_owner_name||'');
+    if(s==='city')return(getCity(a)||'').localeCompare(getCity(b)||'');
+    if(s==='date')return new Date(b.first_seen||0)-new Date(a.first_seen||0);
+    return(b.score||0)-(a.score||0);
+  });
+}
+function tierFilter(arr){
+  if(_tier==='all')return arr;
+  if(_tier==='p2')return arr.filter(r=>r.primed_stage===2);
+  if(_tier==='p1')return arr.filter(r=>r.primed_stage===1);
+  if(_tier==='qualify')return arr.filter(r=>r.score>=60&&r.score<75);
+  if(_tier==='nurture')return arr.filter(r=>r.score>=45&&r.score<60);
+  if(_tier==='watch')return arr.filter(r=>r.score<45);
+  return arr;
+}
+function renderLeads(){
+  let f=tierFilter(_leads);
+  f=applyFilters(f,'f-county','f-city');
+  f=applySort(f,'f-sort');
+  const cof=document.getElementById('f-county')?.value||'';
+  const cif=document.getElementById('f-city')?.value||'';
+  const ct=document.getElementById('f-count');
+  if(ct)ct.textContent=f.length+' lead'+(f.length!==1?'s':'')+(cof||cif?' matched':'');
+  const el=document.getElementById('leads-body');
+  if(!el)return;
+  if(!f.length){el.innerHTML='<tr class="ld"><td colspan="8">No leads match the selected filters</td></tr>';return;}
+  el.innerHTML=f.map(r=>{
+    const nm=r.raw_owner_name||r.raw_address||'—';
+    const city=getCity(r), county=getCounty(r);
+    const loc=city?`${city}<br><span style="font-size:10px;color:var(--ink3)">${county}</span>`:county||'—';
+    return `<tr class="cl" onclick='showLead(${JSON.stringify(r).replace(/'/g,"&#39;")})'>
+      <td><div class="nm">${nm.slice(0,34)}</div></td>
+      <td style="font-size:12px">${loc}</td>
+      <td style="font-size:11px;color:var(--ink3)">${sl(r.source_slug)}</td>
+      <td><span class="sig">${r.signal_type||'—'}</span></td>
+      <td>${sbar(r.score)}</td>
+      <td>${stageBadge(r)}</td>
+      <td style="font-size:12px;color:var(--ink2)">${r.motivation_probability?r.motivation_probability+'%':'—'}</td>
+      <td>${routeBadge(r)}</td>
+    </tr>`;
+  }).join('');
+}
+function renderP2(){
+  let f=applyFilters(_leads.filter(r=>r.primed_stage===2),'p2-county','p2-city');
+  f=[...f].sort((a,b)=>(b.score||0)-(a.score||0));
+  const ct=document.getElementById('p2-count');
+  if(ct)ct.textContent=f.length+' leads';
+  const el=document.getElementById('p2-body');
+  if(!el)return;
+  if(!f.length){el.innerHTML='<tr class="ld"><td colspan="6">No Primed II leads match</td></tr>';return;}
+  el.innerHTML=f.map(r=>{
+    const nm=r.raw_owner_name||r.raw_address||'—';
+    const city=getCity(r),county=getCounty(r);
+    const loc=city?`${city}, ${county}`:county||'—';
+    return `<tr class="cl" onclick='showLead(${JSON.stringify(r).replace(/'/g,"&#39;")})'>
+      <td><div class="nm">${nm.slice(0,34)}</div></td>
+      <td style="font-size:12px">${loc}</td>
+      <td><span class="sig">${r.signal_type||'—'}</span></td>
+      <td>${sbar(r.score)}</td>
+      <td style="font-size:12px;color:var(--ink2)">${r.motivation_probability?r.motivation_probability+'%':'—'}</td>
+      <td style="font-size:11px;color:var(--ink3)">${r.first_seen||'—'}</td>
+    </tr>`;
+  }).join('');
+}
+function renderP1(){
+  let f=applyFilters(_leads.filter(r=>r.primed_stage===1),'p1-county','p1-city');
+  f=[...f].sort((a,b)=>(b.score||0)-(a.score||0));
+  const ct=document.getElementById('p1-count');
+  if(ct)ct.textContent=f.length+' leads';
+  const el=document.getElementById('p1-body');
+  if(!el)return;
+  if(!f.length){el.innerHTML='<tr class="ld"><td colspan="6">No Primed I leads match</td></tr>';return;}
+  el.innerHTML=f.slice(0,300).map(r=>{
+    const nm=r.raw_owner_name||r.raw_address||'—';
+    const city=getCity(r),county=getCounty(r);
+    const loc=city?`${city}, ${county}`:county||'—';
+    return `<tr class="cl" onclick='showLead(${JSON.stringify(r).replace(/'/g,"&#39;")})'>
+      <td><div class="nm">${nm.slice(0,34)}</div></td>
+      <td style="font-size:12px">${loc}</td>
+      <td><span class="sig">${r.signal_type||'—'}</span></td>
+      <td>${sbar(r.score)}</td>
+      <td style="font-size:12px;color:var(--ink2)">${r.motivation_probability?r.motivation_probability+'%':'—'}</td>
+      <td style="font-size:11px;color:var(--ink3)">${r.first_seen||'—'}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ── COUNTY CARDS ─────────────────────────────────────────
+function renderCountyCards(){
+  if(!_leads.length)return;
+  const byC={};
+  _leads.forEach(r=>{
+    const c=getCounty(r)||'Unknown';
+    if(!byC[c])byC[c]={total:0,p2:0,p1:0,cities:{}};
+    byC[c].total++;
+    if(r.primed_stage===2)byC[c].p2++;
+    if(r.primed_stage===1)byC[c].p1++;
+    const city=getCity(r);
+    if(city)byC[c].cities[city]=(byC[c].cities[city]||0)+1;
+  });
+  const counties=Object.keys(byC).filter(c=>c!=='Unknown').sort((a,b)=>byC[b].total-byC[a].total);
+  const el=document.getElementById('county-cards');
+  if(!el)return;
+  el.innerHTML=counties.map(co=>{
+    const d=byC[co],color=COUNTY_COLORS[co]||'var(--ink3)';
+    const topCities=Object.entries(d.cities).sort((a,b)=>b[1]-a[1]).slice(0,6);
+    const cityRows=topCities.length?topCities.map(([city,n])=>`
+      <div class="city-row" onclick='jumpToCity("${co}","${city}")'>
+        <div class="cty-dot" style="background:${color}"></div>
+        <div class="cty-name">${city}</div>
+        <div class="cty-n">${n}</div>
+      </div>`).join('')
+      :'<div style="font-size:12px;color:var(--ink3);padding:8px 0">City data sparse — county filter active</div>';
+    return `<div class="card">
+      <div class="ch">
+        <div style="width:9px;height:9px;border-radius:50%;background:${color};flex-shrink:0"></div>
+        <div class="ch-title">${co} County</div>
+        <div class="ch-meta">${fmt(d.total)}</div>
+      </div>
+      <div class="cb">
+        <div style="display:flex;gap:18px;margin-bottom:14px">
+          <div>
+            <div style="font-family:'DM Serif Display',serif;font-size:24px;color:var(--gold);line-height:1">${fmt(d.p2)}</div>
+            <div style="font-size:9px;color:var(--ink3);text-transform:uppercase;letter-spacing:.08em;margin-top:3px;font-weight:700">Primed II</div>
+          </div>
+          <div>
+            <div style="font-family:'DM Serif Display',serif;font-size:24px;color:var(--sky);line-height:1">${fmt(d.p1)}</div>
+            <div style="font-size:9px;color:var(--ink3);text-transform:uppercase;letter-spacing:.08em;margin-top:3px;font-weight:700">Primed I</div>
+          </div>
+        </div>
+        <div style="font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);margin-bottom:6px">Top Cities</div>
+        ${cityRows}
+        <button onclick='jumpToCounty("${co}")' style="margin-top:12px;width:100%;padding:7px;border:1px solid var(--border);border-radius:var(--rsm);font-size:12px;font-weight:600;cursor:pointer;background:var(--bg);font-family:'DM Sans',sans-serif;color:var(--ink)">View ${fmt(d.total)} leads →</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+function jumpToCounty(county){
+  go('leads',document.querySelectorAll('.ni')[1]);
+  const el=document.getElementById('f-county');if(el){el.value=county;popCities('f-county','f-city');}
+  _tier='all';renderLeads();
+}
+function jumpToCity(county,city){
+  go('leads',document.querySelectorAll('.ni')[1]);
+  const ce=document.getElementById('f-county');if(ce){ce.value=county;popCities('f-county','f-city');}
+  const sf=document.getElementById('f-city');if(sf)sf.value=city;
+  _tier='all';renderLeads();
+}
+
+// ── CITY PAGE ────────────────────────────────────────────
+function renderCityPage(){
+  const countyF=document.getElementById('city-county-f')?.value||'';
+  const byCity={};
+  _leads.forEach(r=>{
+    const co=getCounty(r)||'Unknown';
+    if(countyF&&co!==countyF)return;
+    const city=getCity(r)||('— '+co);
+    if(!byCity[city])byCity[city]={cnt:0,county:co,p2:0,p1:0};
+    byCity[city].cnt++;
+    if(r.primed_stage===2)byCity[city].p2++;
+    if(r.primed_stage===1)byCity[city].p1++;
+  });
+  const entries=Object.entries(byCity).sort((a,b)=>b[1].cnt-a[1].cnt);
+  const ct=document.getElementById('city-count');
+  if(ct)ct.textContent=entries.length+' cities';
+  const el=document.getElementById('city-list');
+  if(!el)return;
+  if(!entries.length){el.innerHTML='<div style="padding:20px;text-align:center;color:var(--ink3);font-size:13px">No data</div>';return;}
+  el.innerHTML=entries.map(([city,d])=>{
+    const color=COUNTY_COLORS[d.county]||'var(--ink3)';
+    const realCity=city.startsWith('— ')?'':city;
+    return `<div class="city-row" onclick='jumpToCity("${d.county}","${realCity}")'>
+      <div class="cty-dot" style="background:${color}"></div>
+      <div class="cty-name">${city}</div>
+      <div class="cty-tag">${d.county}</div>
+      ${d.p2?`<span class="b b-p2" style="font-size:9px">${d.p2}</span>`:''}
+      ${d.p1?`<span class="b b-p1" style="font-size:9px">${d.p1}</span>`:''}
+      <div class="cty-n">${d.cnt}</div>
+    </div>`;
+  }).join('');
+}
+
+// ── OVERVIEW COUNTY ──────────────────────────────────────
+function renderOvCounty(){
+  const totals={};
+  const total=_leads.length;
+  _leads.forEach(r=>{const c=getCounty(r)||'Unknown';totals[c]=(totals[c]||0)+1;});
+  const el=document.getElementById('ov-county');
+  if(!el)return;
+  const entries=Object.entries(totals).sort((a,b)=>b[1]-a[1]);
+  el.innerHTML=entries.map(([c,n])=>`<div class="county-row">
+    <div class="cr-dot" style="background:${COUNTY_COLORS[c]||'var(--ink3)'}"></div>
+    <div class="cr-name">${c}</div>
+    <div class="cr-bar-bg"><div class="cr-bar-fill" style="width:${Math.round(n/total*100)}%;background:${COUNTY_COLORS[c]||'var(--ink3)'}"></div></div>
+    <div class="cr-n">${fmt(n)}</div>
+    <div class="cr-pct">${Math.round(n/total*100)}%</div>
+  </div>`).join('');
+}
+
+// ── CONVERGENCE ──────────────────────────────────────────
+async function loadConv(){
+  const el=document.getElementById('conv-body');
+  if(!el)return;
+  try{
+    const rows=await qt('pp_buyer_seller_matches','select=*&match_score=gte.85&order=match_score.desc&limit=100');
+    const cm=document.getElementById('conv-meta');
+    if(cm)cm.textContent=Array.isArray(rows)?rows.length+' matches at 85+':'—';
+    if(!Array.isArray(rows)||!rows.length){el.innerHTML='<tr class="ld"><td colspan="8">No high-score matches found</td></tr>';return;}
+    el.innerHTML=rows.map(m=>{
+      const mc=m.match_score||0;
+      const col=mc>=90?'var(--gold)':mc>=80?'var(--sky)':'var(--mint)';
+      return `<tr class="cl">
+        <td style="font-size:11px">${(m.signal_type_pair||'—').replace('+',' + ')}</td>
+        <td><div class="nm" style="max-width:130px">${'—'}</div></td>
+        <td style="font-size:12px">${m.match_county||'—'}</td>
+        <td style="font-size:11px;color:var(--ink3)">${m.geography_match||'—'}</td>
+        <td>${sbar(m.buyer_score||0)}</td>
+        <td>${sbar(m.seller_score||0)}</td>
+        <td><span style="font-family:'DM Serif Display',serif;font-size:20px;font-weight:700;color:${col}">${mc}</span></td>
+        <td><span class="b b-p2" style="cursor:pointer">Review</span></td>
+      </tr>`;
+    }).join('');
+  }catch(e){el.innerHTML='<tr class="ld"><td colspan="8">Error loading matches</td></tr>';}
+}
+
+// ── BUYERS ───────────────────────────────────────────────
+async function loadBuyers(){
+  const el=document.getElementById('buyer-body');
+  if(!el)return;
+  try{
+    const rows=await qt('pp_buyer_profiles','select=*&order=score.desc.nullslast&limit=100');
+    if(!Array.isArray(rows)||!rows.length){el.innerHTML='<tr class="ld"><td colspan="6">No buyer profiles</td></tr>';return;}
+    el.innerHTML=rows.map(p=>{
+      const name=(p.raw_owner_name||p.visitor_id||'—').slice(0,28);
+      return `<tr class="cl">
+        <td><div class="nm">${name}</div></td>
+        <td style="font-size:11px;color:var(--ink3)">${sl(p.source_slug)}</td>
+        <td style="font-size:12px">${p.county||'—'}</td>
+        <td><span class="sig">${p.signal_type||'—'}</span></td>
+        <td>${sbar(p.score||0)}</td>
+        <td>${p.primed_stage===2?'<span class="b b-p2">P-II</span>':p.primed_stage===1?'<span class="b b-p1">P-I</span>':'<span class="b b-w">—</span>'}</td>
+      </tr>`;
+    }).join('');
+  }catch(e){}
+}
+
+// ── RUN LOG ──────────────────────────────────────────────
+async function loadRunLog(){
+  const el=document.getElementById('run-body');
+  if(!el)return;
+  try{
+    const rows=await qt('pp_run_log','select=source_slug,status,run_at,signal_count,error_msg&order=run_at.desc&limit=30');
+    const rm=document.getElementById('run-meta');
+    if(rm&&Array.isArray(rows)){
+      const succ=rows.filter(r=>r.status==='success').length;
+      rm.textContent=`${rows.length} recent · ${succ} success`;
+    }
+    if(!Array.isArray(rows)||!rows.length){el.innerHTML='<tr class="ld"><td colspan="5">No run data</td></tr>';return;}
+    el.innerHTML=rows.map(r=>{
+      const isOk=r.status==='success';
+      const dotCol=isOk?'var(--mint)':r.error_msg?'var(--red)':'var(--org)';
+      const d=new Date(r.run_at);
+      const ts=d.toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit',hour12:true});
+      return `<tr>
+        <td style="font-size:12px;font-weight:600">${sl(r.source_slug)}</td>
+        <td><div style="display:flex;align-items:center;gap:6px"><div style="width:7px;height:7px;border-radius:50%;background:${dotCol}"></div>${isOk?'<span class="b b-live">OK</span>':'<span class="b b-q">Error</span>'}</div></td>
+        <td style="font-size:11px;color:var(--ink3)">${ts}</td>
+        <td style="font-family:\'DM Mono\',monospace;font-size:12px">${r.signal_count||0}</td>
+        <td style="font-size:11px;color:var(--ink3)">${r.error_msg||'—'}</td>
+      </tr>`;
+    }).join('');
+  }catch(e){el.innerHTML='<tr class="ld"><td colspan="5">Error loading run log</td></tr>';}
+}
+
+// ── LEAD MODAL ───────────────────────────────────────────
+function showLead(r){
+  document.getElementById('lead-modal')?.remove();
+  const nm=r.raw_owner_name||'Unknown Owner';
+  const city=getCity(r),county=getCounty(r);
+  const addr=r.raw_address||'Court filing — address via county recorder';
+  const fullAddr=city&&!addr.includes(city)?`${addr}, ${city}`:addr;
+  const prob=r.motivation_probability||'—';
+  const stage=r.primed_stage===2?'Primed II — Direct to Agent':r.primed_stage===1?'Primed I — Bryce Qualifies':r.score>=75?'Qualify':'Nurture';
+  const stageCol=r.primed_stage===2?'var(--gold)':r.primed_stage===1?'var(--sky)':'var(--org)';
+  const routing=r.outreach_routing==='direct'?'Direct → Agent (no pre-screen)':r.outreach_routing==='agent'?'Bryce qualifies first, then books agent':'Nurture sequence';
+  const routeBg=r.outreach_routing==='direct'?'var(--gold-lt)':r.outreach_routing==='agent'?'var(--sky-lt)':'var(--mint-lt)';
+  const routeBd=r.outreach_routing==='direct'?'var(--gold-bd)':r.outreach_routing==='agent'?'var(--sky-bd)':'var(--mint-bd)';
+  const routeC =r.outreach_routing==='direct'?'#9A6E00':r.outreach_routing==='agent'?'#1270B0':'#1A7A48';
+
+  const m=document.createElement('div');
+  m.id='lead-modal';m.className='modal-bg';
+  m.innerHTML=`<div class="modal">
+    <button class="modal-x" onclick="document.getElementById('lead-modal').remove()">×</button>
+    <div class="modal-stage" style="color:${stageCol}">${stage}</div>
+    <div class="modal-name">${nm}</div>
+    <div class="modal-addr">${fullAddr.slice(0,90)}</div>
+    <div class="mgrid">
+      <div class="mc"><div class="mc-lbl">Signal</div><div class="mc-val">${r.signal_type||'—'}</div></div>
+      <div class="mc"><div class="mc-lbl">County</div><div class="mc-val">${county||'—'}</div></div>
+      <div class="mc"><div class="mc-lbl">Score</div><div class="mc-val big" style="color:${stageCol}">${r.score||'—'}</div></div>
+      <div class="mc"><div class="mc-lbl">City</div><div class="mc-val">${city||'—'}</div></div>
+      <div class="mc"><div class="mc-lbl">Probability</div><div class="mc-val big" style="color:var(--mint)">${prob}${typeof prob==='number'?'%':''}</div></div>
+      <div class="mc"><div class="mc-lbl">Source</div><div class="mc-val" style="font-size:11px">${sl(r.source_slug)}</div></div>
+    </div>
+    <div class="modal-route" style="background:${routeBg};border:1px solid ${routeBd}">
+      <div class="modal-route-lbl" style="color:${routeC}">Routing</div>
+      <div class="modal-route-val">${routing}</div>
+    </div>
+    <div class="modal-src">Found: ${r.first_seen||'—'}</div>
+    <div class="btn-row">
+      <button class="btn btn-ghost" onclick="document.getElementById('lead-modal').remove()">Close</button>
+      <button class="btn btn-dark" onclick="addToOQ(${JSON.stringify(r).replace(/'/g,'&#39;')})">Add to Outreach Queue</button>
+    </div>
+  </div>`;
+  document.body.appendChild(m);
+  m.addEventListener('click',e=>{if(e.target===m)m.remove();});
+}
+
+// ── OUTREACH QUEUE ───────────────────────────────────────
+function addToOQ(r){
+  if(!_oq.find(x=>x.id===r.id)){
+    _oq.push({...r,added_at:new Date().toISOString()});
+    document.getElementById('lead-modal')?.remove();
+    renderOQ();
+    const nb=document.getElementById('nb-oq');
+    if(nb){nb.style.display='flex';nb.textContent=_oq.length;}
+  }
+}
+function renderOQ(){
+  const el=document.getElementById('oq-body');
+  const meta=document.getElementById('oq-meta');
+  if(meta)meta.textContent=_oq.length+' lead'+(_oq.length!==1?'s':'');
+  if(!el)return;
+  if(!_oq.length){el.innerHTML='<tr class="ld"><td colspan="6">No leads queued — open any lead and press Add to Outreach</td></tr>';return;}
+  el.innerHTML=_oq.map((r,i)=>`<tr>
+    <td><div class="nm">${(r.raw_owner_name||'—').slice(0,28)}</div></td>
+    <td style="font-size:12px">${getCounty(r)||'—'}</td>
+    <td><span class="sig">${r.signal_type||'—'}</span></td>
+    <td>${sbar(r.score)}</td>
+    <td>${routeBadge(r)}</td>
+    <td><button onclick="_oq.splice(${i},1);renderOQ();" style="background:none;border:1px solid var(--border);border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer;color:var(--ink3)">Remove</button></td>
+  </tr>`).join('');
+}
+
+// ── OVERVIEW PIPELINE STATUS ─────────────────────────────
+function renderOvPipeline(){
+  const el=document.getElementById('ov-pipeline');
+  if(!el)return;
+  const items=[
+    {name:'Tracerfy Skip Trace',note:'Awaiting funding · $0.02/rec',col:'var(--org)',status:'Pending'},
+    {name:'MLS Auth (URE)',note:'Session cookie active',col:'var(--mint)',status:'Live'},
+    {name:'Bryce Agent',note:'Pre-screen configured',col:'var(--sky)',status:'Active'},
+    {name:'VAPI Voice',note:'Human-assisted staged',col:'var(--org)',status:'Staged'},
+    {name:'Federal DNC SAN',note:'Required before calls',col:'var(--red)',status:'Required'},
+    {name:'Pipeline Cron',note:'4:00 AM MT daily · dual UTC',col:'var(--mint)',status:'Running'},
+  ];
+  el.innerHTML=items.map(i=>`<div class="ps-row">
+    <div class="ps-dot" style="background:${i.col}"></div>
+    <div class="ps-name">${i.name}</div>
+    <div class="ps-note">${i.note}</div>
+    <div class="ps-status" style="color:${i.col}">${i.status}</div>
+  </div>`).join('');
+}
+
+// ── LOAD KPIs ────────────────────────────────────────────
+async function loadKPIs(){
+  try{
+    const rows=await qt('pp_kpi_cache','select=*&id=eq.1&limit=1');
+    const d=Array.isArray(rows)&&rows.length?rows[0]:null;
+    if(!d)return;
+    _kpis=d;
+    const map={
+      'tp-total':d.total,'tp-primed':d.primed,'tp-today':d.added_today,'tp-conv':d.matches_total,
+      'nb-all':d.primed,'nb-p2':d.primed_ii,'nb-p1':d.primed_i,'nb-conv':d.convergence,
+      'ov-total':d.total,'ov-p2':d.primed_ii,'ov-p1':d.primed_i,'ov-conv':d.convergence,
+      'ov-buyers':d.buyer_total,'ov-today':d.added_today,
+      'bk-total':d.buyer_total,'bk-primed':d.buyer_primed,
+      'bk-qualify':d.buyer_qualify,'bk-matches':d.matches_total
+    };
+    Object.entries(map).forEach(([id,val])=>set(id,val));
+    if(d.updated_at){
+      const ago=Math.round((Date.now()-new Date(d.updated_at))/60000);
+      const ts=ago<2?'Just updated':ago<60?`Updated ${ago}m ago`:`Updated ${Math.round(ago/60)}h ago`;
+      const ts2=document.getElementById('topbar-ts');if(ts2)ts2.textContent=ts;
+      const st=document.getElementById('sb-ts');if(st)st.textContent=ts;
+    }
+  }catch(e){console.warn('KPI error',e);}
+}
+
+// ── LOAD LEADS ───────────────────────────────────────────
+async function loadLeads(){
+  try{
+    const rc=await qt('pp_leads_cache','select=leads&id=eq.1&limit=1');
+    let leads=Array.isArray(rc)&&rc.length&&rc[0].leads?rc[0].leads:[];
+    const seen=new Set();
+    _leads=leads.filter(r=>{const k=String(r.id||'');if(!k||seen.has(k))return false;seen.add(k);return true;});
+    renderLeads();
+    // Overview top 25
+    const ov=document.getElementById('ov-lead-body');
+    const ovct=document.getElementById('ov-lead-ct');
+    if(ovct)ovct.textContent=_leads.length+' primed leads';
+    if(ov){
+      const top=_leads.filter(r=>r.primed_stage===2||r.primed_stage===1).slice(0,25);
+      ov.innerHTML=top.map(r=>`<tr class="cl" onclick='showLead(${JSON.stringify(r).replace(/'/g,"&#39;")})'>
+        <td><div class="nm">${(r.raw_owner_name||r.raw_address||'—').slice(0,30)}</div><div class="nm-sub">${getCity(r)||sl(r.source_slug)}</div></td>
+        <td style="font-size:11px;color:var(--ink3)">${getCounty(r)||'—'}</td>
+        <td>${sbar(r.score)}</td>
+        <td>${stageBadge(r)}</td>
+        <td>${routeBadge(r)}</td>
+      </tr>`).join('');
+    }
+    renderOvCounty();
+    // Update sidebar counts
+    const p2count=_leads.filter(r=>r.primed_stage===2).length;
+    const p1count=_leads.filter(r=>r.primed_stage===1).length;
+    const nbp2=document.getElementById('nb-p2');if(nbp2)nbp2.textContent=fmt(p2count);
+    const nbp1=document.getElementById('nb-p1');if(nbp1)nbp1.textContent=fmt(p1count);
+    const nball=document.getElementById('nb-all');if(nball)nball.textContent=fmt(_leads.length);
+  }catch(e){console.warn('Leads error',e);}
+}
+
+// ── LOAD SOURCES ─────────────────────────────────────────
+async function loadSources(){
+  try{
+    const data=await qt('pp_source_cache','select=source_slug,signal_type,total,today,last_active&order=today.desc,total.desc');
+    if(!Array.isArray(data)||!data.length)return;
+    const live=data.filter(s=>s.today>0);
+    const ct=document.getElementById('ov-src-ct');if(ct)ct.textContent=live.length+' sources live today';
+    // Overview strip (top active)
+    const sl_el=document.getElementById('ov-src-list');
+    if(sl_el){
+      const top=data.slice(0,14);
+      sl_el.innerHTML=top.map(s=>`<div class="src-row">
+        <div class="src-dot" style="background:${s.today>0?'var(--mint)':'var(--border)'}"></div>
+        <div class="src-n">${sl(s.source_slug)}</div>
+        <div class="src-type">${s.signal_type||'—'}</div>
+        <div class="src-today" style="color:${s.today>0?'var(--mint)':'var(--ink3)'}">+${fmt(s.today)}</div>
+        <div class="src-total">${fmt(s.total)}</div>
+        <span class="b ${s.today>0?'b-live':'b-idx'}" style="font-size:9px">${s.today>0?'Live':'Indexed'}</span>
+      </div>`).join('');
+    }
+    // Full sources table
+    const sb=document.getElementById('src-body');
+    const sm=document.getElementById('src-meta');
+    if(sm)sm.textContent=data.length+' sources · '+live.length+' live today';
+    if(sb){
+      sb.innerHTML=data.map(s=>`<tr>
+        <td><div class="nm">${sl(s.source_slug)}</div></td>
+        <td><span class="sig">${s.signal_type||'—'}</span></td>
+        <td style="font-family:'DM Mono',monospace;font-size:12px">${fmt(s.total)}</td>
+        <td style="font-family:'DM Mono',monospace;font-size:12px;color:${s.today>0?'var(--mint)':'var(--ink3)'}">+${fmt(s.today)}</td>
+        <td style="font-size:11px;color:var(--ink3)">${s.last_active||'—'}</td>
+        <td><span class="b ${s.today>0?'b-live':'b-idx'}">${s.today>0?'Live':'Indexed'}</span></td>
+      </tr>`).join('');
+    }
+  }catch(e){console.warn('Sources error',e);}
+}
+
+// ── INIT ─────────────────────────────────────────────────
+(async function init(){
+  await Promise.all([loadKPIs(),loadLeads(),loadSources()]);
+  renderOvPipeline();
+  renderOQ();
+})();
+</script>
+</body>
+</html>
