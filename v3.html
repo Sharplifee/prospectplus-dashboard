@@ -230,6 +230,58 @@ tr.cl:hover td{background:var(--bg)}
   #mob-btn{display:block!important}
 }
 #mob-btn{display:none;background:none;border:none;font-size:20px;cursor:pointer;color:var(--ink2)}
+
+/* ─ MULTI-CITY PICKER ──────────────────────────────────────────────────── */
+.city-picker-wrap{position:relative;display:inline-block}
+.city-picker-btn{
+  display:flex;align-items:center;gap:6px;
+  padding:6px 10px;border:1px solid var(--border);
+  border-radius:var(--rsm);background:var(--card);
+  font-family:'Inter',sans-serif;font-size:12px;font-weight:500;
+  color:var(--ink);cursor:pointer;min-width:128px;
+  white-space:nowrap;transition:border-color .1s;user-select:none;
+}
+.city-picker-btn:hover{border-color:var(--ink3)}
+.city-picker-btn.has-sel{border-color:var(--gold);background:var(--gold-lt);color:#9A6E00}
+.city-picker-btn .cpb-ct{
+  background:var(--gold);color:#fff;font-size:9px;font-weight:700;
+  padding:1px 5px;border-radius:10px;margin-left:auto;flex-shrink:0;
+}
+.city-picker-btn .cpb-arr{font-size:10px;margin-left:auto;opacity:.5;flex-shrink:0}
+.city-picker-drop{
+  position:absolute;top:calc(100% + 4px);left:0;z-index:500;
+  background:var(--card);border:1px solid var(--border);
+  border-radius:var(--r);box-shadow:var(--sh-lg);
+  min-width:200px;max-height:280px;overflow-y:auto;
+  padding:6px 0;display:none;
+}
+.city-picker-drop.open{display:block}
+.cpd-search{
+  margin:4px 8px 6px;padding:5px 8px;
+  border:1px solid var(--border);border-radius:var(--rsm);
+  font-family:'Inter',sans-serif;font-size:12px;color:var(--ink);
+  outline:none;width:calc(100% - 16px);background:var(--bg);
+}
+.cpd-search:focus{border-color:var(--gold)}
+.cpd-item{
+  display:flex;align-items:center;gap:8px;
+  padding:7px 12px;font-size:12px;font-weight:500;
+  color:var(--ink);cursor:pointer;transition:background .08s;
+  user-select:none;
+}
+.cpd-item:hover{background:var(--bg)}
+.cpd-item input[type=checkbox]{
+  width:13px;height:13px;accent-color:var(--gold);
+  cursor:pointer;flex-shrink:0;
+}
+.cpd-item.checked{color:var(--ink);font-weight:600}
+.cpd-all{
+  padding:7px 12px 8px;font-size:11px;font-weight:700;
+  color:var(--ink3);cursor:pointer;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:6px;margin-bottom:2px;
+  text-transform:uppercase;letter-spacing:.06em;
+}
+.cpd-all:hover{background:var(--bg)}
 </style>
 </head>
 <body>
@@ -344,7 +396,18 @@ tr.cl:hover td{background:var(--bg)}
           <option>Salt Lake</option><option>Utah</option><option>Weber</option>
           <option>Davis</option><option>Wasatch</option><option>Summit</option>
         </select>
-        <select class="fsel" id="f-city" onchange="renderLeads()"><option value="">All Cities</option></select>
+        <div class="city-picker-wrap" id="fp-leads">
+          <div class="city-picker-btn" id="fp-leads-btn" onclick="togglePicker('fp-leads')" tabindex="0">
+            <span id="fp-leads-label">All Cities</span>
+            <span class="cpb-ct" id="fp-leads-ct" style="display:none">0</span>
+            <span class="cpb-arr">▾</span>
+          </div>
+          <div class="city-picker-drop" id="fp-leads-drop">
+            <input class="cpd-search" placeholder="Search cities…" oninput="filterPickerSearch(this,'fp-leads-drop')" onclick="event.stopPropagation()">
+            <div class="cpd-all" onclick="clearPickerSel('fp-leads','leads')">✕ Clear selection</div>
+            <div id="fp-leads-items"></div>
+          </div>
+        </div>
         <select class="fsel" id="f-sort" onchange="renderLeads()">
           <option value="score">Score ↓</option><option value="score_asc">Score ↑</option>
           <option value="prob">Probability ↓</option><option value="name">Name A–Z</option>
@@ -370,7 +433,18 @@ tr.cl:hover td{background:var(--bg)}
           <option>Salt Lake</option><option>Utah</option><option>Weber</option>
           <option>Davis</option><option>Wasatch</option><option>Summit</option>
         </select>
-        <select class="fsel" id="p2-city" onchange="renderP2()"><option value="">All Cities</option></select>
+        <div class="city-picker-wrap" id="fp-p2">
+          <div class="city-picker-btn" id="fp-p2-btn" onclick="togglePicker('fp-p2')" tabindex="0">
+            <span id="fp-p2-label">All Cities</span>
+            <span class="cpb-ct" id="fp-p2-ct" style="display:none">0</span>
+            <span class="cpb-arr">▾</span>
+          </div>
+          <div class="city-picker-drop" id="fp-p2-drop">
+            <input class="cpd-search" placeholder="Search cities…" oninput="filterPickerSearch(this,'fp-p2-drop')" onclick="event.stopPropagation()">
+            <div class="cpd-all" onclick="clearPickerSel('fp-p2','p2')">✕ Clear selection</div>
+            <div id="fp-p2-items"></div>
+          </div>
+        </div>
         <select class="fsel" id="p2-sort" onchange="renderP2()">
           <option value="score">Score ↓</option><option value="prob">Probability ↓</option>
           <option value="name">Name A–Z</option><option value="city">City A–Z</option><option value="county">County A–Z</option>
@@ -395,7 +469,18 @@ tr.cl:hover td{background:var(--bg)}
           <option>Salt Lake</option><option>Utah</option><option>Weber</option>
           <option>Davis</option><option>Wasatch</option><option>Summit</option>
         </select>
-        <select class="fsel" id="p1-city" onchange="renderP1()"><option value="">All Cities</option></select>
+        <div class="city-picker-wrap" id="fp-p1">
+          <div class="city-picker-btn" id="fp-p1-btn" onclick="togglePicker('fp-p1')" tabindex="0">
+            <span id="fp-p1-label">All Cities</span>
+            <span class="cpb-ct" id="fp-p1-ct" style="display:none">0</span>
+            <span class="cpb-arr">▾</span>
+          </div>
+          <div class="city-picker-drop" id="fp-p1-drop">
+            <input class="cpd-search" placeholder="Search cities…" oninput="filterPickerSearch(this,'fp-p1-drop')" onclick="event.stopPropagation()">
+            <div class="cpd-all" onclick="clearPickerSel('fp-p1','p1')">✕ Clear selection</div>
+            <div id="fp-p1-items"></div>
+          </div>
+        </div>
         <select class="fsel" id="p1-sort" onchange="renderP1()">
           <option value="score">Score ↓</option><option value="prob">Probability ↓</option>
           <option value="name">Name A–Z</option><option value="city">City A–Z</option><option value="county">County A–Z</option>
@@ -604,28 +689,60 @@ function set(id,v){const el=document.getElementById(id);if(el&&v!=null)el.textCo
 function prog(msg){const el=document.getElementById('load-prog');if(el)el.textContent=msg;}
 
 // ─── CITY DROPDOWN POPULATE ──────────────────────────────────────────────────
+// Map county el → picker id
+const COUNTY_TO_PICKER={'f-county':'fp-leads','p2-county':'fp-p2','p1-county':'fp-p1'};
+const PICKER_TO_RENDER={'fp-leads':'leads','fp-p2':'p2','fp-p1':'p1'};
+
 function onCC(cEl,cityEl){
   const county=document.getElementById(cEl)?.value||'';
-  const el=document.getElementById(cityEl);
-  if(!el)return;
-  el.innerHTML='<option value="">All Cities</option>';
-  if(county&&COUNTY_CITIES[county]){
-    COUNTY_CITIES[county].forEach(c=>{const o=document.createElement('option');o.value=c;o.textContent=c;el.appendChild(o);});
+  const pickerId=COUNTY_TO_PICKER[cEl]||('fp-'+cityEl.replace('-city',''));
+  buildPicker(pickerId, county);
+}
+
+function buildPicker(pickerId, county){
+  const itemsEl=document.getElementById(pickerId+'-items');
+  if(!itemsEl)return;
+  // Reset selections when county changes
+  _citySelections[pickerId]=new Set();
+  updatePickerBtn(pickerId);
+  itemsEl.innerHTML='';
+  const cities=county&&COUNTY_CITIES[county]?COUNTY_CITIES[county]:[];
+  if(!cities.length){
+    itemsEl.innerHTML='<div style="padding:8px 12px;font-size:12px;color:var(--ink3)">Select a county first</div>';
+    return;
   }
+  cities.forEach(c=>{
+    const div=document.createElement('div');
+    div.className='cpd-item';
+    div.dataset.city=c.toLowerCase();
+    div.innerHTML=`<input type="checkbox" onclick="event.stopPropagation()" onchange="onPickerCheck('${pickerId}','${c}',this.checked)"><span>${c}</span>`;
+    div.addEventListener('click',function(e){
+      if(e.target.tagName==='INPUT')return;
+      const cb=this.querySelector('input');cb.checked=!cb.checked;
+      onPickerCheck(pickerId,c,cb.checked);
+    });
+    itemsEl.appendChild(div);
+  });
 }
 function clearF(cEl,cityEl,sortEl){
   const c=document.getElementById(cEl);if(c)c.value='';
-  const ci=document.getElementById(cityEl);if(ci){ci.innerHTML='<option value="">All Cities</option>';ci.value='';}
+  const pickerId=COUNTY_TO_PICKER[cEl]||('fp-'+cityEl.replace('-city',''));
+  _citySelections[pickerId]=new Set();
+  buildPicker(pickerId,'');
+  updatePickerBtn(pickerId);
   const s=document.getElementById(sortEl);if(s)s.value='score';
 }
 
 // ─── FILTER + SORT ENGINE ────────────────────────────────────────────────────
-function applyGeo(arr,cElId,cityElId){
+function applyGeo(arr,cElId,pickerId){
   const cf=(document.getElementById(cElId)?.value||'').toLowerCase();
-  const sf=(document.getElementById(cityElId)?.value||'').toLowerCase();
+  const selCities=_citySelections[pickerId]||new Set();
   let f=arr;
   if(cf)f=f.filter(r=>(getCounty(r)||'').toLowerCase()===cf);
-  if(sf)f=f.filter(r=>(getCity(r)||'').toLowerCase()===sf);
+  if(selCities.size>0){
+    const lowerSet=new Set([...selCities].map(c=>c.toLowerCase()));
+    f=f.filter(r=>lowerSet.has((getCity(r)||'').toLowerCase()));
+  }
   return f;
 }
 function applySort(arr,sortElId){
@@ -662,16 +779,16 @@ function clearLeadF(){
   document.querySelectorAll('#pg-leads .fb').forEach(b=>b.classList.remove('on','on-gold','on-sky','on-mint'));
   document.querySelector('#pg-leads .fb')?.classList.add('on');
   const c=document.getElementById('f-county');if(c)c.value='';
-  const ci=document.getElementById('f-city');if(ci){ci.innerHTML='<option value="">All Cities</option>';ci.value='';}
+  _citySelections['fp-leads']=new Set();buildPicker('fp-leads','');updatePickerBtn('fp-leads');
   const s=document.getElementById('f-sort');if(s)s.value='score';
   renderLeads();
 }
 function renderLeads(){
   let f=tierFilter(_leads);
-  f=applyGeo(f,'f-county','f-city');
+  f=applyGeo(f,'f-county','fp-leads');
   f=applySort(f,'f-sort');
   const cof=document.getElementById('f-county')?.value||'';
-  const cif=document.getElementById('f-city')?.value||'';
+  const selCitiesL=_citySelections['fp-leads']||new Set();const cif=selCitiesL.size>0?[...selCitiesL].join(', '):'';
   const ct=document.getElementById('f-count');
   if(ct)ct.textContent=f.length+' lead'+(f.length!==1?'s':'')+(cof||cif?' matched':'');
   const el=document.getElementById('leads-body');
@@ -696,7 +813,7 @@ function renderLeads(){
 
 // ─── RENDER: PRIMED II ───────────────────────────────────────────────────────
 function renderP2(){
-  let f=applyGeo(_leads.filter(r=>r.primed_stage===2),'p2-county','p2-city');
+  let f=applyGeo(_leads.filter(r=>r.primed_stage===2),'p2-county','fp-p2');
   f=applySort(f,'p2-sort');
   const ct=document.getElementById('p2-count');if(ct)ct.textContent=f.length+' leads';
   const el=document.getElementById('p2-body');if(!el)return;
@@ -719,7 +836,7 @@ function renderP2(){
 
 // ─── RENDER: PRIMED I ────────────────────────────────────────────────────────
 function renderP1(){
-  let f=applyGeo(_leads.filter(r=>r.primed_stage===1),'p1-county','p1-city');
+  let f=applyGeo(_leads.filter(r=>r.primed_stage===1),'p1-county','fp-p1');
   f=applySort(f,'p1-sort');
   const ct=document.getElementById('p1-count');if(ct)ct.textContent=f.length+' leads';
   const el=document.getElementById('p1-body');if(!el)return;
@@ -870,8 +987,19 @@ function jumpToCounty(county){
 }
 function jumpToCity(county,city){
   go('leads',document.querySelectorAll('.ni')[1]);
-  const cf=document.getElementById('f-county');if(cf){cf.value=county;onCC('f-county','f-city');}
-  const sf=document.getElementById('f-city');if(sf&&city)sf.value=city;
+  const cf=document.getElementById('f-county');if(cf){cf.value=county;buildPicker('fp-leads',county);}
+  if(city){
+    _citySelections['fp-leads']=new Set([city]);
+    updatePickerBtn('fp-leads');
+    // Check the checkbox visually
+    setTimeout(()=>{
+      const items=document.querySelectorAll('#fp-leads-items .cpd-item');
+      items.forEach(el=>{if(el.dataset.city===city.toLowerCase()){
+        const cb=el.querySelector('input');if(cb)cb.checked=true;
+        el.classList.add('checked');
+      }});
+    },50);
+  }
   _tier='all';renderLeads();
 }
 
@@ -1171,6 +1299,77 @@ async function loadAllLeads(){
     setTimeout(()=>{const ov=document.getElementById('load-overlay');if(ov)ov.classList.add('done');},2000);
   }
 })();
+
+// ─── MULTI-CITY PICKER STATE + LOGIC ────────────────────────────────────────
+const _citySelections={'fp-leads':new Set(),'fp-p2':new Set(),'fp-p1':new Set()};
+
+function togglePicker(pickerId){
+  const drop=document.getElementById(pickerId+'-drop');
+  if(!drop)return;
+  const isOpen=drop.classList.contains('open');
+  // Close all others first
+  document.querySelectorAll('.city-picker-drop.open').forEach(d=>d.classList.remove('open'));
+  if(!isOpen)drop.classList.add('open');
+}
+
+// Close picker when clicking outside
+document.addEventListener('click',function(e){
+  if(!e.target.closest('.city-picker-wrap')){
+    document.querySelectorAll('.city-picker-drop.open').forEach(d=>d.classList.remove('open'));
+  }
+});
+
+function onPickerCheck(pickerId, city, checked){
+  if(!_citySelections[pickerId])_citySelections[pickerId]=new Set();
+  if(checked) _citySelections[pickerId].add(city);
+  else _citySelections[pickerId].delete(city);
+  updatePickerBtn(pickerId);
+  // Trigger the right render
+  const page=PICKER_TO_RENDER[pickerId]||'leads';
+  if(page==='leads')renderLeads();
+  else if(page==='p2')renderP2();
+  else if(page==='p1')renderP1();
+}
+
+function updatePickerBtn(pickerId){
+  const sel=_citySelections[pickerId]||new Set();
+  const btn=document.getElementById(pickerId+'-btn');
+  const label=document.getElementById(pickerId+'-label');
+  const ct=document.getElementById(pickerId+'-ct');
+  if(!btn||!label)return;
+  if(sel.size===0){
+    label.textContent='All Cities';
+    btn.classList.remove('has-sel');
+    if(ct)ct.style.display='none';
+  } else if(sel.size===1){
+    label.textContent=[...sel][0];
+    btn.classList.add('has-sel');
+    if(ct)ct.style.display='none';
+  } else {
+    label.textContent=sel.size+' cities';
+    btn.classList.add('has-sel');
+    if(ct){ct.textContent=sel.size;ct.style.display='inline';}
+  }
+}
+
+function clearPickerSel(pickerId, page){
+  _citySelections[pickerId]=new Set();
+  // Uncheck all checkboxes
+  document.querySelectorAll('#'+pickerId+'-items .cpd-item input').forEach(cb=>cb.checked=false);
+  document.querySelectorAll('#'+pickerId+'-items .cpd-item').forEach(el=>el.classList.remove('checked'));
+  updatePickerBtn(pickerId);
+  if(page==='leads')renderLeads();
+  else if(page==='p2')renderP2();
+  else if(page==='p1')renderP1();
+}
+
+function filterPickerSearch(input, dropId){
+  const q=input.value.toLowerCase();
+  document.querySelectorAll('#'+dropId+' .cpd-item').forEach(el=>{
+    el.style.display=el.dataset.city.includes(q)?'':'none';
+  });
+}
+
 </script>
 </body>
 </html>
