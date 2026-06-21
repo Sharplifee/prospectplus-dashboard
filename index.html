@@ -573,7 +573,7 @@ body {
     <div class="pg" id="pg-leads">
       <div class="pg-hdr">
         <h1>All Leads</h1>
-        <p>Every lead ranked by score. Filter by priority to see exactly who to contact next.</p>
+        <p>Every lead ranked by score. Filter by priority, county, and city to see exactly who to contact next.</p>
       </div>
       <div class="frow">
         <button class="fb on" onclick="fl('all',this)">All</button>
@@ -581,6 +581,30 @@ body {
         <button class="fb" onclick="fl('qualify',this)" style="color:var(--amber)">● Qualify — This Week</button>
         <button class="fb" onclick="fl('nurture',this)" style="color:var(--green)">● Nurture — 30 Days</button>
         <button class="fb" onclick="fl('watch',this)">Watch</button>
+      </div>
+      <div class="frow" style="gap:8px;flex-wrap:wrap;margin-top:0;padding-top:0;border-top:none">
+        <select id="county-filter" onchange="onCountyFilter()" style="padding:7px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif;background:var(--card);color:var(--ink);min-width:140px;cursor:pointer">
+          <option value="">All Counties</option>
+          <option value="Salt Lake">Salt Lake</option>
+          <option value="Utah">Utah</option>
+          <option value="Weber">Weber</option>
+          <option value="Davis">Davis</option>
+          <option value="Wasatch">Wasatch</option>
+          <option value="Summit">Summit</option>
+        </select>
+        <select id="city-filter" onchange="fl(_currentTier,null)" style="padding:7px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif;background:var(--card);color:var(--ink);min-width:160px;cursor:pointer">
+          <option value="">All Cities</option>
+        </select>
+        <select id="sort-filter" onchange="fl(_currentTier,null)" style="padding:7px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif;background:var(--card);color:var(--ink);min-width:140px;cursor:pointer">
+          <option value="score">Sort: Score ↓</option>
+          <option value="score_asc">Sort: Score ↑</option>
+          <option value="prob">Sort: Probability ↓</option>
+          <option value="name">Sort: Name A–Z</option>
+          <option value="city">Sort: City A–Z</option>
+          <option value="date">Sort: Date Found</option>
+        </select>
+        <button onclick="clearLocFilters()" style="padding:7px 12px;border:1px solid var(--border);border-radius:8px;font-size:12px;font-family:'DM Sans',sans-serif;background:var(--card);color:var(--ink3);cursor:pointer">✕ Clear</button>
+        <span id="leads-count-badge" style="font-size:12px;color:var(--ink3);padding:7px 4px;align-self:center"></span>
       </div>
       <div class="panel">
         <div class="tw">
@@ -981,22 +1005,144 @@ document.addEventListener("keydown",function(e){
   }
 });
 
+// City→County lookup map (from pp_city_county_map)
+const CITY_COUNTY_MAP={
+  "bountiful":"Davis","centerville":"Davis","clearfield":"Davis","clinton":"Davis",
+  "eaglewood":"Davis","farmington":"Davis","fruit heights":"Davis","hafb":"Davis",
+  "hill air force base":"Davis","kaysville":"Davis","layton":"Davis",
+  "north salt lake":"Davis","south weber":"Davis","sunset":"Davis","syracuse":"Davis",
+  "west bountiful":"Davis","west point":"Davis","woods cross":"Davis",
+  "alta":"Salt Lake","bluffdale":"Salt Lake","copperton":"Salt Lake",
+  "cottonwood heights":"Salt Lake","draper":"Salt Lake","emigration canyon":"Salt Lake",
+  "herriman":"Salt Lake","holladay":"Salt Lake","kearns":"Salt Lake",
+  "little cottonwood canyon":"Salt Lake","magna":"Salt Lake","midvale":"Salt Lake",
+  "millcreek":"Salt Lake","murray":"Salt Lake","riverton":"Salt Lake",
+  "salt lake city":"Salt Lake","sandy":"Salt Lake","slc":"Salt Lake",
+  "south jordan":"Salt Lake","south salt lake":"Salt Lake","taylorsville":"Salt Lake",
+  "west jordan":"Salt Lake","west valley":"Salt Lake","west valley city":"Salt Lake",
+  "white city":"Salt Lake",
+  "coalville":"Summit","echo":"Summit","francis":"Summit","henefer":"Summit",
+  "hoytsville":"Summit","kamas":"Summit","kimball junction":"Summit","marion":"Summit",
+  "oakley":"Summit","park city":"Summit","silver summit":"Summit","snyderville":"Summit",
+  "wanship":"Summit",
+  "alpine":"Utah","american fork":"Utah","benjamin":"Utah","cedar hills":"Utah",
+  "cedar valley":"Utah","eagle mountain":"Utah","elk ridge":"Utah","eureka":"Utah",
+  "fairfield":"Utah","genola":"Utah","goshen":"Utah","highland":"Utah",
+  "lake shore":"Utah","lake view":"Utah","lehi":"Utah","lindon":"Utah",
+  "mapleton":"Utah","orem":"Utah","payson":"Utah","pleasant grove":"Utah",
+  "provo":"Utah","salem":"Utah","santaquin":"Utah","saratoga springs":"Utah",
+  "spanish fork":"Utah","springville":"Utah","vineyard":"Utah",
+  "west mountain":"Utah","woodland hills":"Utah",
+  "center creek":"Wasatch","charleston":"Wasatch","daniel":"Wasatch","heber":"Wasatch",
+  "heber city":"Wasatch","independence":"Wasatch","lake creek":"Wasatch","midway":"Wasatch",
+  "peoa":"Wasatch","timber lakes":"Wasatch","wallsburg":"Wasatch","wolf creek":"Wasatch",
+  "eden":"Weber","farr west":"Weber","harrisville":"Weber","hooper":"Weber",
+  "huntsville":"Weber","liberty":"Weber","marriott-slaterville":"Weber",
+  "mountain green":"Weber","north ogden":"Weber","ogden":"Weber","plain city":"Weber",
+  "pleasant view":"Weber","riverdale":"Weber","roy":"Weber","south ogden":"Weber",
+  "taylor":"Weber","uintah":"Weber","warren":"Weber","washington terrace":"Weber",
+  "west haven":"Weber"
+};
+
+// Cities per county for dynamic dropdown
+const COUNTY_CITIES={
+  "Salt Lake":["Alta","Bluffdale","Copperton","Cottonwood Heights","Draper","Emigration Canyon","Herriman","Holladay","Kearns","Little Cottonwood Canyon","Magna","Midvale","Millcreek","Murray","Riverton","Salt Lake City","Sandy","South Jordan","South Salt Lake","Taylorsville","West Jordan","West Valley City","White City"],
+  "Utah":["Alpine","American Fork","Benjamin","Cedar Hills","Cedar Valley","Eagle Mountain","Elk Ridge","Eureka","Fairfield","Genola","Goshen","Highland","Lake Shore","Lake View","Lehi","Lindon","Mapleton","Orem","Payson","Pleasant Grove","Provo","Salem","Santaquin","Saratoga Springs","Spanish Fork","Springville","Vineyard","West Mountain","Woodland Hills"],
+  "Weber":["Eden","Farr West","Harrisville","Hooper","Huntsville","Liberty","Marriott-Slaterville","Mountain Green","North Ogden","Ogden","Plain City","Pleasant View","Riverdale","Roy","South Ogden","Taylor","Uintah","Warren","Washington Terrace","West Haven"],
+  "Davis":["Bountiful","Centerville","Clearfield","Clinton","Eaglewood","Farmington","Fruit Heights","HAFB","Kaysville","Layton","North Salt Lake","South Weber","Sunset","Syracuse","West Bountiful","West Point","Woods Cross"],
+  "Wasatch":["Center Creek","Charleston","Daniel","Heber City","Independence","Lake Creek","Midway","Peoa","Timber Lakes","Wallsburg","Wolf Creek"],
+  "Summit":["Coalville","Echo","Francis","Henefer","Hoytsville","Kamas","Kimball Junction","Marion","Oakley","Park City","Silver Summit","Snyderville","Wanship"]
+};
+
+let _currentTier="all";
+
+function getLeadCity(r){
+  return r.city||parseCity(r.raw_address)||"";
+}
+
+function getLeadCounty(r){
+  if(r.county)return r.county;
+  const city=getLeadCity(r);
+  if(city)return CITY_COUNTY_MAP[city.toLowerCase()]||"";
+  return "";
+}
+
+function onCountyFilter(){
+  const county=document.getElementById("county-filter")?.value||"";
+  const cityEl=document.getElementById("city-filter");
+  if(!cityEl)return;
+  cityEl.innerHTML='<option value="">All Cities</option>';
+  if(county&&COUNTY_CITIES[county]){
+    COUNTY_CITIES[county].forEach(c=>{
+      const o=document.createElement("option");
+      o.value=c;o.textContent=c;
+      cityEl.appendChild(o);
+    });
+  }
+  fl(_currentTier,null);
+}
+
+function clearLocFilters(){
+  const cf=document.getElementById("county-filter");if(cf)cf.value="";
+  const sf=document.getElementById("city-filter");if(sf){sf.innerHTML='<option value="">All Cities</option>';sf.value="";}
+  const so=document.getElementById("sort-filter");if(so)so.value="score";
+  fl(_currentTier,document.querySelector(".fb.on"));
+}
+
 function fl(tier,btn){
+  if(tier)_currentTier=tier;
   document.querySelectorAll(".fb").forEach(b=>b.classList.remove("on","on-p","on-q","on-n"));
   if(btn)btn.classList.add("on");
-  const f=tier==="all"?_leads:_leads.filter(r=>tier==="primed"?r.score>=75:tier==="qualify"?(r.score>=60&&r.score<75):tier==="nurture"?(r.score>=45&&r.score<60):r.score<25);
+  const countyFilter=(document.getElementById("county-filter")?.value||"").toLowerCase();
+  const cityFilter=(document.getElementById("city-filter")?.value||"").toLowerCase();
+  const sortBy=document.getElementById("sort-filter")?.value||"score";
+
+  // Step 1: tier filter
+  let f=_currentTier==="all"?_leads:_leads.filter(r=>_currentTier==="primed"?r.score>=75:_currentTier==="qualify"?(r.score>=60&&r.score<75):_currentTier==="nurture"?(r.score>=45&&r.score<60):r.score<25);
+
+  // Step 2: county filter
+  if(countyFilter){
+    f=f.filter(r=>{
+      const c=getLeadCounty(r);
+      return c.toLowerCase()===countyFilter;
+    });
+  }
+
+  // Step 3: city filter
+  if(cityFilter){
+    f=f.filter(r=>{
+      const city=getLeadCity(r);
+      return city.toLowerCase()===cityFilter;
+    });
+  }
+
+  // Step 4: sort
+  f=[...f].sort((a,b)=>{
+    if(sortBy==="score_asc")return (a.score||0)-(b.score||0);
+    if(sortBy==="prob")return (b.motivation_probability||0)-(a.motivation_probability||0);
+    if(sortBy==="name"){const na=a.raw_owner_name||"";const nb=b.raw_owner_name||"";return na.localeCompare(nb);}
+    if(sortBy==="city"){const ca=getLeadCity(a)||"";const cb=getLeadCity(b)||"";return ca.localeCompare(cb);}
+    if(sortBy==="date")return new Date(b.first_seen||0)-new Date(a.first_seen||0);
+    return (b.score||0)-(a.score||0); // default: score desc
+  });
+
+  // Update count badge
+  const badge=document.getElementById("leads-count-badge");
+  if(badge)badge.textContent=f.length+" lead"+(f.length!==1?"s":"")+(countyFilter||cityFilter?" matched":"");
+
   const el=document.getElementById("full-leads");
   if(!el)return;
   if(!_leads.length){el.innerHTML='<tr><td colspan="8" class="loading">Loading leads...</td></tr>';return;}
-  if(!f.length){el.innerHTML='<tr><td colspan="8" class="loading">No leads in this tier</td></tr>';return;}
+  if(!f.length){el.innerHTML='<tr><td colspan="8" class="loading">No leads match the selected filters</td></tr>';return;}
   el.innerHTML=f.map(r=>{
     const nm=r.raw_owner_name||r.raw_address||"—";
-    const city=r.city||parseCity(r.raw_address)||"";
-    const location=city?`${city}, ${r.county||""}`:r.county||"—";
+    const city=getLeadCity(r);
+    const county=getLeadCounty(r);
+    const location=city?`${city}, ${county}`:county||"—";
     const s2=r.primed_stage?`<span class="b ${r.primed_stage===2?"p":"q"}">P${r.primed_stage}</span>`:badge(r.score||0);
     const p2=r.motivation_probability?r.motivation_probability+"%":"—";
     const rt=r.outreach_routing==="direct"?"<b style='color:var(--red)'>Direct</b>":r.outreach_routing==="agent"?"<b style='color:var(--amber)'>Bryce</b>":"Seq";
-    return `<tr style="cursor:pointer" onclick='showLeadDetail(${JSON.stringify(r).replace(/'/g,"\'")})'><td><div class="nm">${nm.slice(0,32)}</div></td><td style="font-size:12px;color:var(--ink3)">${location.slice(0,20)}</td><td style="font-size:12px;color:var(--ink3)">${sl(r.source_slug)}</td><td style="font-size:12px;color:var(--ink3)">${r.signal_type||"—"}</td><td>${bar(r.score||0)}</td><td>${s2}</td><td style="font-size:12px">${p2}</td><td style="font-size:11px">${rt}</td></tr>`;
+    return `<tr style="cursor:pointer" onclick='showLeadDetail(${JSON.stringify(r).replace(/'/g,"\'")})'><td><div class="nm">${nm.slice(0,32)}</div></td><td style="font-size:12px;color:var(--ink3)">${location.slice(0,24)}</td><td style="font-size:12px;color:var(--ink3)">${sl(r.source_slug)}</td><td style="font-size:12px;color:var(--ink3)">${r.signal_type||"—"}</td><td>${bar(r.score||0)}</td><td>${s2}</td><td style="font-size:12px">${p2}</td><td style="font-size:11px">${rt}</td></tr>`;
   }).join("");
 }
 
@@ -1320,3 +1466,4 @@ setInterval(init,120000);
 </script>
 </body>
 </html>
+
