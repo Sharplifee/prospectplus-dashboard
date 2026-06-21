@@ -1082,7 +1082,7 @@ async function loadKPIs(){
 }
 
 // ─── LOAD ALL LEADS — parallel paginated fetch from pp_scraper_signals ───────
-const FIELDS='id,raw_owner_name,raw_address,city,county,score,signal_type,source_slug,primed_stage,outreach_routing,motivation_probability,captured_at';
+const FIELDS='id,dedupe_hash,raw_owner_name,raw_address,city,county,score,signal_type,source_slug,primed_stage,outreach_routing,motivation_probability,captured_at';
 async function fetchPage(offset){
   // Fetch P2 + P1 ordered by score desc, 1000 per page
   const r=await fetch(`${SU}/rest/v1/pp_scraper_signals?select=${FIELDS}&primed_stage=in.(1,2)&order=score.desc&offset=${offset}&limit=1000`,{headers:HDR});
@@ -1090,40 +1090,62 @@ async function fetchPage(offset){
 }
 async function loadAllLeads(){
   prog('Fetching leads — page 1…');
-  // Page 1 first to know how much data exists
   const p0=await fetchPage(0);
   if(!Array.isArray(p0)||!p0.length){prog('No leads found');return;}
-  prog(`Page 1 loaded (${p0.length}) — fetching remaining pages in parallel…`);
-  
-  // We know: P2=4019, P1 starts after P2, so we need up to offset ~5000+
-  // Fetch offsets 1000,2000,3000,4000,5000,6000,7000 in parallel (covers all 76k possible, stops when empty)
+  prog('Page 1 done — fetching remaining in parallel…');
+
+  // Parallel fetch pages 2–8 (covers full 4019 P2 + top P1 slice)
   const offsets=[1000,2000,3000,4000,5000,6000,7000];
   const pages=await Promise.all(offsets.map(o=>fetchPage(o)));
-  
-  // Combine all pages, dedupe by id
+
+  // Combine all raw rows
   const all=[...p0];
   pages.forEach(pg=>{if(Array.isArray(pg))all.push(...pg);});
-  
-  const seen=new Set();
-  _leads=all.filter(r=>{
-    if(!r||typeof r!=='object'||!r.id)return false;
-    if(seen.has(r.id))return false;
-    seen.add(r.id);
-    return true;
-  });
-  
+
+  // ── DEDUPLICATION ──────────────────────────────────────────────────────
+  // Priority 1: dedupe_hash (the system's canonical dedup key)
+  // Priority 2: content key (owner+address+source) for rows with null hash
+  // Priority 3: for identical owner+address across sources, keep highest score only
+  const seenHash=new Set();
+  const seenContent=new Set();
+  const clean=[];
+
+  // Sort by score desc so highest-score version wins when duped
+  all.sort((a,b)=>(b.score||0)-(a.score||0));
+
+  for(const r of all){
+    if(!r||typeof r!=='object')continue;
+
+    // Content fingerprint: owner (or address if no owner) + county + signal_type
+    // This collapses Edith Elaine Brown Smith x50 → 1 row
+    const ownerKey=(r.raw_owner_name||'').trim().toUpperCase();
+    const addrKey=(r.raw_address||'').trim().replace(/\s+/g,' ').slice(0,60).toUpperCase();
+    const contentKey=`${ownerKey||addrKey}|${r.county||''}|${r.signal_type||''}`;
+
+    // Skip if dedupe_hash seen
+    if(r.dedupe_hash){
+      if(seenHash.has(r.dedupe_hash))continue;
+      seenHash.add(r.dedupe_hash);
+    }
+
+    // Skip if content key seen (catches same person/address across hash variants)
+    if(contentKey.length>5){
+      if(seenContent.has(contentKey))continue;
+      seenContent.add(contentKey);
+    }
+
+    clean.push(r);
+  }
+
+  _leads=clean;
   const p2c=_leads.filter(r=>r.primed_stage===2).length;
   const p1c=_leads.filter(r=>r.primed_stage===1).length;
-  prog(`Loaded ${_leads.length} leads · P2: ${p2c} · P1: ${p1c}`);
-  
-  // Update sidebar counts
+  prog(`${_leads.length} unique leads · P2: ${p2c} · P1: ${p1c}`);
+
   set('nb-all',_leads.length);set('nb-p2',p2c);set('nb-p1',p1c);
-  
-  // Render everything that depends on leads
   renderOvLeads();
   renderOvCounty();
   renderLeads();
-  
   return _leads;
 }
 
