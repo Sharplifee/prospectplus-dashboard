@@ -1177,27 +1177,45 @@ async function loadSources(){
     const data=await qGet('pp_source_cache','select=source_slug,signal_type,total,today,last_active&order=today.desc,total.desc');
     if(!Array.isArray(data)||!data.length)return;
     const live=data.filter(s=>(s.today||0)>0);
-    const sm=document.getElementById('src-meta');if(sm)sm.textContent=data.length+' sources · '+live.length+' live today';
-    const nb=document.getElementById('nb-src');if(nb)nb.textContent=live.length;
+    const hasData=data.filter(s=>(s.total||0)>0&&(s.today||0)===0);
+    const stubs=data.filter(s=>(s.total||0)===0);
+    // Sidebar badge — show total sources not just live
+    const nb=document.getElementById('nb-src');if(nb)nb.textContent=data.length;
+    // Sources page header
+    const sm=document.getElementById('src-meta');
+    if(sm)sm.textContent=data.length+' sources total · '+live.length+' live today · '+hasData.length+' with signals · '+stubs.length+' stubs';
+    // Overview card header
+    const oc=document.getElementById('ov-src-ct');if(oc)oc.textContent=live.length+' live today · '+data.length+' total';
+    // Sources table — grouped: Live / Indexed / Stubs
     const el=document.getElementById('src-body');
-    if(el)el.innerHTML=data.map(s=>`<tr>
-      <td style="font-weight:600;font-size:13px">${sl(s.source_slug)}</td>
-      <td><span class="sig-tag">${s.signal_type||'—'}</span></td>
-      <td style="font-family:'DM Mono',monospace;font-size:13px">${fmt(s.total)}</td>
-      <td style="font-family:'DM Mono',monospace;font-size:13px;font-weight:700;color:${(s.today||0)>0?'#10B981':'#9CA3AF'}">${(s.today||0)>0?'+'+fmt(s.today):'—'}</td>
-      <td style="font-size:12px;color:#9CA3AF">${s.last_active||'—'}</td>
-      <td><span class="badge ${(s.today||0)>0?'badge-live':'badge-indexed'}">${(s.today||0)>0?'LIVE':'INDEXED'}</span></td>
-    </tr>`).join('');
+    if(el){
+      const rowHTML=s=>`<tr>
+        <td style="font-weight:600;font-size:13px">${sl(s.source_slug)}</td>
+        <td><span class="sig-tag">${s.signal_type||'—'}</span></td>
+        <td style="font-family:'DM Mono',monospace;font-size:13px">${fmt(s.total)}</td>
+        <td style="font-family:'DM Mono',monospace;font-size:13px;font-weight:700;color:${(s.today||0)>0?'#10B981':'#9CA3AF'}">${(s.today||0)>0?'+'+fmt(s.today):'—'}</td>
+        <td style="font-size:12px;color:#9CA3AF">${s.last_active||'—'}</td>
+        <td><span class="badge ${(s.today||0)>0?'badge-live':'badge-indexed'}">${(s.today||0)>0?'LIVE':'INDEXED'}</span></td>
+      </tr>`;
+      const grpHdr=(label,count,col)=>`<tr style="background:#F9FAFB">
+        <td colspan="6" style="padding:6px 16px;font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:${col}">
+          ${label} <span style="font-family:'DM Mono',monospace;font-size:10px;opacity:.6">(${count})</span>
+        </td>
+      </tr>`;
+      el.innerHTML=
+        grpHdr('● Live Today',live.length,'#10B981')+live.map(rowHTML).join('')+
+        grpHdr('● Indexed — Has Signals',hasData.length,'#6B7280')+hasData.map(rowHTML).join('')+
+        grpHdr('○ Stubs — Zero Lifetime Signals',stubs.length,'#9CA3AF')+stubs.map(rowHTML).join('');
+    }
     // Overview strip
     const ov=document.getElementById('ov-src-list');
-    const oc=document.getElementById('ov-src-ct');if(oc)oc.textContent=live.length+' live today';
-    if(ov)ov.innerHTML=data.slice(0,12).map(s=>`<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid #F9FAFB">
-      <span style="width:7px;height:7px;border-radius:50%;background:${(s.today||0)>0?'#10B981':'#E5E7EB'};flex-shrink:0"></span>
+    if(ov)ov.innerHTML=live.map(s=>`<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid #F9FAFB">
+      <span style="width:7px;height:7px;border-radius:50%;background:#10B981;flex-shrink:0"></span>
       <span style="font-size:12px;font-weight:600;flex:1">${sl(s.source_slug)}</span>
-      <span style="font-size:11px;color:${(s.today||0)>0?'#10B981':'#9CA3AF'};font-family:'DM Mono',monospace">${(s.today||0)>0?'+'+fmt(s.today):'—'}</span>
-      <span class="badge ${(s.today||0)>0?'badge-live':'badge-indexed'}" style="font-size:9px">${(s.today||0)>0?'LIVE':'IDX'}</span>
+      <span style="font-size:11px;color:#10B981;font-family:'DM Mono',monospace">+${fmt(s.today)}</span>
+      <span class="badge badge-live" style="font-size:9px">LIVE</span>
     </div>`).join('');
-  }catch(e){}
+  }catch(e){console.warn('Sources error',e);}
 }
 
 // ─── OVERVIEW COUNTY DIST ────────────────────────────────────────────────────
