@@ -1137,19 +1137,49 @@ async function loadBuyers(){
 async function loadRunLog(){
   const el=document.getElementById('run-body');if(!el)return;
   try{
-    const rows=await qGet('pp_run_log','select=source_slug,status,run_at,signal_count,error_msg&order=run_at.desc&limit=30');
-    const rm=document.getElementById('run-meta');
-    if(rm&&Array.isArray(rows)){const ok=rows.filter(r=>r.status==='success').length;rm.textContent=`${rows.length} recent · ${ok} success`;}
+    // Fetch 200 to capture full batch — the last 30 are always stubs/zeros
+    const rows=await qGet('pp_run_log','select=source_slug,status,run_at,signal_count,error_msg&order=run_at.desc&limit=200');
     if(!Array.isArray(rows)||!rows.length){el.innerHTML='<tr class="ld"><td colspan="5">No run data</td></tr>';return;}
-    el.innerHTML=rows.map(r=>{
+
+    // Group into most recent batch (90-min window from latest run)
+    const latestRun=new Date(rows[0].run_at);
+    const cutoff=new Date(latestRun.getTime()-90*60*1000);
+    const batch=rows.filter(r=>new Date(r.run_at)>=cutoff);
+
+    const rm=document.getElementById('run-meta');
+    const okCount=batch.filter(r=>r.status==='success').length;
+    const sigCount=batch.filter(r=>(r.signal_count||0)>0).length;
+    const totalSigs=batch.reduce((s,r)=>s+(r.signal_count||0),0);
+    if(rm)rm.textContent=`Latest batch: ${batch.length} sources · ${okCount} OK · ${sigCount} produced signals · +${fmt(totalSigs)} total`;
+
+    // Producers first (sorted by signals desc), then zeros
+    const producers=batch.filter(r=>(r.signal_count||0)>0).sort((a,b)=>(b.signal_count||0)-(a.signal_count||0));
+    const zeros=batch.filter(r=>(r.signal_count||0)===0);
+
+    const rowHTML=r=>{
       const ok=r.status==='success';
-      const dc=ok?'var(--mint)':r.error_msg?'var(--red)':'var(--org)';
-      const d=new Date(r.run_at);
-      // Convert UTC → MT (UTC-6 MDT)
-      const mt=new Date(d.getTime()-6*3600000);
+      const hasSig=(r.signal_count||0)>0;
+      const mt=new Date(new Date(r.run_at).getTime()-6*3600000);
       const ts=mt.toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit',hour12:true});
-      return `<tr><td style="font-size:12px;font-weight:600">${sl(r.source_slug)}</td><td><span class="b ${ok?'b-ok':'b-err'}">${ok?'OK':'Error'}</span></td><td style="font-size:11px;color:var(--ink3)">${ts} MT</td><td style="font-family:'DM Mono',monospace;font-size:12px">${r.signal_count||0}</td><td style="font-size:11px;color:var(--ink3)">${r.error_msg||'—'}</td></tr>`;
-    }).join('');
+      return `<tr${hasSig?' style="background:var(--bg)"':''}>
+        <td style="font-size:12px;font-weight:600">${sl(r.source_slug)}</td>
+        <td><span class="b ${ok?'b-ok':'b-err'}">${ok?'OK':'ERR'}</span></td>
+        <td style="font-size:11px;color:var(--ink3)">${ts} MT</td>
+        <td style="font-family:'DM Mono',monospace;font-size:12px;font-weight:${hasSig?'700':'400'};color:${hasSig?'var(--mint)':'var(--ink3)'}">${hasSig?'+'+fmt(r.signal_count):'0'}</td>
+        <td style="font-size:11px;color:var(--ink3)">${r.error_msg||'—'}</td>
+      </tr>`;
+    };
+
+    const grpHdr=(label,count,col)=>`<tr style="background:var(--border);border-bottom:none">
+      <td colspan="5" style="padding:6px 14px;font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:${col}">
+        ${label} <span style="font-family:'DM Mono',monospace;font-weight:400;opacity:.7">(${count})</span>
+      </td>
+    </tr>`;
+
+    el.innerHTML=
+      grpHdr('● Produced Signals',producers.length,'var(--mint)')+producers.map(rowHTML).join('')+
+      grpHdr('○ Ran — No New Signals This Batch',zeros.length,'var(--ink3)')+zeros.map(rowHTML).join('');
+
   }catch(e){document.getElementById('run-body').innerHTML='<tr class="ld"><td colspan="5">Error loading run log</td></tr>';}
 }
 
