@@ -953,31 +953,64 @@ function jumpCity(co,city){
 async function loadConv(){
   const el=document.getElementById('conv-body');if(!el)return;
   try{
-    const rows=await qGet('pp_buyer_seller_matches','select=match_score,buyer_score,seller_score,match_county,geography_match,signal_type_pair,status,created_at&match_score=gte.85&order=match_score.desc&limit=100');
-    const cm=document.getElementById('conv-meta');if(cm)cm.textContent=Array.isArray(rows)?rows.length+' matches at 85+':'—';
+    // Fetch all matches, then dedupe for display — underlying data has 1500 rows
+    // (96 distinct buyers × 16 distinct sellers, all same signal pair/county/scores from one matching run)
+    const rows=await qGet('pp_buyer_seller_matches','select=id,buyer_profile_id,seller_signal_id,match_score,buyer_score,seller_score,match_county,match_city,geography_match,signal_type_pair,status,created_at&order=match_score.desc&limit=1500');
+    const cm=document.getElementById('conv-meta');
     if(!Array.isArray(rows)||!rows.length){el.innerHTML='<tr><td colspan="7" style="text-align:center;color:#9CA3AF;padding:32px">No matches</td></tr>';return;}
-    el.innerHTML=rows.map(m=>{
+
+    // Dedupe: show one row per unique buyer+seller pairing (not 1500 identical-looking rows)
+    const seen=new Set();
+    const deduped=rows.filter(m=>{
+      const k=`${m.buyer_profile_id}-${m.seller_signal_id}`;
+      if(seen.has(k))return false;seen.add(k);return true;
+    });
+
+    if(cm)cm.textContent=`${rows.length} total matches · ${deduped.length} unique buyer-seller pairs · ${[...new Set(rows.map(r=>r.buyer_profile_id))].length} buyers · ${[...new Set(rows.map(r=>r.seller_signal_id))].length} sellers`;
+
+    el.innerHTML=deduped.map(m=>{
       const mc=m.match_score||0;
       const col=mc>=90?'#F59E0B':mc>=80?'#3B82F6':'#10B981';
-      const pair=(m.signal_type_pair||'—').replace('+',' + ').split(' + ').map(t=>`<span class="sig-tag">${t}</span>`).join(' <span style="color:#9CA3AF">+</span> ');
+      const pair=(m.signal_type_pair||'—').split('+').map(t=>`<span class="sig-tag">${t.trim()}</span>`).join(' <span style="color:#9CA3AF;font-size:10px">+</span> ');
       const st=(m.status||'new').toLowerCase();
-      return `<tr><td>${pair}</td><td style="font-size:13px">${m.match_county||'—'}</td><td style="font-size:12px;color:#9CA3AF">${m.geography_match||'—'}</td><td>${sbarHTML(m.buyer_score||0,false)}</td><td>${sbarHTML(m.seller_score||0,false)}</td><td><span style="font-size:20px;font-weight:900;color:${col};letter-spacing:-.03em;font-family:'Inter',sans-serif">${mc}</span></td><td><span class="badge badge-${st}">${(m.status||'new').toUpperCase()}</span></td></tr>`;
+      const city=m.match_city?`${m.match_city}, ${m.match_county||''}`:m.match_county||'—';
+      return `<tr>
+        <td style="font-size:11px">${pair}<div style="font-size:9px;color:#9CA3AF;font-family:'DM Mono',monospace;margin-top:3px">B:${m.buyer_profile_id} · S:${m.seller_signal_id}</div></td>
+        <td style="font-size:13px">${city}</td>
+        <td style="font-size:12px;color:#9CA3AF">${m.geography_match||'—'}</td>
+        <td>${sbarHTML(m.buyer_score||0,false)}</td>
+        <td>${sbarHTML(m.seller_score||0,false)}</td>
+        <td><span style="font-size:20px;font-weight:900;color:${col};letter-spacing:-.03em;font-family:'Inter',sans-serif">${mc}</span></td>
+        <td><span class="badge badge-${st}">${(m.status||'new').toUpperCase()}</span></td>
+      </tr>`;
     }).join('');
-  }catch(e){el.innerHTML='<tr><td colspan="7" style="text-align:center;color:#9CA3AF;padding:32px">Error loading</td></tr>';}
+  }catch(e){console.warn('Conv error',e);el.innerHTML='<tr><td colspan="7" style="text-align:center;color:#9CA3AF;padding:32px">Error loading</td></tr>';}
 }
 
 // ─── BUYERS ──────────────────────────────────────────────────────────────────
 async function loadBuyers(){
   const el=document.getElementById('buyer-body');if(!el)return;
   try{
-    const rows=await qGet('pp_buyer_profiles','select=raw_owner_name,visitor_id,source_slug,county,signal_type,score,primed_stage&order=score.desc.nullslast&limit=200');
-    const bm=document.getElementById('buyer-meta');if(bm)bm.textContent=Array.isArray(rows)?rows.length+' profiles':'—';
+    // NOTE: buyer profiles use raw_name (not raw_owner_name), visitor_id, raw_email
+    const rows=await qGet('pp_buyer_profiles','select=id,raw_name,visitor_id,source_slug,signal_type,county,city,score,score_tier,primed_stage,price_band_min,price_band_max,last_signal_at&order=score.desc.nullslast&limit=300');
+    const bm=document.getElementById('buyer-meta');if(bm)bm.textContent=Array.isArray(rows)?rows.length+' profiles shown':'—';
     if(!Array.isArray(rows)||!rows.length){el.innerHTML='<tr><td colspan="6" style="text-align:center;color:#9CA3AF;padding:40px">No buyer profiles loaded</td></tr>';return;}
     el.innerHTML=rows.map(p=>{
-      const name=(p.raw_owner_name||p.visitor_id||'—').slice(0,28);
-      return `<tr class="trow"><td><div style="font-weight:600;font-size:13px">${name}</div></td><td style="font-size:12px;color:#6B7280">${sl(p.source_slug)}</td><td style="font-size:13px">${p.county||'—'}</td><td><span class="sig-tag">${p.signal_type||'—'}</span></td><td>${sbarHTML(p.score||0,false)}</td><td>${p.primed_stage===2?'<span class="badge badge-p2">P-II</span>':p.primed_stage===1?'<span class="badge badge-p1">P-I</span>':'<span class="badge badge-watch">—</span>'}</td></tr>`;
+      // Display name: prefer raw_name, fall back to source name, then visitor_id truncated
+      const name=(p.raw_name&&p.raw_name.length>2?p.raw_name:(p.visitor_id||'').slice(0,14)+'…')||'—';
+      const loc=p.city?`${p.city}, ${p.county||'—'}`:p.county||'—';
+      const budget=(p.price_band_min||p.price_band_max)?`$${fmt(p.price_band_min||0)}–$${fmt(p.price_band_max||0)}`:'—';
+      const lastSig=p.last_signal_at?(p.last_signal_at||'').slice(0,10):'—';
+      return `<tr class="trow">
+        <td><div style="font-weight:600;font-size:13px">${name.slice(0,30)}</div><div style="font-size:11px;color:#9CA3AF">${lastSig}</div></td>
+        <td style="font-size:12px;color:#6B7280">${sl(p.source_slug)}</td>
+        <td style="font-size:12px">${loc}</td>
+        <td><span class="sig-tag">${p.signal_type||'—'}</span></td>
+        <td>${sbarHTML(p.score||0,false)}</td>
+        <td>${p.primed_stage===2?'<span class="badge badge-p2">P-II</span>':p.primed_stage===1?'<span class="badge badge-p1">P-I</span>':'<span class="badge badge-watch">Qualify</span>'}</td>
+      </tr>`;
     }).join('');
-  }catch(e){}
+  }catch(e){console.warn('Buyers error',e);el.innerHTML='<tr><td colspan="6" style="text-align:center;color:#9CA3AF;padding:40px">Error loading buyer profiles</td></tr>';}
 }
 
 // ─── PIPELINE / RUN LOG ──────────────────────────────────────────────────────
