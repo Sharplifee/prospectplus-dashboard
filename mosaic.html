@@ -146,18 +146,38 @@ tr:last-child td{border-bottom:none}
 /* Pages */
 .pg{display:none}.pg.active{display:block}
 
-/* Mobile */
-@media(max-width:1024px){
-  .sidebar{transform:translateX(-100%);transition:transform .2s}
-  .sidebar.mob-open{transform:translateX(0)}
+/* ── RESPONSIVE ────────────────────────────────────────────────── */
+/* Sidebar always fixed/hidden on narrow viewports — hamburger opens it */
+@media(max-width:960px){
+  .sidebar{
+    position:fixed;left:-230px;width:230px;top:0;bottom:0;
+    z-index:500;transition:left .22s ease;
+    box-shadow:none;height:100%;
+  }
+  .sidebar.mob-open{left:0;box-shadow:4px 0 24px rgba(0,0,0,.14)}
   .main-content{margin-left:0}
-}
-@media(max-width:768px){
+  #mob-menu{display:flex !important}
   .topbar-kpis{display:none}
+  .kpi-row{grid-template-columns:1fr 1fr 1fr;gap:10px}
+  .g2,.g3,.g4{grid-template-columns:1fr}
+  .content-area{padding:16px}
+  .drawer{width:100vw !important;right:-100vw}
 }
+@media(max-width:520px){
+  .kpi-row{grid-template-columns:1fr 1fr}
+  .topbar{padding:0 14px;gap:8px}
+}
+/* Dim overlay behind open sidebar */
+.mob-backdrop{
+  display:none;position:fixed;inset:0;
+  background:rgba(0,0,0,.35);z-index:499;
+}
+.mob-backdrop.on{display:block}
 </style>
 </head>
 <body class="h-full">
+
+<div class="mob-backdrop" id="mob-backdrop" onclick="toggleMobSidebar()"></div>
 
 <!-- ═══════════════════════════════════════════════════════════════════ -->
 <!-- SIDEBAR -->
@@ -222,7 +242,7 @@ tr:last-child td{border-bottom:none}
 
   <!-- TOPBAR -->
   <div class="topbar">
-    <button onclick="document.getElementById('sidebar').classList.toggle('mob-open')" style="display:none;background:none;border:none;font-size:20px;cursor:pointer;color:#6B7280;margin-right:12px" id="mob-menu">☰</button>
+    <button onclick="toggleMobSidebar()" style="display:none;align-items:center;justify-content:center;width:32px;height:32px;background:#F3F4F6;border:1px solid #E5E7EB;border-radius:6px;font-size:16px;cursor:pointer;color:#374151;margin-right:8px;flex-shrink:0" id="mob-menu">☰</button>
     <div style="font-size:17px;font-weight:800;color:#111827;letter-spacing:-.02em;flex:1" id="page-title">Overview</div>
     <div class="topbar-kpis" style="display:flex;gap:24px;margin-right:16px">
       <div style="text-align:right"><div style="font-size:16px;font-weight:800;color:#111827;letter-spacing:-.02em" id="tp-total">—</div><div style="font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#9CA3AF;margin-top:1px">Total Signals</div></div>
@@ -742,7 +762,7 @@ function go(page,el){
   document.getElementById('pg-'+page)?.classList.add('active');
   if(el)el.classList.add('active');
   const tt=document.getElementById('page-title');if(tt)tt.textContent=PAGE_TITLES[page]||page;
-  document.getElementById('sidebar')?.classList.remove('mob-open');
+  closeMobSidebar();
   _sbAnimated=false;
   if(page==='by-county')renderByCounty();
   if(page==='by-city')renderByCity();
@@ -992,7 +1012,7 @@ async function loadBuyers(){
   const el=document.getElementById('buyer-body');if(!el)return;
   try{
     // NOTE: buyer profiles use raw_name (not raw_owner_name), visitor_id, raw_email
-    const rows=await qGet('pp_buyer_profiles','select=id,raw_name,visitor_id,source_slug,signal_type,county,city,score,score_tier,primed_stage,price_band_min,price_band_max,last_signal_at&score=gte.70&order=score.desc&limit=300');
+    const rows=await qGet('pp_buyer_profiles','select=id,raw_name,visitor_id,source_slug,signal_type,county,score,score_tier,primed_stage&primed_stage=not.is.null&order=score.desc&limit=200');
     const bm=document.getElementById('buyer-meta');if(bm)bm.textContent=Array.isArray(rows)?rows.length+' profiles shown':'—';
     if(!Array.isArray(rows)||!rows.length){el.innerHTML='<tr><td colspan="6" style="text-align:center;color:#9CA3AF;padding:40px">No buyer profiles loaded</td></tr>';return;}
     el.innerHTML=rows.map(p=>{
@@ -1263,6 +1283,29 @@ async function loadAllLeads(){
   await loadAllLeads();
   renderOQ();
 })();
+
+function toggleMobSidebar(){
+  const sb=document.getElementById('sidebar');
+  const bd=document.getElementById('mob-backdrop');
+  const open=sb.classList.contains('mob-open');
+  if(open){sb.classList.remove('mob-open');if(bd)bd.classList.remove('on');}
+  else{sb.classList.add('mob-open');if(bd)bd.classList.add('on');}
+}
+function closeMobSidebar(){
+  document.getElementById('sidebar')?.classList.remove('mob-open');
+  document.getElementById('mob-backdrop')?.classList.remove('on');
+}
+function toggleSidebar(){
+  const sb=document.getElementById('sidebar');
+  const ov=document.getElementById('mob-overlay');
+  const isOpen=sb.classList.contains('open');
+  if(isOpen){sb.classList.remove('open');if(ov)ov.classList.remove('open');}
+  else{sb.classList.add('open');if(ov)ov.classList.add('open');}
+}
+function closeSidebar(){
+  document.getElementById('sidebar')?.classList.remove('open');
+  document.getElementById('mob-overlay')?.classList.remove('open');
+}
 </script>
 </body>
 </html>
