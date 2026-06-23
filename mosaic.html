@@ -1009,18 +1009,51 @@ async function loadRunLog(){
   ]);
   const el=document.getElementById('run-body');if(!el)return;
   try{
-    const rows=await qGet('pp_run_log','select=source_slug,status,run_at,signal_count,error_msg&order=run_at.desc&limit=30');
-    const rm=document.getElementById('run-meta');
-    if(rm&&Array.isArray(rows)){const ok=rows.filter(r=>r.status==='success').length;rm.textContent=`${rows.length} recent · ${ok} success`;}
+    // Fetch the most recent full batch run — pull 200 rows so we get ALL sources from today's run
+    const rows=await qGet('pp_run_log','select=source_slug,status,run_at,signal_count,error_msg&order=run_at.desc&limit=200');
     if(!Array.isArray(rows)||!rows.length){el.innerHTML='<tr><td colspan="5" style="text-align:center;color:#9CA3AF;padding:32px">No data</td></tr>';return;}
-    el.innerHTML=rows.map(r=>{
-      const ok=r.status==='success';
+
+    // Identify the most recent batch by grouping runs within the same ~1 hour window
+    const latestRun=new Date(rows[0].run_at);
+    const batchCutoff=new Date(latestRun.getTime()-90*60*1000); // 90 min window
+    const thisBatch=rows.filter(r=>new Date(r.run_at)>=batchCutoff);
+    const prevRuns=rows.filter(r=>new Date(r.run_at)<batchCutoff);
+
+    const rm=document.getElementById('run-meta');
+    const ok=thisBatch.filter(r=>r.status==='success').length;
+    const withSignals=thisBatch.filter(r=>(r.signal_count||0)>0).length;
+    if(rm)rm.textContent=`Latest batch: ${thisBatch.length} sources · ${ok} OK · ${withSignals} produced signals`;
+
+    // Sort batch: signal producers first, then zeros
+    const producers=thisBatch.filter(r=>(r.signal_count||0)>0).sort((a,b)=>(b.signal_count||0)-(a.signal_count||0));
+    const zeros=thisBatch.filter(r=>(r.signal_count||0)===0);
+
+    const rowHTML=r=>{
+      const isOk=r.status==='success';
+      const hasSig=(r.signal_count||0)>0;
       const d=new Date(r.run_at);
       const mt=new Date(d.getTime()-6*3600000);
       const ts=mt.toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit',hour12:true});
-      return `<tr><td style="font-size:12px;font-weight:600">${sl(r.source_slug)}</td><td><span class="badge ${ok?'badge-ok':'badge-error'}">${ok?'OK':'ERROR'}</span></td><td style="font-size:12px;color:#6B7280">${ts} MT</td><td style="font-family:'DM Mono',monospace;font-size:12px">${r.signal_count||0}</td><td style="font-size:12px;color:#9CA3AF">${r.error_msg||'—'}</td></tr>`;
-    }).join('');
-  }catch(e){}
+      return `<tr${hasSig?' style="background:#F9FAFB"':''}>
+        <td style="font-size:12px;font-weight:600">${sl(r.source_slug)}</td>
+        <td><span class="badge ${isOk?'badge-ok':'badge-error'}">${isOk?'OK':'ERR'}</span></td>
+        <td style="font-size:12px;color:#6B7280">${ts} MT</td>
+        <td style="font-family:'DM Mono',monospace;font-size:12px;font-weight:${hasSig?'700':'400'};color:${hasSig?'#10B981':'#9CA3AF'}">${hasSig?'+'+fmt(r.signal_count):'0'}</td>
+        <td style="font-size:12px;color:#9CA3AF">${r.error_msg||'—'}</td>
+      </tr>`;
+    };
+
+    const grpHdr=(label,count,col)=>`<tr style="background:#F3F4F6">
+      <td colspan="5" style="padding:6px 16px;font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:${col}">
+        ${label} <span style="font-family:'DM Mono',monospace;opacity:.7">(${count})</span>
+      </td>
+    </tr>`;
+
+    el.innerHTML=
+      grpHdr('● Produced Signals',producers.length,'#10B981')+producers.map(rowHTML).join('')+
+      grpHdr('○ Ran — No New Signals This Run',zeros.length,'#9CA3AF')+zeros.map(rowHTML).join('');
+
+  }catch(e){console.warn('Run log error',e);}
 }
 
 // ─── OUTREACH QUEUE ──────────────────────────────────────────────────────────
