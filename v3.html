@@ -1160,8 +1160,8 @@ async function loadSources(){
     if(!Array.isArray(data)||!data.length)return;
     _sources=data;
     const live=data.filter(s=>(s.today||0)>0);
-    const ct=document.getElementById('ov-src-ct');if(ct)ct.textContent=live.length+' sources live today';
-    const nsrc=document.getElementById('nb-src');if(nsrc)nsrc.textContent=live.length;
+    const ct=document.getElementById('ov-src-ct');if(ct)ct.textContent=live.length+' live today · '+data.length+' total';
+    const nsrc=document.getElementById('nb-src');if(nsrc)nsrc.textContent=data.length;
     // Overview strip
     const sl_el=document.getElementById('ov-src-list');
     if(sl_el){
@@ -1176,16 +1176,32 @@ async function loadSources(){
     }
     // Full sources table
     const sb=document.getElementById('src-body');
-    const sm=document.getElementById('src-meta');if(sm)sm.textContent=data.length+' sources · '+live.length+' live today';
+    // Breakdowns
+    const hasData=data.filter(s=>(s.total||0)>0);
+    const zeroLife=data.filter(s=>(s.total||0)===0);
+    const sm=document.getElementById('src-meta');
+    if(sm)sm.textContent=data.length+' sources total · '+live.length+' live today · '+hasData.length+' with signals · '+zeroLife.length+' stubs';
     if(sb){
-      sb.innerHTML=data.map(s=>`<tr>
-        <td><div class="nm">${sl(s.source_slug)}</div></td>
-        <td><span class="sig">${s.signal_type||'—'}</span></td>
-        <td style="font-family:'DM Mono',monospace;font-size:12px">${fmt(s.total)}</td>
-        <td style="font-family:'DM Mono',monospace;font-size:12px;color:${(s.today||0)>0?'var(--mint)':'var(--ink3)'}">+${fmt(s.today||0)}</td>
-        <td style="font-size:11px;color:var(--ink3)">${s.last_active||'—'}</td>
-        <td><span class="b ${(s.today||0)>0?'b-live':'b-idx'}">${(s.today||0)>0?'Live':'Indexed'}</span></td>
-      </tr>`).join('');
+      const liveRows=data.filter(s=>(s.today||0)>0);
+      const idxRows=data.filter(s=>(s.today||0)===0&&(s.total||0)>0);
+      const stubRows=data.filter(s=>(s.total||0)===0);
+      const rowHTML=r=>`<tr>
+        <td><div class="nm">${sl(r.source_slug)}</div></td>
+        <td><span class="sig">${r.signal_type||'—'}</span></td>
+        <td style="font-family:'DM Mono',monospace;font-size:12px">${fmt(r.total)}</td>
+        <td style="font-family:'DM Mono',monospace;font-size:12px;color:${(r.today||0)>0?'var(--mint)':'var(--ink3)'}">${(r.today||0)>0?'+'+fmt(r.today):'—'}</td>
+        <td style="font-size:11px;color:var(--ink3)">${r.last_active||'—'}</td>
+        <td><span class="b ${(r.today||0)>0?'b-live':'b-idx'}">${(r.today||0)>0?'Live':'Indexed'}</span></td>
+      </tr>`;
+      const groupHdr=(label,count,col)=>`<tr style="background:var(--bg)">
+        <td colspan="6" style="padding:8px 14px;font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:${col}">
+          ${label} <span style="font-family:'DM Mono',monospace;font-size:10px;opacity:.7">(${count})</span>
+        </td>
+      </tr>`;
+      sb.innerHTML=
+        groupHdr('● Live Today',liveRows.length,'var(--mint)')+liveRows.map(rowHTML).join('')+
+        groupHdr('● Indexed — Has Signals',idxRows.length,'var(--ink2)')+idxRows.map(rowHTML).join('')+
+        groupHdr('○ Stubs — Zero Lifetime Signals',stubRows.length,'var(--ink3)')+stubRows.map(rowHTML).join('');
     }
   }catch(e){console.warn('Sources error',e);}
 }
