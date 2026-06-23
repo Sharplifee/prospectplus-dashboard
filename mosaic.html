@@ -992,7 +992,7 @@ async function loadBuyers(){
   const el=document.getElementById('buyer-body');if(!el)return;
   try{
     // NOTE: buyer profiles use raw_name (not raw_owner_name), visitor_id, raw_email
-    const rows=await qGet('pp_buyer_profiles','select=id,raw_name,visitor_id,source_slug,signal_type,county,city,score,score_tier,primed_stage,price_band_min,price_band_max,last_signal_at&order=score.desc.nullslast&limit=300');
+    const rows=await qGet('pp_buyer_profiles','select=id,raw_name,visitor_id,source_slug,signal_type,county,city,score,score_tier,primed_stage,price_band_min,price_band_max,last_signal_at&score=gte.70&order=score.desc&limit=300');
     const bm=document.getElementById('buyer-meta');if(bm)bm.textContent=Array.isArray(rows)?rows.length+' profiles shown':'—';
     if(!Array.isArray(rows)||!rows.length){el.innerHTML='<tr><td colspan="6" style="text-align:center;color:#9CA3AF;padding:40px">No buyer profiles loaded</td></tr>';return;}
     el.innerHTML=rows.map(p=>{
