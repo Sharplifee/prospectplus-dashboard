@@ -302,7 +302,7 @@ tr:last-child td{border-bottom:none}
                 <span class="badge badge-running">RUNNING</span>
               </div>
               <div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid #F9FAFB"><span style="width:8px;height:8px;border-radius:50%;background:#10B981;flex-shrink:0"></span><span style="font-size:12px;font-weight:600;flex:1">MLS Auth (URE)</span><span style="font-size:11px;color:#9CA3AF">Session active</span><span class="badge badge-live">LIVE</span></div>
-              <div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid #F9FAFB"><span style="width:8px;height:8px;border-radius:50%;background:#3B82F6;flex-shrink:0"></span><span style="font-size:12px;font-weight:600;flex:1">Bryce Agent</span><span style="font-size:11px;color:#9CA3AF">Pre-screen configured</span><span class="badge badge-active">ACTIVE</span></div>
+              <div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid #F9FAFB"><span style="width:8px;height:8px;border-radius:50%;background:#3B82F6;flex-shrink:0"></span><span style="font-size:12px;font-weight:600;flex:1">Donna</span><span style="font-size:11px;color:#9CA3AF">Pre-screen configured</span><span class="badge badge-active">ACTIVE</span></div>
               <div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid #F9FAFB"><span style="width:8px;height:8px;border-radius:50%;background:#F59E0B;flex-shrink:0"></span><span style="font-size:12px;font-weight:600;flex:1">Tracerfy</span><span style="font-size:11px;color:#9CA3AF">Awaiting funding</span><span class="badge badge-pending">PENDING</span></div>
               <div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid #F9FAFB"><span style="width:8px;height:8px;border-radius:50%;background:#F59E0B;flex-shrink:0"></span><span style="font-size:12px;font-weight:600;flex:1">VAPI Voice</span><span style="font-size:11px;color:#9CA3AF">Human-assisted staged</span><span class="badge badge-staged">STAGED</span></div>
         
@@ -428,7 +428,7 @@ tr:last-child td{border-bottom:none}
         <div style="padding:16px 20px 14px;border-bottom:1px solid #E5E7EB">
           <div style="display:flex;align-items:center;margin-bottom:4px">
             <span style="font-size:18px;font-weight:800;color:#111827;letter-spacing:-.02em">Primed I — Qualify</span>
-            <span style="font-size:12px;color:#9CA3AF;margin-left:auto">Bryce pre-screens before agent contact</span>
+            <span style="font-size:12px;color:#9CA3AF;margin-left:auto">Donna pre-screens before agent contact</span>
           </div>
           <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:12px">
             <select class="fsel" id="p1-county" onchange="onCC('p1-county','fp-p1');renderP1()">
@@ -1046,7 +1046,7 @@ async function loadRunLog(){
   buildStack('outreach-stack',[
     {col:'amber',name:'Tracerfy Skip Trace',note:'$0.02/rec · awaiting',badge:'PENDING'},
     {col:'amber',name:'VAPI Voice Agent',note:'Human-assisted staged',badge:'STAGED'},
-    {col:'blue',name:'Bryce Agent',note:'Pre-screen configured',badge:'CONFIGURED'},
+    {col:'blue',name:'Donna',note:'Pre-screen configured',badge:'CONFIGURED'},
     {col:'green',name:'Sendblue iMessage',note:'Outbound provisioned',badge:'ACTIVE'},
   ]);
   buildStack('mls-stack',[
@@ -1150,7 +1150,7 @@ function openDrawer(r){
     <div style="background:#F9FAFB;border-radius:6px;padding:10px 12px"><div style="font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#9CA3AF;margin-bottom:3px">City</div><div style="font-weight:600;font-size:13px">${city||'—'}</div></div>
     <div style="background:#F9FAFB;border-radius:6px;padding:10px 12px"><div style="font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#9CA3AF;margin-bottom:3px">Probability</div><div style="font-size:26px;font-weight:900;color:#10B981;line-height:1;letter-spacing:-.03em">${r.motivation_probability?r.motivation_probability+'%':'—'}</div></div>
     <div style="background:#F9FAFB;border-radius:6px;padding:10px 12px"><div style="font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#9CA3AF;margin-bottom:3px">Source</div><div style="font-weight:600;font-size:12px">${sl(r.source_slug)}</div></div>`;
-  const routing=r.outreach_routing==='direct'?'Direct → Agent (no pre-screen)':r.outreach_routing==='agent'?'Bryce qualifies first, then books agent':'Nurture sequence';
+  const routing=r.outreach_routing==='direct'?'Direct → Agent (no pre-screen)':r.outreach_routing==='agent'?'Donna qualifies first, then books agent':'Nurture sequence';
   const rbg=r.outreach_routing==='direct'?'#FFFBEB':r.outreach_routing==='agent'?'#EFF6FF':'#ECFDF5';
   const rbd=r.outreach_routing==='direct'?'1px solid #FDE68A':r.outreach_routing==='agent'?'1px solid #BFDBFE':'1px solid #A7F3D0';
   const rc=r.outreach_routing==='direct'?'#92400E':r.outreach_routing==='agent'?'#1E40AF':'#065F46';
