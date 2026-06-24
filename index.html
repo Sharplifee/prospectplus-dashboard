@@ -262,7 +262,7 @@ body{font-family:'Plus Jakarta Sans',-apple-system,sans-serif;background:var(--b
     <div class="ni" onclick="go('buyers',this);loadBuyerIntel()"><div class="ni-ico">◉</div><div><div class="ni-t">Buyer Intel</div><div class="ni-d">Profiles &amp; intent</div></div></div>
     <div class="ni" onclick="go('matches',this);loadBuyerIntel()"><div class="ni-ico">⇌</div><div><div class="ni-t">Matched Pairs</div><div class="ni-d">Buyer ↔ Seller</div></div></div>
     <div class="nav-grp">Outreach</div>
-    <div class="ni" onclick="go('agent',this)"><div class="ni-ico">◈</div><div><div class="ni-t">AI Agent</div><div class="ni-d">Configure Bryce</div></div></div>
+    <div class="ni" onclick="go('agent',this)"><div class="ni-ico">◈</div><div><div class="ni-t">AI Agent</div><div class="ni-d">Configure Donna</div></div></div>
     <div class="ni" onclick="go('outreach',this)"><div class="ni-ico">▷</div><div><div class="ni-t">Outreach</div><div class="ni-d">Approve &amp; send</div></div></div>
   </nav>
   <div class="sb-foot"><div class="live-row"><div class="ldot"></div><span id="foot-ts">Live · refreshing</span></div></div>
@@ -351,7 +351,7 @@ body{font-family:'Plus Jakarta Sans',-apple-system,sans-serif;background:var(--b
       <div class="score-legend">
         <span class="score-legend-label">Score Legend</span>
         <div class="sl-tier"><div class="sl-dot" style="background:#dc2626"></div><span class="sl-score" style="color:#dc2626">≥75</span><span class="sl-name">Primed II</span><span class="sl-action"> · call today, direct to agent</span></div>
-        <div class="sl-tier"><div class="sl-dot" style="background:#d97706"></div><span class="sl-score" style="color:#d97706">≥60</span><span class="sl-name">Primed I</span><span class="sl-action"> · Bryce pre-screens, then handoff</span></div>
+        <div class="sl-tier"><div class="sl-dot" style="background:#d97706"></div><span class="sl-score" style="color:#d97706">≥60</span><span class="sl-name">Primed I</span><span class="sl-action"> · Donna pre-screens, then handoff</span></div>
         <div class="sl-tier"><div class="sl-dot" style="background:#ca8a04"></div><span class="sl-score" style="color:#ca8a04">≥40</span><span class="sl-name">Qualify</span><span class="sl-action"> · manual review this week</span></div>
         <div class="sl-tier"><div class="sl-dot" style="background:#16a34a"></div><span class="sl-score" style="color:#16a34a">≥20</span><span class="sl-name">Nurture</span><span class="sl-action"> · monitor, 30-day follow</span></div>
         <div class="sl-tier"><div class="sl-dot" style="background:#a8a29e"></div><span class="sl-score" style="color:#a8a29e">&lt;20</span><span class="sl-name">Watch</span><span class="sl-action"> · system monitors only</span></div>
@@ -406,7 +406,7 @@ body{font-family:'Plus Jakarta Sans',-apple-system,sans-serif;background:var(--b
       <div class="score-legend" style="margin-bottom:14px">
         <span class="score-legend-label">Score Legend</span>
         <div class="sl-tier"><div class="sl-dot" style="background:#dc2626"></div><span class="sl-score" style="color:#dc2626">≥75</span><span class="sl-name">Primed II</span><span class="sl-action"> · call today, direct</span></div>
-        <div class="sl-tier"><div class="sl-dot" style="background:#d97706"></div><span class="sl-score" style="color:#d97706">≥60</span><span class="sl-name">Primed I</span><span class="sl-action"> · Bryce pre-screens first</span></div>
+        <div class="sl-tier"><div class="sl-dot" style="background:#d97706"></div><span class="sl-score" style="color:#d97706">≥60</span><span class="sl-name">Primed I</span><span class="sl-action"> · Donna pre-screens first</span></div>
         <div class="sl-tier"><div class="sl-dot" style="background:#ca8a04"></div><span class="sl-score" style="color:#ca8a04">≥40</span><span class="sl-name">Qualify</span><span class="sl-action"> · manual review</span></div>
         <div class="sl-tier"><div class="sl-dot" style="background:#16a34a"></div><span class="sl-score" style="color:#16a34a">≥20</span><span class="sl-name">Nurture</span><span class="sl-action"> · monitor</span></div>
         <div class="sl-tier"><div class="sl-dot" style="background:#a8a29e"></div><span class="sl-score" style="color:#a8a29e">&lt;20</span><span class="sl-name">Watch</span><span class="sl-action"> · system only</span></div>
@@ -527,12 +527,12 @@ body{font-family:'Plus Jakarta Sans',-apple-system,sans-serif;background:var(--b
 
     <!-- AI AGENT -->
     <div class="pg" id="pg-agent">
-      <div class="pg-hdr"><h1>AI Agent</h1><p>Configure Bryce, set the voice, and run a test call before anything goes live. All outreach is human-initiated — Bryce assists, the agent places every call.</p></div>
+      <div class="pg-hdr"><h1>AI Agent</h1><p>Configure Donna, set the voice, and run a test call before anything goes live. All outreach is human-initiated — Donna assists, the agent places every call.</p></div>
       <div style="display:grid;grid-template-columns:1.4fr 1fr;gap:12px;margin-bottom:14px" class="ag2">
         <div class="panel" style="margin-bottom:0">
           <div class="ph"><h3>Agent Identity</h3><div class="meta" style="background:#f5f5f4;color:var(--ink3);padding:3px 9px;border-radius:100px;font-size:10px;font-weight:700">NOT CONFIGURED</div></div>
           <div class="pb" style="display:flex;flex-direction:column;gap:14px">
-            <div><label style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);display:block;margin-bottom:6px">Agent Name</label><input id="agent-name" type="text" value="Bryce" style="width:100%;padding:10px 13px;border:1px solid var(--border);border-radius:8px;font-size:15px;font-weight:600;color:var(--ink);background:var(--card);outline:none;font-family:'Plus Jakarta Sans',sans-serif"></div>
+            <div><label style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);display:block;margin-bottom:6px">Agent Name</label><input id="agent-name" type="text" value="Donna" style="width:100%;padding:10px 13px;border:1px solid var(--border);border-radius:8px;font-size:15px;font-weight:600;color:var(--ink);background:var(--card);outline:none;font-family:'Plus Jakarta Sans',sans-serif"></div>
             <div><label style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);display:block;margin-bottom:6px">Your Name</label><input type="text" value="Kelvin Sharp" style="width:100%;padding:10px 13px;border:1px solid var(--border);border-radius:8px;font-size:14px;color:var(--ink);background:var(--card);outline:none;font-family:'Plus Jakarta Sans',sans-serif"></div>
             <div><label style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);display:block;margin-bottom:6px">Market</label><input type="text" value="Williams &amp; Co. — Utah County" style="width:100%;padding:10px 13px;border:1px solid var(--border);border-radius:8px;font-size:13px;color:var(--ink);background:var(--card);outline:none;font-family:'Plus Jakarta Sans',sans-serif"></div>
           </div>
@@ -557,11 +557,11 @@ body{font-family:'Plus Jakarta Sans',-apple-system,sans-serif;background:var(--b
         </div>
       </div>
       <div class="panel" style="margin-bottom:14px">
-        <div class="ph"><h3>Test Your Agent — Role Play</h3><div class="meta">Talk to Bryce before going live</div></div>
+        <div class="ph"><h3>Test Your Agent — Role Play</h3><div class="meta">Talk to Donna before going live</div></div>
         <div style="background:#fafaf9;border-bottom:1px solid var(--border2);padding:16px 18px;display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap">
           <div><label style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);display:block;margin-bottom:6px">Your Phone Number</label><input id="tp" type="tel" placeholder="+1 (801) 555-0000" style="padding:10px 13px;border:1px solid var(--border);border-radius:8px;font-size:14px;color:var(--ink);background:var(--card);outline:none;width:210px;font-family:'Plus Jakarta Sans',sans-serif"></div>
           <button onclick="startTrain()" style="background:var(--ink);color:#fff;border:none;border-radius:8px;padding:11px 20px;font-size:14px;font-weight:600;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif">Call Me Now</button>
-          <div style="font-size:12px;color:var(--ink3);line-height:1.55">Bryce calls and walks through setup.<br>Your answers shape how he works.</div>
+          <div style="font-size:12px;color:var(--ink3);line-height:1.55">Donna calls and walks through setup.<br>Your answers shape how sshe works.</div>
         </div>
         <div class="pb">
           <div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);margin-bottom:11px">Onboarding Checklist</div>
@@ -578,8 +578,8 @@ body{font-family:'Plus Jakarta Sans',-apple-system,sans-serif;background:var(--b
         <div class="panel" style="margin-bottom:0">
           <div class="ph"><h3>Agent Status</h3></div>
           <div class="pb" style="padding:16px 18px">
-            <div class="ar"><span class="ar-l">VAPI / Bryce</span><span style="font-size:11px;font-weight:700;color:var(--amber)">Staged — manual outbound only</span></div>
-            <div class="ar"><span class="ar-l">Bryce Voice</span><span style="font-size:11px;font-weight:700;color:var(--amber)">Calibration pending</span></div>
+            <div class="ar"><span class="ar-l">VAPI / Donna</span><span style="font-size:11px;font-weight:700;color:var(--amber)">Staged — manual outbound only</span></div>
+            <div class="ar"><span class="ar-l">Donna Voice</span><span style="font-size:11px;font-weight:700;color:var(--amber)">Calibration pending</span></div>
             <div class="ar"><span class="ar-l">Outreach mode</span><span style="font-size:11px;font-weight:600;color:var(--ink2)">Human-initiated only</span></div>
             <div class="ar"><span class="ar-l">Calling hours</span><span style="font-size:11px;font-weight:600;color:var(--green)">9am–7pm MT enforced ✓</span></div>
           </div>
@@ -587,8 +587,8 @@ body{font-family:'Plus Jakarta Sans',-apple-system,sans-serif;background:var(--b
         <div class="panel" style="margin-bottom:0">
           <div class="ph"><h3>Activate Agent</h3></div>
           <div class="pb" style="padding:20px;text-align:center">
-            <div style="font-size:12px;color:var(--ink3);margin-bottom:14px;line-height:1.6">Complete Bryce calibration and VAPI wiring before activating. All outreach is human-initiated.</div>
-            <button style="width:100%;background:var(--bg);color:var(--ink3);border:1px solid var(--border);border-radius:8px;padding:12px;font-size:14px;font-weight:700;cursor:not-allowed;font-family:'Plus Jakarta Sans',sans-serif">Activate Bryce</button>
+            <div style="font-size:12px;color:var(--ink3);margin-bottom:14px;line-height:1.6">Complete Donna calibration and VAPI wiring before activating. All outreach is human-initiated.</div>
+            <button style="width:100%;background:var(--bg);color:var(--ink3);border:1px solid var(--border);border-radius:8px;padding:12px;font-size:14px;font-weight:700;cursor:not-allowed;font-family:'Plus Jakarta Sans',sans-serif">Activate Donna</button>
           </div>
         </div>
       </div>
@@ -606,7 +606,7 @@ body{font-family:'Plus Jakarta Sans',-apple-system,sans-serif;background:var(--b
       <div class="panel" style="margin-top:12px;margin-bottom:12px">
         <div class="ph"><h3>Integration Status</h3><div class="meta">Pre-call checklist</div></div>
         <div class="pb" style="padding:10px 18px">
-          <div class="sr"><div class="sr-dot" style="background:#d97706"></div><div class="sr-name">VAPI / Bryce</div><div class="sr-n" style="color:var(--amber)">Staged · manual outbound only</div></div>
+          <div class="sr"><div class="sr-dot" style="background:#d97706"></div><div class="sr-name">VAPI / Donna</div><div class="sr-n" style="color:var(--amber)">Staged · manual outbound only</div></div>
           <div class="sr"><div class="sr-dot" style="background:#d97706"></div><div class="sr-name">Tracerfy Skip Trace</div><div class="sr-n" style="color:var(--amber)">Pending funding</div></div>
           <div class="sr"><div class="sr-dot" style="background:var(--green)"></div><div class="sr-name">Calling Hours</div><div class="sr-n" style="color:var(--green)">9am–7pm MT enforced ✓</div></div>
           <div class="sr"><div class="sr-dot" style="background:#d97706"></div><div class="sr-name">A2P 10DLC (SMS)</div><div class="sr-n" style="color:var(--amber)">TCR approval pending</div></div>
@@ -617,7 +617,7 @@ body{font-family:'Plus Jakarta Sans',-apple-system,sans-serif;background:var(--b
         <div style="padding:44px;text-align:center;color:var(--ink3)">
           <div style="font-size:26px;margin-bottom:10px">◈</div>
           <div style="font-size:15px;font-weight:600;color:var(--ink);margin-bottom:6px">Agent not active yet</div>
-          <div style="font-size:13px;line-height:1.6;max-width:340px;margin:0 auto">Configure and activate Bryce in the AI Agent tab. Once active, leads from the Primed queue appear here for approval before any call is placed.</div>
+          <div style="font-size:13px;line-height:1.6;max-width:340px;margin:0 auto">Configure and activate Donna in the AI Agent tab. Once active, leads from the Primed queue appear here for approval before any call is placed.</div>
         </div>
       </div>
     </div>
@@ -715,7 +715,7 @@ function fl(tier,btn){
     el.innerHTML=`<tr><td colspan="8"><div class="empty-state"><div class="empty-state-icon">◆</div><div class="empty-state-title">No ${what}</div><div class="empty-state-sub">Try expanding to all counties, or check back after the next pipeline run at 4 AM MT tomorrow.</div></div></td></tr>`;
     return;
   }
-  el.innerHTML=f.map(r=>{const nm=r.raw_owner_name||r.raw_address||"—";const cty=getLeadCity(r);const cou=getLeadCounty(r);const loc=cty?`${cty}, ${cou}`:cou||"—";const s2=r.primed_stage?`<span class="b ${r.primed_stage===2?"p":"q"}">P${r.primed_stage}</span>`:bdg(r.score||0);const p2=r.motivation_probability?r.motivation_probability+"%":"—";const rt=r.outreach_routing==="direct"?"<b style='color:var(--red)'>Direct</b>":r.outreach_routing==="agent"?"<b style='color:var(--amber)'>Bryce</b>":"Seq";return `<tr style="cursor:pointer" onclick='showLeadDetail(${JSON.stringify(r).replace(/'/g,"\\'")})'><td><div class="nm">${nm.slice(0,32)}</div></td><td style="font-size:12px;color:var(--ink3)">${loc.slice(0,24)}</td><td style="font-size:12px;color:var(--ink3)">${sl(r.source_slug)}</td><td style="font-size:12px;color:var(--ink3)">${r.signal_type||"—"}</td><td>${bar(r.score||0)}</td><td>${s2}</td><td style="font-size:12px">${p2}</td><td style="font-size:11px">${rt}</td></tr>`;}).join("");
+  el.innerHTML=f.map(r=>{const nm=r.raw_owner_name||r.raw_address||"—";const cty=getLeadCity(r);const cou=getLeadCounty(r);const loc=cty?`${cty}, ${cou}`:cou||"—";const s2=r.primed_stage?`<span class="b ${r.primed_stage===2?"p":"q"}">P${r.primed_stage}</span>`:bdg(r.score||0);const p2=r.motivation_probability?r.motivation_probability+"%":"—";const rt=r.outreach_routing==="direct"?"<b style='color:var(--red)'>Direct</b>":r.outreach_routing==="agent"?"<b style='color:var(--amber)'>Donna</b>":"Seq";return `<tr style="cursor:pointer" onclick='showLeadDetail(${JSON.stringify(r).replace(/'/g,"\\'")})'><td><div class="nm">${nm.slice(0,32)}</div></td><td style="font-size:12px;color:var(--ink3)">${loc.slice(0,24)}</td><td style="font-size:12px;color:var(--ink3)">${sl(r.source_slug)}</td><td style="font-size:12px;color:var(--ink3)">${r.signal_type||"—"}</td><td>${bar(r.score||0)}</td><td>${s2}</td><td style="font-size:12px">${p2}</td><td style="font-size:11px">${rt}</td></tr>`;}).join("");
 }
 
 async function saveNote(leadId,note,statusEl){
@@ -735,8 +735,8 @@ function showLeadDetail(r){
   const city=r.city||parseCity(r.raw_address)||"";
   const fullAddr=city&&!addr.includes(city)?`${addr}, ${city}`:addr;
   const prob=r.motivation_probability||"—";
-  const stage=r.primed_stage===2?"Primed II — Direct to Agent":r.primed_stage===1?"Primed I — Bryce Qualifies First":"Primed";
-  const routing=r.outreach_routing==="direct"?"Direct → Agent (no pre-screen)":r.outreach_routing==="agent"?"Bryce qualifies first, then books Kelvin":"Nurture sequence";
+  const stage=r.primed_stage===2?"Primed II — Direct to Agent":r.primed_stage===1?"Primed I — Donna Qualifies First":"Primed";
+  const routing=r.outreach_routing==="direct"?"Direct → Agent (no pre-screen)":r.outreach_routing==="agent"?"Donna qualifies first, then books Kelvin":"Nurture sequence";
   const existingNote=r.notes||"";
   const nid="qn"+Date.now(),sid="qs"+Date.now();
   const modal=document.createElement("div");
@@ -816,7 +816,7 @@ async function loadLeads(){
     const seen=new Set();
     _leads=leads.filter(r=>{const k=String(r.id||"").slice(0,40);if(!k||seen.has(k))return false;seen.add(k);return true;});
     const meta=document.getElementById("lead-meta");if(meta)meta.textContent=_leads.length+" leads";
-    document.getElementById("lead-body").innerHTML=_leads.slice(0,20).map(r=>{const nm=r.raw_owner_name||r.raw_address||"—";const city=r.city||parseCity(r.raw_address)||"";const stg=r.primed_stage?`<span class="b ${r.primed_stage===2?"p":"q"}">P${r.primed_stage}</span>`:bdg(r.score||0);const prob=r.motivation_probability?r.motivation_probability+"%":"—";const route=r.outreach_routing==="direct"?"<b style='color:var(--red);font-size:10px'>Direct</b>":r.outreach_routing==="agent"?"<b style='color:var(--amber);font-size:10px'>Bryce</b>":"Seq";return `<tr style="cursor:pointer" onclick='showLeadDetail(${JSON.stringify(r).replace(/'/g,"\\'")})'><td><div class="nm">${nm.slice(0,28)}</div>${city?`<div style="font-size:10px;color:var(--ink3)">${city}</div>`:""}</td><td style="font-size:12px;color:var(--ink3)">${r.county||"—"}</td><td style="font-size:12px;color:var(--ink3)">${sl(r.source_slug)}</td><td>${bar(r.score||0)}</td><td>${stg}</td><td>${prob}</td><td>${route}</td></tr>`;}).join("");
+    document.getElementById("lead-body").innerHTML=_leads.slice(0,20).map(r=>{const nm=r.raw_owner_name||r.raw_address||"—";const city=r.city||parseCity(r.raw_address)||"";const stg=r.primed_stage?`<span class="b ${r.primed_stage===2?"p":"q"}">P${r.primed_stage}</span>`:bdg(r.score||0);const prob=r.motivation_probability?r.motivation_probability+"%":"—";const route=r.outreach_routing==="direct"?"<b style='color:var(--red);font-size:10px'>Direct</b>":r.outreach_routing==="agent"?"<b style='color:var(--amber);font-size:10px'>Donna</b>":"Seq";return `<tr style="cursor:pointer" onclick='showLeadDetail(${JSON.stringify(r).replace(/'/g,"\\'")})'><td><div class="nm">${nm.slice(0,28)}</div>${city?`<div style="font-size:10px;color:var(--ink3)">${city}</div>`:""}</td><td style="font-size:12px;color:var(--ink3)">${r.county||"—"}</td><td style="font-size:12px;color:var(--ink3)">${sl(r.source_slug)}</td><td>${bar(r.score||0)}</td><td>${stg}</td><td>${prob}</td><td>${route}</td></tr>`;}).join("");
     fl("all",document.querySelector(".fb"));
   }catch(e){console.warn(e);}
 }
@@ -847,7 +847,7 @@ async function loadConvFull(){
     if(meta)meta.textContent=cv.length+" marks";
     const avg=Math.round(cv.reduce((s,r)=>s+(r.score||r.match_score||88),0)/cv.length);
     const avgEl=document.getElementById("cv-avg");if(avgEl)avgEl.textContent=avg;
-    tbody.innerHTML=cv.map(r=>{const nm=r.raw_owner_name||r.raw_address||"Matched Address";const county=r.county||r.match_county||"Utah";const sig=r.signal_type||"convergence";const sc=r.score||r.match_score||88;const prob=r.motivation_probability?r.motivation_probability+"%":"85%";const stg=sc>=88?'<span class="b p">P2 — Direct</span>':'<span class="b q">P1 — Bryce</span>';return `<tr style="cursor:pointer" onclick='showConvDetail(${JSON.stringify(r).replace(/'/g,"\\'")})'><td><div class="nm">${nm.slice(0,36)}</div></td><td style="font-size:12px;color:var(--ink3)">${county}</td><td style="font-size:12px;color:var(--ink3)">${sig}</td><td>${bar(sc)}</td><td>${stg}</td><td style="font-size:12px;font-weight:600;color:var(--amber)">${prob}</td><td><button onclick="event.stopPropagation();showConvDetail(${JSON.stringify(r).replace(/'/g,"\\'")})" style="background:var(--ink);color:#fff;border:none;border-radius:6px;padding:5px 12px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif">Call Plan →</button></td></tr>`;}).join("");
+    tbody.innerHTML=cv.map(r=>{const nm=r.raw_owner_name||r.raw_address||"Matched Address";const county=r.county||r.match_county||"Utah";const sig=r.signal_type||"convergence";const sc=r.score||r.match_score||88;const prob=r.motivation_probability?r.motivation_probability+"%":"85%";const stg=sc>=88?'<span class="b p">P2 — Direct</span>':'<span class="b q">P1 — Donna</span>';return `<tr style="cursor:pointer" onclick='showConvDetail(${JSON.stringify(r).replace(/'/g,"\\'")})'><td><div class="nm">${nm.slice(0,36)}</div></td><td style="font-size:12px;color:var(--ink3)">${county}</td><td style="font-size:12px;color:var(--ink3)">${sig}</td><td>${bar(sc)}</td><td>${stg}</td><td style="font-size:12px;font-weight:600;color:var(--amber)">${prob}</td><td><button onclick="event.stopPropagation();showConvDetail(${JSON.stringify(r).replace(/'/g,"\\'")})" style="background:var(--ink);color:#fff;border:none;border-radius:6px;padding:5px 12px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif">Call Plan →</button></td></tr>`;}).join("");
   }catch(e){if(tbody)tbody.innerHTML='<tr><td colspan="7"><div class="empty-state"><div class="empty-state-icon">⊕</div><div class="empty-state-title">Could not load convergence marks</div><div class="empty-state-sub">Reload the page to retry.</div></div></td></tr>';}
 }
 
@@ -856,7 +856,7 @@ function showConvDetail(r){
   const nm=r.raw_owner_name||r.raw_address||"Matched Lead";const county=r.county||r.match_county||"Utah";const sc=r.score||r.match_score||88;const prob=r.motivation_probability?r.motivation_probability+"%":"85%";const sig=r.signal_type||"convergence";
   const openers={nts:"I noticed your property came up in our filings — I specialize in helping homeowners in your situation move quickly without the stress of a full market listing.",nod:"I work with homeowners in your county — I have a buyer already qualified in your area and price range ready to move.",tax_delinquency:"I help homeowners navigate tax situations and move on their timeline — I have a buyer ready in your area.",fsbo:"I saw your listing and have a buyer in your price range already pre-qualified — would you be open to a quick conversation?",convergence:"I work with buyers and sellers in your area — I have someone already matched to your location and ready to move."};
   const opener=openers[sig]||openers.convergence;
-  const routing=sc>=88?"Direct to agent — call immediately, no pre-screen":"Bryce qualifies first, then books Kelvin";
+  const routing=sc>=88?"Direct to agent — call immediately, no pre-screen":"Donna qualifies first, then books Kelvin";
   const modal=document.createElement("div");modal.id="conv-modal";modal.style.cssText="position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px;";
   modal.innerHTML=`<div style="background:var(--card);border-radius:14px;padding:24px;max-width:560px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.3);position:relative;max-height:90vh;overflow-y:auto"><button onclick="document.getElementById('conv-modal').remove()" style="position:absolute;top:14px;right:14px;background:none;border:none;font-size:22px;cursor:pointer;color:var(--ink3)">×</button><div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--amber);margin-bottom:8px">⊕ CONVERGENCE MARK</div><div style="font-size:20px;font-weight:700;color:var(--ink);margin-bottom:4px">${nm}</div><div style="font-size:13px;color:var(--ink2);margin-bottom:18px">${county} County · Signal: ${sig}</div><div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px"><div style="background:var(--bg);border-radius:8px;padding:12px;text-align:center"><div style="font-size:10px;color:var(--ink3);margin-bottom:4px">SCORE</div><div style="font-size:30px;letter-spacing:-.03em;font-weight:700;color:var(--red)">${sc}</div></div><div style="background:var(--bg);border-radius:8px;padding:12px;text-align:center"><div style="font-size:10px;color:var(--ink3);margin-bottom:4px">PROBABILITY</div><div style="font-size:30px;letter-spacing:-.03em;font-weight:700;color:var(--amber)">${prob}</div></div><div style="background:var(--bg);border-radius:8px;padding:12px;text-align:center"><div style="font-size:10px;color:var(--ink3);margin-bottom:4px">COUNTY</div><div style="font-size:16px;font-weight:700;color:var(--ink);margin-top:6px">${county}</div></div></div><div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:10px;padding:14px;margin-bottom:14px"><div style="font-size:10px;font-weight:700;color:var(--amber);margin-bottom:8px;letter-spacing:.08em">OPENING LINE</div><div style="font-size:14px;color:var(--ink);line-height:1.6;font-style:italic">"${opener}"</div></div><div style="background:${sc>=88?"var(--red-lt)":"var(--amber-lt)"};border:1px solid ${sc>=88?"var(--red-bd)":"var(--amber-bd)"};border-radius:8px;padding:12px;margin-bottom:16px"><div style="font-size:10px;font-weight:700;color:${sc>=88?"var(--red)":"var(--amber)"};margin-bottom:3px">ROUTING</div><div style="font-size:13px;font-weight:600;color:var(--ink)">${routing}</div></div><div style="display:flex;gap:8px"><button onclick="document.getElementById('conv-modal').remove()" style="flex:1;padding:11px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;background:var(--card);color:var(--ink2);font-family:'Plus Jakarta Sans',sans-serif">← Back</button><button onclick="addConvToOutreach(${JSON.stringify(r).replace(/'/g,"\\'")})" style="flex:2;padding:11px;background:var(--ink);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif">Add to Call Queue →</button></div></div>`;
   document.body.appendChild(modal);modal.addEventListener("click",e=>{if(e.target===modal)modal.remove();});
