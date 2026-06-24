@@ -331,7 +331,7 @@ tr.clickable:hover td { background: var(--bg); }
 .badge-n  { background: var(--mint-lt); color: #1a8a50; border: 1px solid var(--mint-bd); }
 .badge-w  { background: #f5f5f5; color: var(--ink2); border: 1px solid var(--border); }
 .badge-direct { background: var(--lav-lt); color: #6040c0; border: 1px solid var(--lav-bd); }
-.badge-bryce  { background: var(--sky-lt); color: #1a7cbb; border: 1px solid var(--sky-bd); }
+.badge-donna  { background: var(--sky-lt); color: #1a7cbb; border: 1px solid var(--sky-bd); }
 .badge-live   { background: var(--mint-lt); color: #1a8a50; border: 1px solid var(--mint-bd); }
 .badge-indexed{ background: #f5f5f5; color: var(--ink2); border: 1px solid var(--border); }
 
@@ -651,7 +651,7 @@ tr.clickable:hover td { background: var(--bg); }
           </div>
           <div class="stage-pill">
             <div class="sp-val" id="ov-p1">—</div>
-            <div class="sp-label">Primed I · Bryce</div>
+            <div class="sp-label">Primed I · Donna</div>
             <div class="sp-bar" style="background:var(--sky)"></div>
           </div>
           <div class="stage-pill">
@@ -827,7 +827,7 @@ tr.clickable:hover td { background: var(--bg); }
           <span class="count-tag" id="p1-count"></span>
         </div>
         <div class="card">
-          <div class="card-hdr"><div class="card-title">Primed I — Bryce Qualifies First</div><div class="card-meta">Score ≥ 60 · Bryce pre-screens before agent</div></div>
+          <div class="card-hdr"><div class="card-title">Primed I — Donna Qualifies First</div><div class="card-meta">Score ≥ 60 · Donna pre-screens before agent</div></div>
           <div class="card-body" style="padding:0">
             <div class="table-wrap">
               <table>
@@ -1095,7 +1095,7 @@ function scoreBar(s){
 
 function stageBadge(r){
   if(r.primed_stage===2) return '<span class="badge badge-p2">P-II Direct</span>';
-  if(r.primed_stage===1) return '<span class="badge badge-p1">P-I Bryce</span>';
+  if(r.primed_stage===1) return '<span class="badge badge-p1">P-I Donna</span>';
   const s=r.score||0;
   if(s>=75) return '<span class="badge badge-q">Qualify</span>';
   if(s>=60) return '<span class="badge badge-n">Nurture</span>';
@@ -1104,7 +1104,7 @@ function stageBadge(r){
 
 function routeBadge(r){
   if(r.outreach_routing==='direct') return '<span class="badge badge-direct">Direct</span>';
-  if(r.outreach_routing==='agent') return '<span class="badge badge-bryce">Bryce</span>';
+  if(r.outreach_routing==='agent') return '<span class="badge badge-donna">Donna</span>';
   return '<span style="font-size:11px;color:var(--ink2)">Seq</span>';
 }
 
@@ -1439,9 +1439,9 @@ function showLead(r){
   const addr = r.raw_address||'Court filing — address via county recorder';
   const fullAddr = city&&!addr.includes(city)?`${addr}, ${city}`:addr;
   const prob = r.motivation_probability||'—';
-  const stage = r.primed_stage===2?'Primed II — Direct to Agent':r.primed_stage===1?'Primed I — Bryce Qualifies First':'Scored Lead';
+  const stage = r.primed_stage===2?'Primed II — Direct to Agent':r.primed_stage===1?'Primed I — Donna Qualifies First':'Scored Lead';
   const stageColor = r.primed_stage===2?'var(--gold)':'var(--sky)';
-  const routing = r.outreach_routing==='direct'?'Direct → Agent (no pre-screen)':r.outreach_routing==='agent'?'Bryce qualifies first, then books agent':'Nurture sequence';
+  const routing = r.outreach_routing==='direct'?'Direct → Agent (no pre-screen)':r.outreach_routing==='agent'?'Donna qualifies first, then books agent':'Nurture sequence';
   const routeBg = r.outreach_routing==='direct'?'var(--gold-lt)':'var(--sky-lt)';
   const routeBd = r.outreach_routing==='direct'?'var(--gold-bd)':'var(--sky-bd)';
   const routeC  = r.outreach_routing==='direct'?'#A07820':'#1a7cbb';
@@ -1611,7 +1611,7 @@ function renderPipelineStatus(){
     {label:'VAPI Voice',status:'Staged',color:'var(--orange)',note:'Human-assisted only'},
     {label:'Federal DNC SAN',status:'Required',color:'#dc2626',note:'Before calls activate'},
     {label:'A2P 10DLC',status:'Pending',color:'var(--orange)',note:'TCR approval'},
-    {label:'Bryce Agent',status:'Configured',color:'var(--sky)',note:'Pre-screen active'},
+    {label:'Donna',status:'Configured',color:'var(--sky)',note:'Pre-screen active'},
   ];
   el.innerHTML = items.map(i=>`<div class="src-row">
     <div class="src-dot" style="background:${i.color}"></div>
