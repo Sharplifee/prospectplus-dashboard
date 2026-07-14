@@ -326,11 +326,11 @@ body{font-family:'Plus Jakarta Sans',-apple-system,sans-serif;background:var(--b
           <div>
             <div class="sl">Home Values</div>
             <div class="panel">
-              <div class="ph"><h3>Zillow Index</h3><div class="meta">May 2026</div></div>
+              <div class="ph"><h3>Zillow Index</h3><div class="meta" id="zhv-ov-meta">Loading...</div></div>
               <div class="pb">
-                <div class="hvr"><div class="hvr-city">Salt Lake City</div><div class="hvr-v">$569k</div></div>
-                <div class="hvr"><div class="hvr-city">Provo</div><div class="hvr-v">$546k</div></div>
-                <div class="hvr"><div class="hvr-city">Ogden</div><div class="hvr-v">$518k</div></div>
+                <div class="hvr"><div class="hvr-city">Salt Lake City</div><div class="hvr-v" id="zhv-ov-slc">—</div></div>
+                <div class="hvr"><div class="hvr-city">Provo</div><div class="hvr-v" id="zhv-ov-provo">—</div></div>
+                <div class="hvr"><div class="hvr-city">Ogden</div><div class="hvr-v" id="zhv-ov-ogden">—</div></div>
               </div>
             </div>
           </div>
@@ -449,9 +449,9 @@ body{font-family:'Plus Jakarta Sans',-apple-system,sans-serif;background:var(--b
       <div class="pg-hdr"><h1>Market Pulse</h1><p>Live market data across Utah, Salt Lake, and Weber Counties.</p></div>
       <div class="sl">Zillow Home Values</div>
       <div class="kpi-row" style="grid-template-columns:repeat(3,1fr);margin-bottom:20px">
-        <div class="kc"><div class="kc-l">Salt Lake City</div><div class="kc-v">$557k</div><div class="kc-d">Zillow · Dec 2025</div></div>
-        <div class="kc"><div class="kc-l">Provo-Orem-Lehi</div><div class="kc-v">$560k</div><div class="kc-d">Zillow · Nov 2025</div></div>
-        <div class="kc"><div class="kc-l">Ogden</div><div class="kc-v">$518k</div><div class="kc-d">Zillow Home Value</div></div>
+        <div class="kc"><div class="kc-l">Salt Lake City</div><div class="kc-v" id="zhv-mkt-slc">—</div><div class="kc-d" id="zhv-mkt-slc-d">Zillow</div></div>
+        <div class="kc"><div class="kc-l">Provo</div><div class="kc-v" id="zhv-mkt-provo">—</div><div class="kc-d" id="zhv-mkt-provo-d">Zillow</div></div>
+        <div class="kc"><div class="kc-l">Ogden</div><div class="kc-v" id="zhv-mkt-ogden">—</div><div class="kc-d" id="zhv-mkt-ogden-d">Zillow</div></div>
       </div>
       <div class="sl">Realtor.com — Utah Markets</div>
       <div class="panel" style="margin-bottom:14px">
@@ -870,6 +870,15 @@ function addConvToOutreach(r){
 async function loadMarket(){
   try{
     const mkt=await rpc("pp_market_summary");if(!mkt)return;
+    if(mkt.zillow_home_values&&mkt.zillow_home_values.length){
+      const byCity={};mkt.zillow_home_values.forEach(z=>byCity[z.metro]=z);
+      const setZ=(idV,idD,city)=>{const z=byCity[city];const elV=document.getElementById(idV),elD=document.getElementById(idD);
+        if(z&&elV){elV.textContent="$"+Math.round(z.value/1000)+"k";}
+        if(z&&elD){elD.textContent="Zillow · "+z.as_of;}};
+      setZ("zhv-ov-slc",null,"Salt Lake City");setZ("zhv-ov-provo",null,"Provo");setZ("zhv-ov-ogden",null,"Ogden");
+      setZ("zhv-mkt-slc","zhv-mkt-slc-d","Salt Lake City");setZ("zhv-mkt-provo","zhv-mkt-provo-d","Provo");setZ("zhv-mkt-ogden","zhv-mkt-ogden-d","Ogden");
+      const ovMeta=document.getElementById("zhv-ov-meta");if(ovMeta&&mkt.zillow_home_values[0])ovMeta.textContent="As of "+mkt.zillow_home_values[0].as_of;
+    }
     const rEl=document.getElementById("mkt-r-body"),rMeta=document.getElementById("mkt-r-meta");
     if(rEl&&mkt.realtor&&mkt.realtor.length){if(rMeta)rMeta.textContent=mkt.realtor.length+" Utah markets";rEl.innerHTML=mkt.realtor.map(r=>`<tr><td><strong>${(r.metro||"—").slice(0,35)}</strong></td><td style="font-weight:600;color:var(--amber)">${r.median?"$"+Math.round(r.median/1000)+"k":"—"}</td><td>${r.active?Number(r.active).toLocaleString():"—"}</td><td style="color:${r.dom>60?"var(--red)":r.dom>30?"var(--amber)":"var(--green)"}">${r.dom?r.dom+"d":"—"}</td><td>${r.new_listings?Number(r.new_listings).toLocaleString():"—"}</td><td style="color:var(--amber)">${r.price_cuts?Number(r.price_cuts).toLocaleString():"—"}</td><td style="font-size:11px;color:var(--ink3)">${r.as_of||"—"}</td></tr>`).join("");}
     const srcEl=document.getElementById("mkt-src-body"),srcMeta=document.getElementById("mkt-src-meta");
