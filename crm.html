@@ -955,7 +955,6 @@ tr.clickable:hover td { background: var(--bg); }
             <div class="src-row"><div class="src-dot" style="background:var(--orange)"></div><div class="src-name">Tracerfy Skip Trace</div><div class="src-type">Enrichment</div><div class="src-today" style="color:var(--orange)">Pending</div><div class="src-total">$0.02/rec</div></div>
             <div class="src-row"><div class="src-dot" style="background:var(--orange)"></div><div class="src-name">VAPI Voice Agent</div><div class="src-type">Outreach</div><div class="src-today" style="color:var(--orange)">Staged</div><div class="src-total">Human-assisted</div></div>
             <div class="src-row"><div class="src-dot" style="background:#dc2626"></div><div class="src-name">Federal DNC SAN</div><div class="src-type">Compliance</div><div class="src-today" style="color:#dc2626">Required</div><div class="src-total">Before calls</div></div>
-            <div class="src-row"><div class="src-dot" style="background:var(--orange)"></div><div class="src-name">A2P 10DLC</div><div class="src-type">SMS</div><div class="src-today" style="color:var(--orange)">Pending</div><div class="src-total">TCR approval</div></div>
           </div>
         </div>
       </div>
@@ -1610,7 +1609,6 @@ function renderPipelineStatus(){
     {label:'Tracerfy Skip Trace',status:'Pending',color:'var(--orange)',note:'Awaiting funding'},
     {label:'VAPI Voice',status:'Staged',color:'var(--orange)',note:'Human-assisted only'},
     {label:'Federal DNC SAN',status:'Required',color:'#dc2626',note:'Before calls activate'},
-    {label:'A2P 10DLC',status:'Pending',color:'var(--orange)',note:'TCR approval'},
     {label:'Donna',status:'Configured',color:'var(--sky)',note:'Pre-screen active'},
   ];
   el.innerHTML = items.map(i=>`<div class="src-row">
