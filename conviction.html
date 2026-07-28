@@ -42,7 +42,11 @@ tr:hover td{background:rgba(184,129,58,.05)}
 .types{font-size:11px;color:var(--dim)}
 .nocontact{color:var(--red);font-size:11px;font-weight:600}
 .muted{color:var(--dim);font-size:12px;padding:26px;text-align:center}
-.act{background:transparent;border:1px solid var(--line);padding:4px 9px;font-size:11px;border-radius:6px}
+.acts{white-space:nowrap}
+.act{background:transparent;border:1px solid var(--line);padding:4px 7px;font-size:10.5px;border-radius:6px;margin-right:3px}
+.act:hover{border-color:var(--gold)}
+.act.ok{border-color:rgba(22,163,74,.45);color:#86efac}
+.act.no{border-color:rgba(220,38,38,.4);color:#fca5a5}
 .err{background:rgba(220,38,38,.1);border:1px solid rgba(220,38,38,.4);color:#fca5a5;
   padding:12px 14px;border-radius:8px;margin-bottom:16px;font-size:13px}
 </style>
@@ -61,7 +65,9 @@ tr:hover td{background:rgba(184,129,58,.05)}
     <div class="kpi"><div class="lbl">Conviction ≥ 85</div><div class="val s-hot" id="k-hot">—</div></div>
     <div class="kpi"><div class="lbl">Multi-Signal (3+)</div><div class="val s-warm" id="k-multi">—</div></div>
     <div class="kpi"><div class="lbl">Contactable</div><div class="val s-mid" id="k-contact">—</div></div>
-    <div class="kpi"><div class="lbl">Clustered (30d)</div><div class="val" id="k-cluster">—</div></div>
+    <div class="kpi"><div class="lbl">Worked Today</div><div class="val" id="k-worked" style="color:var(--blue)">—</div></div>
+    <div class="kpi"><div class="lbl">In Progress</div><div class="val" id="k-prog" style="color:var(--amber)">—</div></div>
+    <div class="kpi"><div class="lbl">Appointments</div><div class="val" id="k-appt" style="color:var(--green)">—</div></div>
     <div class="kpi"><div class="lbl">Auto-Removed</div><div class="val" id="k-resolved" style="color:var(--dim)">—</div></div>
   </div>
 
@@ -91,7 +97,7 @@ tr:hover td{background:rgba(184,129,58,.05)}
       <th>Why this lead</th>
       <th style="width:150px">Signals</th>
       <th style="width:110px">Status</th>
-      <th style="width:90px">Action</th>
+      <th style="width:240px">Record outcome</th>
     </tr></thead>
     <tbody id="rows"><tr><td colspan="7" class="muted">Loading…</td></tr></tbody>
   </table>
@@ -119,18 +125,14 @@ function statePill(s){
 
 async function loadKpis(){
   try{
-    const mk = async (f)=> {
-      const r = await db('pp_conviction_queue?select=entity_key&'+f, {Prefer:'count=exact',Range:'0-0'});
-      return (r.headers.get('content-range')||'/0').split('/')[1];
-    };
-    document.getElementById('k-total').textContent    = await mk('');
-    document.getElementById('k-hot').textContent      = await mk('conviction_score=gte.85');
-    document.getElementById('k-multi').textContent    = await mk('distinct_types=gte.3');
-    document.getElementById('k-contact').textContent  = await mk('contactable=is.true');
-    document.getElementById('k-cluster').textContent  = await mk('cluster_flag=is.true');
-    const r = await db('pp_entity_conviction?select=entity_key&resolved_flag=is.true',
-                       {Prefer:'count=exact',Range:'0-0'});
-    document.getElementById('k-resolved').textContent = (r.headers.get('content-range')||'/0').split('/')[1];
+    const r = await fetch(SB+'/rest/v1/rpc/pp_conviction_kpis',
+      {method:'POST', headers:Object.assign({'Content-Type':'application/json'},H), body:'{}'});
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    const k = await r.json();
+    const set=(id,v)=>{const e=document.getElementById(id); if(e) e.textContent=(v??0).toLocaleString();};
+    set('k-total',k.queue_size); set('k-hot',k.high_conviction); set('k-multi',k.multi_signal);
+    set('k-contact',k.contactable); set('k-worked',k.worked_today); set('k-prog',k.in_progress);
+    set('k-appt',k.appointments); set('k-resolved',k.auto_removed);
   }catch(e){ showErr('Could not load totals: '+e.message); }
 }
 
@@ -172,7 +174,14 @@ async function load(){
         <td class="why">${r.why||'—'}</td>
         <td class="types">${(r.signal_types||[]).join(', ')}</td>
         <td>${statePill(r.lifecycle_state)}${r.touch_count?' <span class="types">·'+r.touch_count+'</span>':''}</td>
-        <td><button class="act" onclick='copyKey(${JSON.stringify(JSON.stringify(r.entity_key))})'>copy id</button></td>
+        <td class="acts">
+          <button class="act" onclick='rec(${JSON.stringify(JSON.stringify(r.entity_key))},"call","no_answer")'>no ans</button>
+          <button class="act" onclick='rec(${JSON.stringify(JSON.stringify(r.entity_key))},"call","contacted")'>talked</button>
+          <button class="act ok" onclick='rec(${JSON.stringify(JSON.stringify(r.entity_key))},"appointment_set",null)'>appt</button>
+          <button class="act ok" onclick='rec(${JSON.stringify(JSON.stringify(r.entity_key))},"listing_signed",null)'>listed</button>
+          <button class="act no" onclick='rec(${JSON.stringify(JSON.stringify(r.entity_key))},"call","not_interested")'>no</button>
+          <button class="act no" onclick='rec(${JSON.stringify(JSON.stringify(r.entity_key))},"disqualified",null)'>kill</button>
+        </td>
       </tr>`).join('');
   }catch(e){
     tb.innerHTML = '<tr><td colspan="7" class="muted">Could not load queue.</td></tr>';
@@ -180,9 +189,18 @@ async function load(){
   }
 }
 
-function copyKey(k){
-  const v = JSON.parse(k);
-  navigator.clipboard?.writeText(v);
+async function rec(k, eventType, outcome){
+  const entity = JSON.parse(k);
+  try{
+    const r = await fetch(SB+'/rest/v1/rpc/pp_record_outcome', {
+      method:'POST',
+      headers:Object.assign({'Content-Type':'application/json'},H),
+      body: JSON.stringify({p_entity_key:entity, p_event_type:eventType,
+        p_outcome:outcome, p_channel:'phone', p_actor:'dashboard', p_notes:null})
+    });
+    if(!r.ok) throw new Error('HTTP '+r.status+' — '+(await r.text()).slice(0,140));
+    loadKpis(); load();
+  }catch(e){ showErr('Could not record outcome: '+e.message); }
 }
 
 loadKpis(); loadCounties(); load();
