@@ -54,7 +54,7 @@ tr:hover td{background:rgba(184,129,58,.05)}
 <body>
 <header>
   <h1>Premier Prospect™ — Conviction Queue</h1>
-  <div class="sub">Leads ranked by how strongly independent signals converge on the same owner · not by signal category</div>
+  <div class="sub">Utah County recorder-based seller intelligence · one row per owner · scored on distinct county documents, not raw captures</div>
 </header>
 
 <div class="wrap">
@@ -63,11 +63,11 @@ tr:hover td{background:rgba(184,129,58,.05)}
   <div class="kpis">
     <div class="kpi"><div class="lbl">In Queue</div><div class="val" id="k-total">—</div></div>
     <div class="kpi"><div class="lbl">Conviction ≥ 85</div><div class="val s-hot" id="k-hot">—</div></div>
-    <div class="kpi"><div class="lbl">Multi-Signal (3+)</div><div class="val s-warm" id="k-multi">—</div></div>
-    <div class="kpi"><div class="lbl">Contactable</div><div class="val s-mid" id="k-contact">—</div></div>
+    <div class="kpi"><div class="lbl">Auction Scheduled</div><div class="val s-hot" id="k-auction">—</div></div>
+    <div class="kpi"><div class="lbl">2+ Documents</div><div class="val s-warm" id="k-multi">—</div></div>
+    <div class="kpi"><div class="lbl">3+ Documents</div><div class="val s-warm" id="k-multi3">—</div></div>
+    <div class="kpi"><div class="lbl">Likely High Equity</div><div class="val s-mid" id="k-equity">—</div></div>
     <div class="kpi"><div class="lbl">Worked Today</div><div class="val" id="k-worked" style="color:var(--blue)">—</div></div>
-    <div class="kpi"><div class="lbl">In Progress</div><div class="val" id="k-prog" style="color:var(--amber)">—</div></div>
-    <div class="kpi"><div class="lbl">Appointments</div><div class="val" id="k-appt" style="color:var(--green)">—</div></div>
     <div class="kpi"><div class="lbl">Auto-Removed</div><div class="val" id="k-resolved" style="color:var(--dim)">—</div></div>
   </div>
 
@@ -130,9 +130,9 @@ async function loadKpis(){
     if(!r.ok) throw new Error('HTTP '+r.status);
     const k = await r.json();
     const set=(id,v)=>{const e=document.getElementById(id); if(e) e.textContent=(v??0).toLocaleString();};
-    set('k-total',k.queue_size); set('k-hot',k.high_conviction); set('k-multi',k.multi_signal);
-    set('k-contact',k.contactable); set('k-worked',k.worked_today); set('k-prog',k.in_progress);
-    set('k-appt',k.appointments); set('k-resolved',k.auto_removed);
+    set('k-total',k.queue_size); set('k-hot',k.high_conviction); set('k-auction',k.auction_scheduled);
+    set('k-multi',k.multi_doc); set('k-multi3',k.multi_doc_3plus); set('k-equity',k.high_equity);
+    set('k-worked',k.worked_today); set('k-resolved',k.auto_removed);
   }catch(e){ showErr('Could not load totals: '+e.message); }
 }
 
@@ -168,7 +168,8 @@ async function load(){
         <td><span class="score ${cls(r.conviction_score)}">${r.conviction_score}</span></td>
         <td>
           <div style="font-weight:600">${(r.owner_display||'—')}</div>
-          ${r.contactable ? '' : '<div class="nocontact">no contact info</div>'}
+          <div class="types">${r.property_ref ? r.property_ref.slice(0,60) : ''}</div>
+          <div class="types">${r.county_entries || ''}</div>
         </td>
         <td>${r.county||'—'}</td>
         <td class="why">${r.why||'—'}</td>
