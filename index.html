@@ -238,6 +238,28 @@ body{font-family:'Plus Jakarta Sans',-apple-system,sans-serif;background:var(--b
 </style>
 </head>
 <body>
+<div id="pp-notice" style="background:linear-gradient(90deg,#1a1206,#241a0c);border-bottom:1px solid #d4a574;
+ padding:14px 22px;font-family:'Plus Jakarta Sans',-apple-system,sans-serif;font-size:14px;color:#f5ede0;
+ display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap">
+  <div><b style="color:#e8b87f">Buyer intelligence retired.</b>
+  Those profiles were website names, not people — the tables are no longer populated.
+  Seller intelligence is live and current on the conviction queue.</div>
+  <a href="./conviction.html" style="background:linear-gradient(180deg,#e8b87f,#d4a574);color:#1a1206;
+   border-radius:99px;padding:9px 20px;font-weight:600;text-decoration:none;white-space:nowrap">
+   Open conviction queue →</a>
+</div>
+<script>
+// Buyer-dependent views query pp_buyer_profiles / pp_buyer_seller_matches, which are
+// intentionally empty since the buyer layer was retired as fabricated (Aug 31 2026).
+// Hide those nav entries rather than let them render misleading zeros.
+document.addEventListener('DOMContentLoaded', function(){
+  document.querySelectorAll('.ni').forEach(function(el){
+    var t = (el.innerText||'').toLowerCase();
+    if (t.indexOf('buyer') > -1 || t.indexOf('match') > -1) el.style.display = 'none';
+  });
+});
+</script>
+
 
 <div id="onboard-bar" style="background:linear-gradient(90deg,#d97706,#b45309);color:#fff;padding:11px 20px;display:flex;align-items:center;justify-content:space-between;font-size:13px;font-weight:500;gap:12px;flex-shrink:0">
   <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0">
