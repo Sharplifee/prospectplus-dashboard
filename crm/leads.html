@@ -13,6 +13,7 @@ async function load(){
     <label class="btn"><input type="checkbox" id="equity" style="width:auto"> Likely high equity</label>
     <button class="btn pri" onclick="apply()">Apply</button>
     <button class="btn" onclick="Object.assign(F,{docs:1,conv:0,auction:false,equity:false,county:'',search:''});load()">Reset</button>
+    <button class="btn" onclick="exportCSV()" title="Download the current filtered list">⬇ Export CSV</button>
     <span class="muted" id="cnt"></span></div><div id="rows" class="muted">Loading…</div>`;
   document.getElementById('docs').value=F.docs;document.getElementById('conv').value=F.conv;
   document.getElementById('auction').checked=F.auction;document.getElementById('equity').checked=F.equity;
@@ -36,5 +37,17 @@ async function load(){
 }
 function apply(){F.search=document.getElementById('s').value;F.docs=+document.getElementById('docs').value;F.conv=+document.getElementById('conv').value;
   F.county=document.getElementById('county').value;F.auction=document.getElementById('auction').checked;F.equity=document.getElementById('equity').checked;load();}
+function exportCSV(){
+  const rows=window._rows||[]; if(!rows.length){alert('Nothing to export — apply filters that return leads first.');return;}
+  const cols=[['owner','owner_display'],['conviction',r=>r.conviction_score],['tier',r=>PP.tier(r.conviction_score)],['stage',r=>PP.stage(r.max_stage)],
+    ['county','county'],['property_ref','property_ref'],['county_entries','county_entries'],['documents','signal_count'],['signal_types',r=>(r.signal_types||[]).join('|')],
+    ['equity_proxy_pct',r=>r.equity_proxy==null?'':Math.round(r.equity_proxy)],['oldest_loan_years',r=>r.oldest_loan_years==null?'':Math.round(r.oldest_loan_years)],
+    ['tax_owed',r=>r.total_tax_debt==null?'':Math.round(r.total_tax_debt)],['why','why'],['status','lifecycle_state'],['entity_key','entity_key']];
+  const q=v=>{v=(v??'').toString();return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v};
+  const csv=[cols.map(c=>c[0]).join(',')].concat(rows.map(r=>cols.map(c=>q(typeof c[1]==='function'?c[1](r):r[c[1]])).join(','))).join('\n');
+  const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+  const tag=[F.docs>1?F.docs+'plus-docs':'',F.conv>0?'conv'+F.conv:'',F.auction?'auction':'',F.equity?'equity':'',F.county||''].filter(Boolean).join('_')||'all';
+  a.download='premier-prospect-leads_'+tag+'_'+new Date().toISOString().slice(0,10)+'.csv'; a.click();
+}
 window.PP_reload=load; load();
 </script></body></html>
