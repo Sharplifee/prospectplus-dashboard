@@ -1,0 +1,22 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="pp.css"><script src="pp.js"></script><title>System health — Premier Prospect</title></head><body><script>
+PP.shell('System health','Is the pipeline running, is data fresh, and which sources are producing.','<button class="btn" onclick="load()">Refresh</button>');
+async function load(){
+  const b=document.getElementById('body'); b.innerHTML='<div class="muted">Loading…</div>';
+  try{
+    const s=await PP.rpc('pp_app_system');
+    const ok=s.failed_24h===0;
+    b.innerHTML=`<div class="kpis">
+      <div class="kpi"><div class="l">Pipeline</div><div class="v ${ok?'ok':'hot'}">${ok?'Healthy':'Degraded'}</div><div class="h">${s.failed_24h} failed of ${s.runs_24h} runs / 24h</div></div>
+      <div class="kpi"><div class="l">Last success</div><div class="v" style="font-size:18px">${PP.ago(s.last_success)}</div><div class="h">${(s.last_success||'').slice(0,16).replace('T',' ')}</div></div>
+      <div class="kpi"><div class="l">7-day reliability</div><div class="v ${s.failed_7d?'hot':'ok'}">${s.runs_7d?Math.round(100*(s.runs_7d-s.failed_7d)/s.runs_7d):0}%</div><div class="h">${s.runs_7d} runs, ${s.failed_7d} failed</div></div>
+      <div class="kpi"><div class="l">Live records</div><div class="v">${s.live_signals.toLocaleString()}</div><div class="h">${s.legacy_signals.toLocaleString()} retired</div></div>
+      <div class="kpi"><div class="l">Scored owners</div><div class="v">${s.entities.toLocaleString()}</div><div class="h">entity resolution</div></div>
+      <div class="kpi"><div class="l">App cache age</div><div class="v ${s.cache_age_min>1500?'hot':'dim'}">${s.cache_age_min!=null?(s.cache_age_min<60?s.cache_age_min+'m':Math.round(s.cache_age_min/60)+'h'):'—'}</div><div class="h">refreshed each run</div></div></div>
+      <div class="sec">Sources — last 30 days</div>
+      <table class="tbl"><thead><tr><th>Source</th><th>Runs / 7d</th><th>Signals / 7d</th><th>Failures</th><th>Last run</th></tr></thead><tbody>${
+        s.sources.map(x=>`<tr><td class="mono">${PP.esc(x.source_slug)}</td><td>${x.runs_7d||0}</td><td class="${(x.signals_7d||0)>0?'s-warm':'muted'}">${(x.signals_7d||0).toLocaleString()}</td><td class="${x.failures_7d?'s-hot':'muted'}">${x.failures_7d||0}</td><td class="muted">${PP.ago(x.last_run)}</td></tr>`).join('')}</tbody></table>
+      <p class="muted" style="margin-top:12px">A source showing 0 signals is not necessarily broken — county filings are periodic and duplicates are rejected. A source showing failures is.</p>`;
+  }catch(e){ b.innerHTML=PP.err('Could not load system health: '+e.message); }
+}
+load();
+</script></body></html>
