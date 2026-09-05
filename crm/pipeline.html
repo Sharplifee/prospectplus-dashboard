@@ -1,0 +1,25 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="pp.css"><script src="pp.js"></script><title>Pipeline — Premier Prospect</title></head><body><script>
+PP.shell('Pipeline','From raw queue to closed listing. Every outcome you record moves a lead through these stages.');
+async function load(){
+  const b=document.getElementById('body'); b.innerHTML='<div class="muted">Loading…</div>';
+  try{
+    const [o,board,cs]=await Promise.all([PP.rpc('pp_app_overview'),PP.rpc('pp_app_lifecycle_board'),PP.rpc('pp_app_county_breakdown')]);
+    const states=['attempted','no_answer','contacted','callback','appointment','listed_with_us','sold','not_interested','dead'];
+    const bm={}; board.forEach(x=>bm[x.state]=x);
+    b.innerHTML=`<div class="grid2">
+      <div class="card"><h3>Lead funnel</h3>
+        ${PP.bar('In queue',o.queue,o.queue)}${PP.bar('Conviction 85+',o.conv85,o.queue)}${PP.bar('2+ documents',o.multi_doc,o.queue)}
+        ${PP.bar('3+ documents',o.multi_doc_3plus,o.queue,'hot')}${PP.bar('Auction scheduled',o.auction,o.queue,'hot')}</div>
+      <div class="card"><h3>Your pipeline</h3>
+        ${PP.bar('Worked today',o.worked_today,Math.max(o.queue,1))}${PP.bar('In progress',o.in_progress,Math.max(o.queue,1))}
+        ${PP.bar('Appointments',o.appointments,Math.max(o.queue,1),'ok')}${PP.bar('Listings won',o.listings_won,Math.max(o.queue,1),'ok')}
+        ${o.worked_today===0&&o.in_progress===0?'<p class="muted" style="margin-top:12px">Nothing worked yet. Every outcome you record trains the scoring — the system learns which signal combinations actually convert.</p>':''}</div></div>
+      <div class="sec">Board — leads by status</div>
+      <div class="grid3">${states.map(s=>{const x=bm[s]||{n:0,leads:[]};return `<div class="card"><h3>${s.replace(/_/g,' ')} <span style="color:var(--gold2)">${x.n}</span></h3>
+        ${x.leads.length?x.leads.slice(0,8).map(l=>`<div class="kv" style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--line);font-size:12.5px"><span>${PP.esc(l.owner||'—')}</span><span class="muted">${l.conviction} · ${l.touches}t</span></div>`).join(''):'<div class="muted" style="font-size:12px">No leads in this state</div>'}</div>`}).join('')}</div>
+      <div class="sec">By county</div>
+      <table class="tbl"><thead><tr><th>County</th><th>In queue</th><th>Conviction 85+</th><th>2+ documents</th></tr></thead><tbody>${cs.map(c=>`<tr><td><b>${PP.esc(c.county)}</b></td><td>${c.n}</td><td class="s-hot">${c.hot}</td><td>${c.multi}</td></tr>`).join('')}</tbody></table>`;
+  }catch(e){ b.innerHTML=PP.err('Could not load pipeline: '+e.message); }
+}
+window.PP_reload=load; load();
+</script></body></html>
