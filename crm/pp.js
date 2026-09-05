@@ -2,17 +2,47 @@
 const PP = (() => {
   const SB  = 'https://lbvaosyfikkpvcwksiph.supabase.co';
   const KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxidmFvc3lmaWtrcHZjd2tzaXBoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwMDg0MDksImV4cCI6MjA5MDU4NDQwOX0.Gh9whjmUPz4rdKYr5yo8ZHS0nSNpkQUOwdIladX6mG4';
-  const H = {apikey:KEY, Authorization:'Bearer '+KEY, 'Content-Type':'application/json'};
+  // Session lives in localStorage. Requests carry the user's JWT so RLS sees
+  // role=authenticated; without a session they fall back to anon (which has
+  // no data grants once the lockdown is applied).
+  const sess = () => { try{ return JSON.parse(localStorage.getItem('pp.session')||'null'); }catch{ return null; } };
+  const H = () => ({apikey:KEY, Authorization:'Bearer '+((sess()||{}).access_token||KEY), 'Content-Type':'application/json'});
 
   async function get(path){
-    const r = await fetch(SB+'/rest/v1/'+path, {headers:H});
+    const r = await fetch(SB+'/rest/v1/'+path, {headers:H()});
     if(!r.ok) throw new Error('HTTP '+r.status+' — '+(await r.text()).slice(0,140));
     return r.json();
   }
   async function rpc(name, body={}){
-    const r = await fetch(SB+'/rest/v1/rpc/'+name, {method:'POST', headers:H, body:JSON.stringify(body)});
+    const r = await fetch(SB+'/rest/v1/rpc/'+name, {method:'POST', headers:H(), body:JSON.stringify(body)});
+    if(r.status===401){ signOut(); return null; }
     if(!r.ok) throw new Error('HTTP '+r.status+' — '+(await r.text()).slice(0,140));
     const t = await r.text(); return t ? JSON.parse(t) : null;
+  }
+
+  async function signIn(email, password){
+    const r = await fetch(SB+'/auth/v1/token?grant_type=password',{method:'POST',
+      headers:{apikey:KEY,'Content-Type':'application/json'},body:JSON.stringify({email,password})});
+    const d = await r.json();
+    if(!r.ok||!d.access_token) throw new Error(d.error_description||d.msg||'Sign-in failed');
+    localStorage.setItem('pp.session', JSON.stringify({access_token:d.access_token, refresh_token:d.refresh_token,
+      expires_at:Date.now()+ (d.expires_in||3600)*1000, email:d.user?.email, name:d.user?.user_metadata?.name}));
+  }
+  async function refresh(){
+    const s=sess(); if(!s||!s.refresh_token) return false;
+    const r=await fetch(SB+'/auth/v1/token?grant_type=refresh_token',{method:'POST',
+      headers:{apikey:KEY,'Content-Type':'application/json'},body:JSON.stringify({refresh_token:s.refresh_token})});
+    if(!r.ok){ localStorage.removeItem('pp.session'); return false; }
+    const d=await r.json();
+    localStorage.setItem('pp.session', JSON.stringify({...s, access_token:d.access_token, refresh_token:d.refresh_token, expires_at:Date.now()+(d.expires_in||3600)*1000}));
+    return true;
+  }
+  function signOut(){ localStorage.removeItem('pp.session'); location.href='login.html'; }
+  async function requireAuth(){
+    const s=sess();
+    if(!s){ location.href='login.html'; return false; }
+    if(Date.now() > (s.expires_at||0) - 60000){ if(!(await refresh())){ location.href='login.html'; return false; } }
+    return true;
   }
 
   const NAV = [
@@ -28,6 +58,8 @@ const PP = (() => {
   ];
 
   function shell(title, desc, actionsHtml=''){
+    if(!sess()){ location.href='login.html'; return; }
+    requireAuth();
     const here = location.pathname.split('/').pop() || 'index.html';
     const nav = NAV.map(n => n.grp
       ? `<div class="grp">${n.grp}</div>`
@@ -37,7 +69,8 @@ const PP = (() => {
       <aside class="side">
         <div class="brand"><div class="nm">Premier Prospect<sup>™</sup></div><div class="sub">A Williams &amp; Co. System</div></div>
         <nav class="nav">${nav}</nav>
-        <div class="ft"><span class="dot" id="pp-dot"></span><span id="pp-health">checking…</span></div>
+        <div class="ft"><div><span class="dot" id="pp-dot"></span><span id="pp-health">checking…</span></div>
+          <div style="margin-top:8px;display:flex;justify-content:space-between;align-items:center"><span>${esc((sess()||{}).name||(sess()||{}).email||'')}</span><a href="#" onclick="PP.signOut();return false" style="color:var(--gold)">Sign out</a></div></div>
       </aside>
       <div class="main">
         <div class="top"><div><h1>${title}</h1><div class="desc">${desc}</div></div><div class="acts">${actionsHtml}</div></div>
@@ -120,5 +153,5 @@ const PP = (() => {
   const bar = (label,v,total,cls='') => `<div class="fbar ${cls}"><div class="t"><span>${label}</span><b>${v.toLocaleString()}</b></div><div class="b"><i style="width:${Math.max(1,100*v/Math.max(total,1))}%"></i></div></div>`;
   const ago = iso => { if(!iso) return '—'; const m=(Date.now()-new Date(iso))/60000; return m<60?Math.round(m)+'m ago':m<1440?Math.round(m/60)+'h ago':Math.round(m/1440)+'d ago'; };
 
-  return {get, rpc, shell, cls, tier, stage, pill, money, esc, openLead, closeDrawer, rec, empty, err, bar, ago};
+  return {get, rpc, shell, signIn, signOut, requireAuth, sess, cls, tier, stage, pill, money, esc, openLead, closeDrawer, rec, empty, err, bar, ago};
 })();
