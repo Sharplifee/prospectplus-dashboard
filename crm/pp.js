@@ -15,7 +15,7 @@ const PP = (() => {
   }
   async function rpc(name, body={}){
     const r = await fetch(SB+'/rest/v1/rpc/'+name, {method:'POST', headers:H(), body:JSON.stringify(body)});
-    if(r.status===401){ signOut(); return null; }
+
     if(!r.ok) throw new Error('HTTP '+r.status+' — '+(await r.text()).slice(0,140));
     const t = await r.text(); return t ? JSON.parse(t) : null;
   }
@@ -58,8 +58,6 @@ const PP = (() => {
   ];
 
   function shell(title, desc, actionsHtml=''){
-    if(!sess()){ location.href='login.html'; return; }
-    requireAuth();
     const here = location.pathname.split('/').pop() || 'index.html';
     const nav = NAV.map(n => n.grp
       ? `<div class="grp">${n.grp}</div>`
@@ -70,7 +68,7 @@ const PP = (() => {
         <div class="brand"><div class="nm">Premier Prospect<sup>™</sup></div><div class="sub">A Williams &amp; Co. System</div></div>
         <nav class="nav">${nav}</nav>
         <div class="ft"><div><span class="dot" id="pp-dot"></span><span id="pp-health">checking…</span></div>
-          <div style="margin-top:8px;display:flex;justify-content:space-between;align-items:center"><span>${esc((sess()||{}).name||(sess()||{}).email||'')}</span><a href="#" onclick="PP.signOut();return false" style="color:var(--gold)">Sign out</a></div></div>
+</div>
       </aside>
       <div class="main">
         <div class="top"><div><h1>${title}</h1><div class="desc">${desc}</div></div><div class="acts">${actionsHtml}</div></div>
