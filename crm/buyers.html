@@ -1,0 +1,28 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="pp.css"><script src="pp.js"></script><title>Buyers — Premier Prospect</title></head><body><script>
+PP.shell('Buyers','People and entities who completed a purchase — the grantee on a recorded warranty deed. Proven, not inferred.');
+let S='';
+async function load(){
+  const b=document.getElementById('body'); b.innerHTML='<div class="muted">Loading…</div>';
+  try{
+    const [bo,rows]=await Promise.all([PP.rpc('pp_app_buyer_overview_cached'),
+      PP.get('pp_buyer_intel?select=*&order=buyer_score.desc,purchases.desc&limit=300'+(S?'&buyer_display=ilike.*'+encodeURIComponent(S)+'*':''))]);
+    b.innerHTML=`<div class="kpis">
+      <div class="kpi"><div class="l">Proven buyers</div><div class="v">${bo.total}</div><div class="h">closed a purchase</div></div>
+      <div class="kpi"><div class="l">Repeat buyers</div><div class="v hot">${bo.repeat_count}</div><div class="h">2+ purchases</div></div>
+      <div class="kpi"><div class="l">Highly active</div><div class="v hot">${bo.highly_active}</div><div class="h">4+ purchases</div></div>
+      <div class="kpi"><div class="l">Investment entities</div><div class="v">${bo.entities}</div><div class="h">LLCs, trusts</div></div>
+      <div class="kpi"><div class="l">Bought in 30 days</div><div class="v ok">${bo.last_30d}</div><div class="h">recent closings</div></div>
+      <div class="kpi"><div class="l">Builders</div><div class="v dim">${bo.builders}</div><div class="h">land, not resale</div></div></div>
+      <div class="controls"><input id="s" placeholder="Search buyer…" value="${PP.esc(S)}" style="min-width:240px"><button class="btn pri" onclick="S=document.getElementById('s').value;load()">Search</button><span class="muted">${rows.length} shown</span></div>
+      ${rows.length?`<table class="tbl"><thead><tr><th>Score</th><th>Buyer</th><th>Type</th><th>Purchases</th><th>Counties</th><th>Last</th><th>Verify</th></tr></thead><tbody>${
+        rows.map(x=>`<tr><td><span class="score s-warm">${x.buyer_score}</span></td><td><b>${PP.esc(x.buyer_display||'—')}</b></td>
+        <td class="muted">${PP.esc(x.buyer_type||'')}</td><td>${x.purchases}</td><td class="muted">${(x.counties||[]).join(', ')}</td>
+        <td class="muted">${x.days_since_last!=null?x.days_since_last+'d ago':'—'}</td><td class="mono">${(x.entries||[]).slice(0,2).map(e=>'#'+e).join(', ')}</td></tr>`).join('')}</tbody></table>`
+      : PP.empty('◈','No buyers match','Buyers are derived from recorded warranty deeds — try another name.')}
+      <div class="sec">Why this is different</div>
+      <div class="card"><p>Every buyer here is the grantee on a recorded warranty deed — a party that <b>actually closed</b>, with an entry number you can look up at the county. Trust deeds are excluded because their grantee is the lender; quit-claims are excluded because they're family transfers; government right-of-way purchases are excluded because they're not a market. Cash detection is deliberately not claimed yet — trust-deed coverage is too thin to support it honestly.</p></div>`;
+    document.getElementById('s').onkeydown=e=>{if(e.key==='Enter'){S=e.target.value;load()}};
+  }catch(e){ b.innerHTML=PP.err('Could not load buyers: '+e.message); }
+}
+window.PP_reload=load; load();
+</script></body></html>
