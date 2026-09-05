@@ -1,0 +1,15 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="pp.css"><script src="pp.js"></script><title>Activity — Premier Prospect</title></head><body><script>
+PP.shell('Activity','Every call, note and outcome recorded against a lead, newest first. This is what the scoring learns from.','<button class="btn" onclick="load()">Refresh</button>');
+async function load(){
+  const b=document.getElementById('body'); b.innerHTML='<div class="muted">Loading…</div>';
+  try{
+    const ev=await PP.rpc('pp_app_activity',{p_limit:150});
+    if(!ev.length){ b.innerHTML=PP.empty('◷','No activity yet','Open a lead and record an outcome — it will appear here, and the system will learn from it.'); return; }
+    const lbl={call:'📞 Call',note:'✎ Note',appointment_set:'📅 Appointment set',appointment_held:'📅 Appointment held',listing_signed:'✓ Listing signed',sale_closed:'✓ Sale closed',disqualified:'✕ Disqualified',sms:'💬 SMS',email:'✉ Email'};
+    b.innerHTML=`<table class="tbl"><thead><tr><th>When</th><th>Lead</th><th>Event</th><th>Outcome</th><th>Note</th><th>Now</th></tr></thead><tbody>${
+      ev.map(e=>`<tr><td class="muted">${PP.ago(e.occurred_at)}</td><td><b>${PP.esc(e.owner_display||e.entity_key)}</b><div class="muted" style="font-size:11px">conviction ${e.conviction_at_event??'—'} at the time</div></td>
+      <td>${lbl[e.event_type]||PP.esc(e.event_type)}</td><td class="muted">${PP.esc((e.outcome||'').replace(/_/g,' '))}</td><td class="muted" style="max-width:280px">${PP.esc(e.notes||'')}</td><td>${PP.pill(e.current_state)}</td></tr>`).join('')}</tbody></table>`;
+  }catch(e){ b.innerHTML=PP.err('Could not load activity: '+e.message); }
+}
+window.PP_reload=load; load();
+</script></body></html>
