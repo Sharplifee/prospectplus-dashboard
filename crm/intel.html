@@ -1,0 +1,29 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="pp.css"><script src="pp.js"></script><title>How scoring works — Premier Prospect</title></head><body><script>
+PP.shell('How scoring works','Why a lead ranks where it does — so you can defend it to a homeowner.');
+async function load(){
+  const b=document.getElementById('body');
+  const ex=(t,p)=>`<div class="card" style="margin-bottom:12px"><h3>${t}</h3><p>${p}</p></div>`;
+  b.innerHTML=`<div class="grid2"><div>
+    ${ex('One signal is noise','Measured against recorded sales: an owner with only tax delinquency sold <b>0.22%</b> of the time. Tax delinquency plus two other distress signals sold <b>10 out of 10</b>. That gap is the entire product.')}
+    ${ex('Scored on documents, not mentions','The same county filing gets captured by several sources under different labels. Counting those separately would manufacture fake convergence, so every score collapses to one row per distinct document.')}
+    ${ex('Escalation beats volume','An owner moving from tax pressure, to a lender substituting the trustee, to a scheduled auction is on a deadline. One sitting at a single stage for months is not — even with the same number of filings.')}
+    ${ex('Scarcity is edge','A tax roll is downloaded by every investor in the state. A trustee substitution buried in raw recorder codes is effectively invisible. Same distress, completely different advantage.')}
+    ${ex('Dead leads remove themselves','When a property sells at arm\'s length or a foreclosure completes, the lead drops out automatically. You never call someone who already sold.')}
+  </div><div>
+    <div class="card"><h3>Measured conversion by signal</h3>
+      <table class="tbl" style="border:none"><tr><td>Notice of trustee sale</td><td class="s-hot">82.2%</td></tr><tr><td>Notice of default</td><td class="s-hot">69.0%</td></tr><tr><td>Liens &amp; judgments</td><td class="s-warm">32.9%</td></tr><tr><td>Tax delinquency alone</td><td class="s-low">0.22%</td></tr><tr><td>Tax delinquency + 2 others</td><td class="s-hot">10 of 10</td></tr></table>
+      <p class="muted" style="margin-top:10px;font-size:12px">Backtested against owners whose properties later appeared as recorded sales.</p></div>
+    <div class="card" style="margin-top:12px"><h3>Score tiers</h3>
+      <div class="kv" style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--line)"><b class="s-hot">88–100</b><span>Act now</span></div>
+      <div class="kv" style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--line)"><b class="s-warm">75–87</b><span>This week</span></div>
+      <div class="kv" style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--line)"><b class="s-mid">60–74</b><span>Qualify</span></div>
+      <div class="kv" style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--line)"><b class="s-low">45–59</b><span>Nurture</span></div>
+      <div class="kv" style="display:flex;justify-content:space-between;padding:6px 0"><b class="s-low">&lt;45</b><span>Watch</span></div></div>
+    <div class="card" style="margin-top:12px" id="mix"><h3>What's flowing in</h3><div class="muted">Loading…</div></div>
+  </div></div>`;
+  try{ const m=await PP.rpc('pp_app_signal_mix');
+    document.getElementById('mix').innerHTML='<h3>What\'s flowing in</h3>'+m.map(s=>`<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--line);font-size:13px"><span>${PP.esc(s.signal_type.replace(/_/g,' '))}<span class="muted" style="font-size:11px"> · ${s.owners} owners</span></span><span class="s-warm">score ${s.score}</span></div>`).join('');
+  }catch(e){}
+}
+load();
+</script></body></html>
