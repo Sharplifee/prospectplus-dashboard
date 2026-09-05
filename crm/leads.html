@@ -1,0 +1,40 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="pp.css"><script src="pp.js"></script><title>Seller leads — Premier Prospect</title></head><body><script>
+PP.shell('Seller leads','Homeowners ranked by how strongly independent county filings converge. Click any row for the evidence and to record an outcome.');
+const q=new URLSearchParams(location.search);
+const F={docs:+(q.get('docs')||1),conv:+(q.get('conv')||0),auction:q.get('auction')==='1',equity:q.get('equity')==='1',county:q.get('county')||'',search:''};
+async function load(){
+  const b=document.getElementById('body');
+  b.innerHTML=`<div class="controls">
+    <input id="s" placeholder="Search owner…" value="${PP.esc(F.search)}" style="min-width:220px">
+    <select id="docs"><option value="1">Any documents</option><option value="2">2+ documents</option><option value="3">3+ documents</option></select>
+    <select id="conv"><option value="0">Any conviction</option><option value="60">60+</option><option value="75">75+</option><option value="85">85+</option><option value="95">95+</option></select>
+    <select id="county"><option value="">All counties</option></select>
+    <label class="btn"><input type="checkbox" id="auction" style="width:auto"> Auction scheduled</label>
+    <label class="btn"><input type="checkbox" id="equity" style="width:auto"> Likely high equity</label>
+    <button class="btn pri" onclick="apply()">Apply</button>
+    <button class="btn" onclick="Object.assign(F,{docs:1,conv:0,auction:false,equity:false,county:'',search:''});load()">Reset</button>
+    <span class="muted" id="cnt"></span></div><div id="rows" class="muted">Loading…</div>`;
+  document.getElementById('docs').value=F.docs;document.getElementById('conv').value=F.conv;
+  document.getElementById('auction').checked=F.auction;document.getElementById('equity').checked=F.equity;
+  document.getElementById('s').onkeydown=e=>{if(e.key==='Enter')apply()};
+  try{
+    const cs=await PP.rpc('pp_app_county_breakdown'); const sel=document.getElementById('county');
+    cs.forEach(c=>{const o=document.createElement('option');o.value=c.county;o.textContent=c.county+' ('+c.n+')';sel.appendChild(o)}); sel.value=F.county;
+    let p='pp_conviction_queue?select=*&order=conviction_score.desc,signal_count.desc&limit=300';
+    if(F.conv>0)p+='&conviction_score=gte.'+F.conv; if(F.docs>1)p+='&signal_count=gte.'+F.docs;
+    if(F.auction)p+='&max_stage=eq.5'; if(F.equity)p+='&equity_proxy=gte.60';
+    if(F.county)p+='&county=eq.'+encodeURIComponent(F.county); if(F.search)p+='&owner_display=ilike.*'+encodeURIComponent(F.search)+'*';
+    const rows=await PP.get(p); window._rows=rows; document.getElementById('cnt').textContent=rows.length+' leads';
+    const r=document.getElementById('rows');
+    if(!rows.length){ r.innerHTML=PP.empty('▤','No leads match these filters','Try widening the document or conviction threshold.'); return; }
+    r.innerHTML=`<table class="tbl"><thead><tr><th style="width:60px">Score</th><th>Owner</th><th>Stage</th><th>Why this lead</th><th>Docs</th><th>Status</th></tr></thead><tbody>${
+      rows.map((x,i)=>`<tr class="row" onclick="PP.openLead(window._rows[${i}])"><td><span class="score ${PP.cls(x.conviction_score)}">${x.conviction_score}</span><div class="muted" style="font-size:10px">${PP.tier(x.conviction_score)}</div></td>
+      <td><b>${PP.esc(x.owner_display||'—')}</b><div class="muted" style="font-size:11px">${PP.esc(x.county||'')} · ${PP.esc((x.property_ref||'').slice(0,40))}</div></td>
+      <td><span class="${x.max_stage>=4?'s-hot':'muted'}" style="font-size:12px">${PP.stage(x.max_stage)}</span></td>
+      <td class="why">${PP.esc(x.why||'')}</td><td>${x.signal_count??'—'}</td><td>${PP.pill(x.lifecycle_state)}</td></tr>`).join('')}</tbody></table>`;
+  }catch(e){ document.getElementById('rows').innerHTML=PP.err('Query failed: '+e.message); }
+}
+function apply(){F.search=document.getElementById('s').value;F.docs=+document.getElementById('docs').value;F.conv=+document.getElementById('conv').value;
+  F.county=document.getElementById('county').value;F.auction=document.getElementById('auction').checked;F.equity=document.getElementById('equity').checked;load();}
+window.PP_reload=load; load();
+</script></body></html>
