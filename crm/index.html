@@ -1,0 +1,32 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="pp.css"><script src="pp.js"></script><title>Overview — Premier Prospect</title></head><body><script>
+PP.shell('Overview','What to work today, and where the system stands.','<button class="btn" onclick="load()">Refresh</button>');
+async function load(){
+  const b=document.getElementById('body'); b.innerHTML='<div class="muted">Loading…</div>';
+  try{
+    const [o,st,bo]=await Promise.all([PP.rpc('pp_app_overview'),PP.rpc('pp_app_stage_breakdown'),PP.rpc('pp_app_buyer_overview_cached')]);
+    b.innerHTML=`
+      <div class="kpis">
+        <div class="kpi"><div class="l">Ready to work</div><div class="v hot">${o.conv85}</div><div class="h">conviction 85+</div></div>
+        <div class="kpi"><div class="l">Auction scheduled</div><div class="v hot">${o.auction}</div><div class="h">hard deadline set</div></div>
+        <div class="kpi"><div class="l">3+ documents</div><div class="v">${o.multi_doc_3plus}</div><div class="h">the hand-over bundle</div></div>
+        <div class="kpi"><div class="l">Likely high equity</div><div class="v ok">${o.high_equity}</div><div class="h">room to sell into</div></div>
+        <div class="kpi"><div class="l">Proven buyers</div><div class="v">${bo?bo.total:'—'}</div><div class="h">${bo?bo.repeat_count+' repeat':''}</div></div>
+        <div class="kpi"><div class="l">Worked today</div><div class="v dim">${o.worked_today}</div><div class="h">${o.in_progress} in progress</div></div>
+      </div>
+      <div class="grid2">
+        <div class="card"><h3>Work these first</h3>
+          <a class="btn" style="width:100%;justify-content:space-between;margin-bottom:8px" href="leads.html?auction=1"><span>🔨 Auction scheduled — a date is set</span><b>${o.auction}</b></a>
+          <a class="btn" style="width:100%;justify-content:space-between;margin-bottom:8px" href="leads.html?docs=3"><span>📑 Three or more county filings on one owner</span><b>${o.multi_doc_3plus}</b></a>
+          <a class="btn" style="width:100%;justify-content:space-between;margin-bottom:8px" href="leads.html?equity=1"><span>📈 Likely high equity — old mortgage</span><b>${o.high_equity}</b></a>
+          <a class="btn" style="width:100%;justify-content:space-between" href="buyers.html"><span>◈ Repeat buyers actively acquiring</span><b>${bo?bo.repeat_count:'—'}</b></a>
+        </div>
+        <div class="card"><h3>Queue by foreclosure stage</h3>
+          ${st.map(s=>PP.bar(s.label,s.n,o.queue,s.stage>=4?'hot':'')).join('')}
+        </div>
+      </div>
+      <div class="sec">System at a glance</div>
+      <div class="card"><p>${o.signals.toLocaleString()} live public records from ${o.sources} sources across ${o.counties} counties. ${o.queue.toLocaleString()} owners in the ranked queue, ${o.multi_doc} backed by two or more distinct filings. ${o.auto_removed} leads removed themselves after selling. Pipeline: ${o.failed_24h===0?'healthy':o.failed_24h+' failed runs'}, last refresh ${(o.last_refresh||'').slice(0,16).replace('T',' ')}.</p></div>`;
+  }catch(e){ b.innerHTML=PP.err('Could not load overview: '+e.message); }
+}
+window.PP_reload=load; load();
+</script></body></html>
