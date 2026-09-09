@@ -14,6 +14,7 @@ async function load(){
     <button class="btn pri" onclick="apply()">Apply</button>
     <button class="btn" onclick="Object.assign(F,{docs:1,conv:0,auction:false,equity:false,county:'',search:''});load()">Reset</button>
     <button class="btn" onclick="exportCSV()" title="Download the current filtered list">⬇ Export CSV</button>
+    <button class="btn" onclick="mailExport()" title="Owners with a verified tax-notice mailing address, ready for a letter batch">✉ Mail list</button>
     <span class="muted" id="cnt"></span></div><div id="rows" class="muted">Loading…</div>`;
   document.getElementById('docs').value=F.docs;document.getElementById('conv').value=F.conv;
   document.getElementById('auction').checked=F.auction;document.getElementById('equity').checked=F.equity;
@@ -48,6 +49,17 @@ function exportCSV(){
   const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
   const tag=[F.docs>1?F.docs+'plus-docs':'',F.conv>0?'conv'+F.conv:'',F.auction?'auction':'',F.equity?'equity':'',F.county||''].filter(Boolean).join('_')||'all';
   a.download='premier-prospect-leads_'+tag+'_'+new Date().toISOString().slice(0,10)+'.csv'; a.click();
+}
+async function mailExport(){
+  const absOnly=confirm('Absentee owners only?\n\nOK = only owners whose mail goes somewhere other than the property (the classic direct-mail audience).\nCancel = every owner with a verified mailing address.');
+  let rows;
+  try{ rows=await PP.rpc('pp_app_mail_export',{p_min_conviction:F.conv||60,p_absentee_only:absOnly}); }catch(e){ alert('Export failed: '+e.message); return; }
+  if(!rows.length){ alert('No owners with a verified mailing address match. The nightly enrichment adds more each morning.'); return; }
+  const cols=['owner','mail_street','mail_city','mail_zip','mailing_address','property_address','situation','conviction','assessed_value','real_equity_pct','absentee_verified','documents','county','entity_key'];
+  const q=v=>{v=(v??'').toString();return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v};
+  const csv=[cols.join(',')].concat(rows.map(r=>cols.map(c=>q(r[c])).join(','))).join('\n');
+  const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+  a.download='premier-prospect-mail_'+(absOnly?'absentee':'all')+'_conv'+(F.conv||60)+'_'+new Date().toISOString().slice(0,10)+'.csv'; a.click();
 }
 window.PP_reload=load; load();
 </script></body></html>
