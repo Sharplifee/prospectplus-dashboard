@@ -127,6 +127,8 @@ const PP = (() => {
         ${(r.scarcity_score||0)>=0.9?`<h4>Competitive edge</h4><div class="note" style="color:var(--amber)">Low-competition signal — this distress sits in raw recorder filings most agents never read.</div>`:''}
         <h4>Document timeline</h4>
         <div id="pp-timeline" class="muted" style="font-size:12px">Loading filings…</div>
+        <h4>Buyers active in this county</h4>
+        <div id="pp-buyers" class="muted" style="font-size:12px">Loading…</div>
         <h4>Record what happened</h4>
         <div class="acts6">
           <button class="btn sm" onclick="PP.rec('${esc(r.entity_key)}','call','no_answer')">No answer</button>
@@ -140,6 +142,15 @@ const PP = (() => {
         ${r.touch_count?`<h4>History</h4><div class="kv"><span>Touches</span><span>${r.touch_count}</span></div><div class="kv"><span>Status</span><span>${pill(r.lifecycle_state)}</span></div>`:''}
       </div>`;
     dr.classList.add('open'); document.getElementById('scrim').classList.add('open');
+    rpc('pp_app_seller_buyers',{p_entity_key:r.entity_key,p_limit:5}).then(d=>{
+      if(typeof d==='string') d=JSON.parse(d);
+      const el=document.getElementById('pp-buyers'); if(!el) return;
+      if(!d||!d.length){ el.textContent='No repeat buyers on record in this county yet.'; return; }
+      el.innerHTML=d.map(b=>`<div style="display:flex;justify-content:space-between;gap:8px;padding:6px 0;border-bottom:1px solid var(--line)">
+        <span><b>${esc(b.buyer_display||'—')}</b><div class="muted" style="font-size:11px">${esc(b.reason)} · ${b.purchases} purchase${b.purchases===1?'':'s'} · last ${b.days_since_last}d ago</div></span>
+        <span class="mono">${(b.entries||[]).map(e=>'#'+esc(e)).join(', ')}</span></div>`).join('')
+        +'<div class="note">If this seller lists, these are the people who have already bought here. Call about the specific property, not "opportunities".</div>';
+    }).catch(()=>{ const el=document.getElementById('pp-buyers'); if(el) el.textContent='Could not load buyers.'; });
     rpc('pp_app_lead_documents',{p_entity_key:r.entity_key}).then(d=>{
       if(typeof d==='string') d=JSON.parse(d);
       const el=document.getElementById('pp-timeline'); if(!el) return;
