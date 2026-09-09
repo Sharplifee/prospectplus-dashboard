@@ -125,6 +125,8 @@ const PP = (() => {
         ${r.oldest_loan_years?`<div class="kv"><span>Oldest loan</span><span>${Math.round(r.oldest_loan_years)} years old</span></div>`:''}
         <div class="note">Inferred from mortgage vintage, not verified title. Confirm before relying on it.</div>`:''}
         ${(r.scarcity_score||0)>=0.9?`<h4>Competitive edge</h4><div class="note" style="color:var(--amber)">Low-competition signal — this distress sits in raw recorder filings most agents never read.</div>`:''}
+        <h4>Document timeline</h4>
+        <div id="pp-timeline" class="muted" style="font-size:12px">Loading filings…</div>
         <h4>Record what happened</h4>
         <div class="acts6">
           <button class="btn sm" onclick="PP.rec('${esc(r.entity_key)}','call','no_answer')">No answer</button>
@@ -138,6 +140,19 @@ const PP = (() => {
         ${r.touch_count?`<h4>History</h4><div class="kv"><span>Touches</span><span>${r.touch_count}</span></div><div class="kv"><span>Status</span><span>${pill(r.lifecycle_state)}</span></div>`:''}
       </div>`;
     dr.classList.add('open'); document.getElementById('scrim').classList.add('open');
+    rpc('pp_app_lead_documents',{p_entity_key:r.entity_key}).then(d=>{
+      if(typeof d==='string') d=JSON.parse(d);
+      const el=document.getElementById('pp-timeline'); if(!el) return;
+      if(!d||!d.length){ el.textContent='No filings on record.'; return; }
+      const stageName={5:'Auction scheduled',4:'Foreclosure filed',3:'Lender preparing',2:'Creditor action',1:'Financial pressure',0:''};
+      el.innerHTML=d.map(x=>`<div style="display:grid;grid-template-columns:82px 1fr auto;gap:8px;padding:6px 0;border-bottom:1px solid var(--line)">
+        <span class="mono">${esc(x.recorded||'')}</span>
+        <span><b style="color:${x.stage>=4?'var(--hot)':x.stage>=1?'var(--gold2)':'var(--ink2)'}">${esc((x.signal_type||'').replace(/_/g,' '))}</b>
+          ${x.stage?`<span class="muted"> · ${stageName[x.stage]}</span>`:''}
+          ${x.lender_name?`<div class="muted" style="font-size:11px">${esc(x.lender_name)}${x.loan_amount?' · $'+Math.round(x.loan_amount).toLocaleString():''}</div>`:''}
+          ${x.grantor&&x.grantee?`<div class="muted" style="font-size:11px">${esc(x.grantor.slice(0,28))} → ${esc(x.grantee.slice(0,28))}</div>`:''}</span>
+        <span class="mono">${x.entry?'#'+esc(x.entry):''}</span></div>`).join('');
+    }).catch(()=>{ const el=document.getElementById('pp-timeline'); if(el) el.textContent='Could not load filings.'; });
   }
   function closeDrawer(){ document.getElementById('drawer').classList.remove('open'); document.getElementById('scrim').classList.remove('open'); }
   async function rec(key, event, outcome, note){
