@@ -15,6 +15,7 @@ async function load(){
     <button class="btn" onclick="Object.assign(F,{docs:1,conv:0,auction:false,equity:false,county:'',search:''});load()">Reset</button>
     <button class="btn" onclick="exportCSV()" title="Download the current filtered list">⬇ Export CSV</button>
     <button class="btn" onclick="mailExport()" title="Owners with a verified tax-notice mailing address, ready for a letter batch">✉ Mail list</button>
+    <button class="btn" onclick="letterBatch()" title="One ready-to-print letter per owner, worded for their situation">📄 Letters</button>
     <span class="muted" id="cnt"></span></div><div id="rows" class="muted">Loading…</div>`;
   document.getElementById('docs').value=F.docs;document.getElementById('conv').value=F.conv;
   document.getElementById('auction').checked=F.auction;document.getElementById('equity').checked=F.equity;
@@ -60,6 +61,33 @@ async function mailExport(){
   const csv=[cols.join(',')].concat(rows.map(r=>cols.map(c=>q(r[c])).join(','))).join('\n');
   const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
   a.download='premier-prospect-mail_'+(absOnly?'absentee':'all')+'_conv'+(F.conv||60)+'_'+new Date().toISOString().slice(0,10)+'.csv'; a.click();
+}
+// Situation-specific letters. Every letter cites the actual public filing so
+// the reader can verify it — the same principle as the call opener. No claims
+// beyond the record. Sender details are placeholders to fill once.
+const SENDER={name:'[Your name]',brokerage:'[Brokerage]',phone:'[Phone]',email:'[Email]'};
+function letterFor(r){
+  const first=(r.owner||'').split(',')[1]?.trim().split(' ')[0]||'';
+  const greet=first?`Dear ${first.charAt(0)+first.slice(1).toLowerCase()},`:'Hello,';
+  const prop=r.property_address||'your property';
+  const eq=r.real_equity_pct!=null?` Based on the county's assessed value, you may have meaningful equity in it — which changes what your options are.`:'';
+  const body={
+    'Auction scheduled':`I'm writing because a notice of trustee sale has been recorded against ${prop}. That means a sale date has been set, and once it passes, the decision is out of your hands.\n\nI help homeowners in exactly this position understand what they can still do before that date — including selling on their own terms, which usually leaves them in a far better spot than the auction does.${eq}\n\nThere's no obligation. If you'd like to know what your options actually look like, call me.`,
+    'Foreclosure filed':`I'm writing because a notice of default has been recorded against ${prop}. There is still time to take control of how this ends.\n\nI work with homeowners at this stage. Sometimes the answer is to sell before the process goes further; sometimes it isn't. Either way, knowing your options early is worth a great deal.${eq}\n\nIf you'd like a straight conversation about where things stand, call me.`,
+    'Lender preparing':`I'm writing because your lender recently substituted the trustee on your loan for ${prop}. That step usually comes shortly before a foreclosure filing.\n\nI'd rather talk with you now, while you have the most options, than after a notice is recorded.${eq}\n\nIf that's a conversation you'd like to have, call me.`,
+    'Creditor action':`I'm writing because a lien has been recorded against ${prop}. Sometimes a sale clears everything cleanly and leaves money in your pocket; sometimes there are better routes.${eq}\n\nI can walk you through what a sale would actually look like, with no obligation. Call me if that's useful.`,
+    'Financial pressure':`I work with homeowners in ${r.county||'this'} County who are dealing with property-tax pressure. I'm not a collector and I'm not here to pressure you — I help people decide whether selling makes sense, and what it would mean for them.${eq}\n\nIf you'd like to talk it through, call me.`,
+  }[r.situation]||`I noticed recent activity on ${prop} at the county recorder and wanted to reach out before anyone else does.${eq}\n\nIf it's useful to talk through your options, call me.`;
+  const absentee=r.absentee_verified?`\n\nI'm sending this to your mailing address rather than the property, since it looks like you may not live there.`:'';
+  return `${SENDER.name}\n${SENDER.brokerage}\n${SENDER.phone} · ${SENDER.email}\n\n${new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'})}\n\n${r.owner}\n${r.mail_street||''}\n${[r.mail_city,r.mail_state,r.mail_zip].filter(Boolean).join(' ')}\n\n${greet}\n\n${body}${absentee}\n\nSincerely,\n${SENDER.name}\n${SENDER.phone}`;
+}
+async function letterBatch(){
+  const absOnly=confirm('Absentee owners only?\n\nOK = only owners whose mail goes somewhere other than the property.\nCancel = every owner with a verified mailing address.');
+  let rows; try{ rows=await PP.rpc('pp_app_mail_export',{p_min_conviction:F.conv||60,p_absentee_only:absOnly}); }catch(e){ alert('Failed: '+e.message); return; }
+  if(!rows.length){ alert('No owners with a verified mailing address match.'); return; }
+  const text=rows.map(letterFor).join('\n\n\n' + '='.repeat(60) + '\n\n\n');
+  const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([text],{type:'text/plain'}));
+  a.download='premier-prospect-letters_'+(absOnly?'absentee':'all')+'_'+new Date().toISOString().slice(0,10)+'.txt'; a.click();
 }
 window.PP_reload=load; load();
 </script></body></html>
