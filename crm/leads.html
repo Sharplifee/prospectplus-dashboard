@@ -55,7 +55,7 @@ async function mailExport(){
   let rows;
   try{ rows=await PP.rpc('pp_app_mail_export',{p_min_conviction:F.conv||60,p_absentee_only:absOnly}); }catch(e){ alert('Export failed: '+e.message); return; }
   if(!rows.length){ alert('No owners with a verified mailing address match. The nightly enrichment adds more each morning.'); return; }
-  const cols=['owner','mail_street','mail_city','mail_zip','mailing_address','property_address','situation','conviction','assessed_value','real_equity_pct','absentee_verified','documents','county','entity_key'];
+  const cols=['owner','mail_street','mail_city','mail_state','mail_zip','mailing_address','property_address','situation','conviction','assessed_value','real_equity_pct','absentee_verified','documents','county','entity_key'];
   const q=v=>{v=(v??'').toString();return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v};
   const csv=[cols.join(',')].concat(rows.map(r=>cols.map(c=>q(r[c])).join(','))).join('\n');
   const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
