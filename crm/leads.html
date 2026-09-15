@@ -86,6 +86,8 @@ async function letterBatch(){
   let rows; try{ rows=await PP.rpc('pp_app_mail_export',{p_min_conviction:F.conv||60,p_absentee_only:absOnly}); }catch(e){ alert('Failed: '+e.message); return; }
   if(!rows.length){ alert('No owners with a verified mailing address match.'); return; }
   const text=rows.map(letterFor).join('\n\n\n' + '='.repeat(60) + '\n\n\n');
+  // every owner in the batch gets a mail_sent touch so Work and Pipeline see it
+  PP.rpc('pp_log_mail_batch',{p_entity_keys:rows.map(r=>r.entity_key)}).catch(()=>{});
   const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([text],{type:'text/plain'}));
   a.download='premier-prospect-letters_'+(absOnly?'absentee':'all')+'_'+new Date().toISOString().slice(0,10)+'.txt'; a.click();
 }
