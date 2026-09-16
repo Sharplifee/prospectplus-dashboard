@@ -14,6 +14,7 @@ const PP = (() => {
     if(r.status===401){ signOut(); return null; } if(!r.ok) throw new Error(method+' '+r.status+' '+(await r.text()).slice(0,120)); return true;
   }
   const post=(p,b)=>write('POST',p,b), patch=(p,b)=>write('PATCH',p,b), del=p=>write('DELETE',p);
+  async function claim(key){ try{ const r=await rpc('pp_claim_lead',{p_entity_key:key}); const o=typeof r==='string'?JSON.parse(r):r; alert(o.ok?'Added '+o.county+' / '+(o.city==='*'?'whole county':o.city)+' to your territory.':'Could not claim: '+(o.reason||'')); if(window.PP_reload) window.PP_reload(); }catch(e){ alert('Claim failed: '+e.message); } }
   async function openLeadByKey(key){ const rows=await get('pp_conviction_queue?select=*&entity_key=eq.'+encodeURIComponent(key)+'&limit=1'); if(rows&&rows[0]) openLead(rows[0]); }
   async function get(path){
     const r = await fetch(SB+'/rest/v1/'+path, {headers:H()});
@@ -146,7 +147,11 @@ const PP = (() => {
           <button class="btn sm ok" onclick="PP.rec('${esc(r.entity_key)}','appointment_set',null)">Appointment set</button>
           <button class="btn sm ok" onclick="PP.rec('${esc(r.entity_key)}','listing_signed',null)">Listing signed</button>
           <button class="btn sm" onclick="PP.rec('${esc(r.entity_key)}','call','not_interested')">Not interested</button>
-          <button class="btn sm no" onclick="PP.rec('${esc(r.entity_key)}','disqualified',null)">Disqualify</button>
+          <button class="btn sm" onclick="PP.rec('${esc(r.entity_key)}','call','callback')">Callback scheduled</button>
+          <button class="btn sm" onclick="PP.rec('${esc(r.entity_key)}','already_listed',null)">Already listed</button>
+          <button class="btn sm" onclick="PP.rec('${esc(r.entity_key)}','not_a_fit',null)">Not a fit</button>
+          <button class="btn sm no" onclick="PP.rec('${esc(r.entity_key)}','do_not_contact',null)">Do not contact</button>
+          ${r.in_territory===false?`<button class="btn sm" style="border-color:var(--gold);color:var(--gold)" onclick="PP.claim('${esc(r.entity_key)}')">Claim — add ${esc(r.city&&r.city!=='Unknown city'?r.city:(r.county||'')+' County')} to my territory</button>`:''}
         </div>
         <div style="margin-top:10px;display:flex;gap:6px"><input id="pp-note" placeholder="Add a note…" style="flex:1"><button class="btn sm" onclick="PP.rec('${esc(r.entity_key)}','note',null,document.getElementById('pp-note').value)">Save</button></div>
         ${r.touch_count?`<h4>History</h4><div class="kv"><span>Touches</span><span>${r.touch_count}</span></div><div class="kv"><span>Status</span><span>${pill(r.lifecycle_state)}</span></div>`:''}
@@ -187,5 +192,5 @@ const PP = (() => {
   const bar = (label,v,total,cls='') => `<div class="fbar ${cls}"><div class="t"><span>${label}</span><b>${v.toLocaleString()}</b></div><div class="b"><i style="width:${Math.max(1,100*v/Math.max(total,1))}%"></i></div></div>`;
   const ago = iso => { if(!iso) return '—'; const m=(Date.now()-new Date(iso))/60000; return m<60?Math.round(m)+'m ago':m<1440?Math.round(m/60)+'h ago':Math.round(m/1440)+'d ago'; };
 
-  return {get, post, patch, del, rpc, shell, signIn, signOut, requireAuth, sess, cls, tier, stage, pill, money, esc, openLead, openLeadByKey, closeDrawer, rec, empty, err, bar, ago};
+  return {get, post, patch, del, rpc, claim, shell, signIn, signOut, requireAuth, sess, cls, tier, stage, pill, money, esc, openLead, openLeadByKey, closeDrawer, rec, empty, err, bar, ago};
 })();
