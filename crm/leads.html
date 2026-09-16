@@ -23,11 +23,12 @@ async function load(){
   try{
     const cs=await PP.rpc('pp_app_county_breakdown'); const sel=document.getElementById('county');
     cs.forEach(c=>{const o=document.createElement('option');o.value=c.county;o.textContent=c.county+' ('+c.n+')';sel.appendChild(o)}); sel.value=F.county;
-    let p='pp_conviction_queue?select=*&order=conviction_score.desc,signal_count.desc&limit=300';
+    let p='pp_conviction_queue?select=*&order=conviction_score.desc,signal_count.desc';
     if(F.conv>0)p+='&conviction_score=gte.'+F.conv; if(F.docs>1)p+='&signal_count=gte.'+F.docs;
     if(F.auction)p+='&max_stage=eq.5'; if(F.equity)p+='&equity_proxy=gte.60';
     if(F.county)p+='&county=eq.'+encodeURIComponent(F.county); if(F.search)p+='&owner_display=ilike.*'+encodeURIComponent(F.search)+'*';
-    const rows=await PP.get(p); window._rows=rows; document.getElementById('cnt').textContent=rows.length+' leads';
+    // PostgREST caps a request at 1,000 rows — page through the whole queue
+    let rows=[]; for(let off=0;;off+=1000){ const page=await PP.get(p+'&limit=1000&offset='+off); rows=rows.concat(page); if(page.length<1000) break; } window._rows=rows; document.getElementById('cnt').textContent=rows.length+' leads';
     const r=document.getElementById('rows');
     if(!rows.length){ r.innerHTML=PP.empty('▤','No leads match these filters','Try widening the document or conviction threshold.'); return; }
     r.innerHTML=`<table class="tbl"><thead><tr><th style="width:60px">Score</th><th>Owner</th><th>Stage</th><th>Why this lead</th><th>Docs</th><th>Status</th></tr></thead><tbody>${
@@ -39,6 +40,13 @@ async function load(){
 }
 function apply(){F.search=document.getElementById('s').value;F.docs=+document.getElementById('docs').value;F.conv=+document.getElementById('conv').value;
   F.county=document.getElementById('county').value;F.auction=document.getElementById('auction').checked;F.equity=document.getElementById('equity').checked;load();}
+// iPhone Safari ignores the download attribute on blob URLs, so on mobile use the
+// share sheet (Files / Mail / AirDrop); on desktop, a normal download.
+async function saveFile(text,name,type){
+  const file=new File([text],name,{type});
+  if(navigator.canShare && navigator.canShare({files:[file]})){ try{ await navigator.share({files:[file],title:name}); return; }catch(e){ if(e.name==='AbortError') return; } }
+  const a=document.createElement('a'); a.href=URL.createObjectURL(file); a.download=name; a.target='_blank'; document.body.appendChild(a); a.click(); a.remove();
+}
 function exportCSV(){
   const rows=window._rows||[]; if(!rows.length){alert('Nothing to export — apply filters that return leads first.');return;}
   const cols=[['owner','owner_display'],['conviction',r=>r.conviction_score],['tier',r=>PP.tier(r.conviction_score)],['stage',r=>PP.stage(r.max_stage)],
@@ -47,9 +55,8 @@ function exportCSV(){
     ['tax_owed',r=>r.total_tax_debt==null?'':Math.round(r.total_tax_debt)],['why','why'],['status','lifecycle_state'],['entity_key','entity_key']];
   const q=v=>{v=(v??'').toString();return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v};
   const csv=[cols.map(c=>c[0]).join(',')].concat(rows.map(r=>cols.map(c=>q(typeof c[1]==='function'?c[1](r):r[c[1]])).join(','))).join('\n');
-  const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
   const tag=[F.docs>1?F.docs+'plus-docs':'',F.conv>0?'conv'+F.conv:'',F.auction?'auction':'',F.equity?'equity':'',F.county||''].filter(Boolean).join('_')||'all';
-  a.download='premier-prospect-leads_'+tag+'_'+new Date().toISOString().slice(0,10)+'.csv'; a.click();
+  saveFile(csv,'premier-prospect-leads_'+tag+'_'+new Date().toISOString().slice(0,10)+'.csv','text/csv');
 }
 async function mailExport(){
   const absOnly=confirm('Absentee owners only?\n\nOK = only owners whose mail goes somewhere other than the property (the classic direct-mail audience).\nCancel = every owner with a verified mailing address.');
@@ -59,8 +66,7 @@ async function mailExport(){
   const cols=['owner','mail_street','mail_city','mail_state','mail_zip','mailing_address','property_address','situation','conviction','assessed_value','real_equity_pct','absentee_verified','documents','county','entity_key'];
   const q=v=>{v=(v??'').toString();return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v};
   const csv=[cols.join(',')].concat(rows.map(r=>cols.map(c=>q(r[c])).join(','))).join('\n');
-  const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
-  a.download='premier-prospect-mail_'+(absOnly?'absentee':'all')+'_conv'+(F.conv||60)+'_'+new Date().toISOString().slice(0,10)+'.csv'; a.click();
+  saveFile(csv,'premier-prospect-mail_'+(absOnly?'absentee':'all')+'_conv'+(F.conv||60)+'_'+new Date().toISOString().slice(0,10)+'.csv','text/csv');
 }
 // Situation-specific letters. Every letter cites the actual public filing so
 // the reader can verify it — the same principle as the call opener. No claims
@@ -88,8 +94,7 @@ async function letterBatch(){
   const text=rows.map(letterFor).join('\n\n\n' + '='.repeat(60) + '\n\n\n');
   // every owner in the batch gets a mail_sent touch so Work and Pipeline see it
   PP.rpc('pp_log_mail_batch',{p_entity_keys:rows.map(r=>r.entity_key)}).catch(()=>{});
-  const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([text],{type:'text/plain'}));
-  a.download='premier-prospect-letters_'+(absOnly?'absentee':'all')+'_'+new Date().toISOString().slice(0,10)+'.txt'; a.click();
+  saveFile(text,'premier-prospect-letters_'+(absOnly?'absentee':'all')+'_'+new Date().toISOString().slice(0,10)+'.txt','text/plain');
 }
 window.PP_reload=load; load();
 </script></body></html>
