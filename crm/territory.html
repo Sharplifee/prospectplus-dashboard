@@ -1,0 +1,77 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>My territory · Premier Prospect</title><link rel="stylesheet" href="pp.css"><script src="pp.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<style>#map{height:420px;border-radius:14px;border:1px solid var(--line)} .city{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--line);font-size:13px} .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px} @media(max-width:900px){.grid{grid-template-columns:1fr}} .rule{padding:8px 0;border-bottom:1px solid var(--line);font-size:12px}</style></head>
+<body><script>PP.shell('My territory','Your cities, your threshold, your routing. Everything here is yours alone.')</script>
+<main class="content">
+  <div class="grid">
+    <div>
+      <div class="card"><h3>Conviction threshold <span id="thr" class="mono" style="color:var(--gold)"></span></h3>
+        <input type="range" id="thrRange" min="50" max="95" step="5" style="width:100%"><div class="muted" style="font-size:12px">Leads below this stay out of your list.</div></div>
+      <div class="card"><h3>Cities</h3><div id="cities" class="muted">Loading…</div>
+        <div class="muted" style="font-size:12px;margin-top:8px">Tick a whole county or individual cities. Saved to your account — the app shows the same list.</div></div>
+      <div class="card" id="rulesCard" style="display:none"><h3>Routing rules <span class="muted" style="font-weight:400;font-size:12px">(admin)</span></h3><div id="rules"></div>
+        <details style="margin-top:8px"><summary style="cursor:pointer;color:var(--gold);font-size:13px">Add a rule</summary>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px;font-size:12px">
+            <input id="rName" placeholder="Rule name"><input id="rPri" type="number" placeholder="Priority (low first)" value="50">
+            <select id="rCounty"><option value="">Any county</option><option>Utah</option><option>Salt Lake</option><option>Summit</option><option>Wasatch</option></select>
+            <select id="rCity"><option value="">Any city</option></select>
+            <select id="rConv"><option value="">Any conviction</option><option value="60">60+</option><option value="75">75+</option><option value="85">85+</option><option value="95">95+</option></select>
+            <select id="rSig"><option value="">Any signal</option></select>
+            <select id="rTo"><option value="">Unassigned</option></select><input id="rSplit" type="number" placeholder="Split %" value="100">
+          </div><button class="btn" style="margin-top:8px" onclick="addRule()">Save rule</button></details></div>
+    </div>
+    <div>
+      <div class="card"><h3>Map <span id="pinN" class="muted" style="font-weight:400;font-size:12px"></span></h3><div id="map"></div>
+        <div class="muted" style="font-size:11px;margin-top:6px">● auction scheduled &nbsp;● conviction 85+ &nbsp;● in territory. Pins come from county parcel geometry; leads without a resolved parcel aren't pinned.</div></div>
+      <div class="card"><h3>My leads <span id="myN" class="muted" style="font-weight:400;font-size:12px"></span></h3><div id="mine" class="muted">Loading…</div></div>
+      <div class="card"><h3>Worth a look <span class="muted" style="font-weight:400;font-size:12px">outside my cities · $500k+ · 85+</span></h3><div id="worth" class="muted">Loading…</div></div>
+    </div>
+  </div>
+</main>
+<script>
+const J=x=>typeof x==='string'?JSON.parse(x):x; let ME=null, CITIES=[], TERR=[], AGENTS=[], map=null, layer=null;
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+async function load(){
+  ME=J(await PP.rpc('pp_ensure_agent',{p_display_name:null}));
+  document.getElementById('thr').textContent=ME.min_conviction; document.getElementById('thrRange').value=ME.min_conviction;
+  CITIES=J(await PP.rpc('pp_app_cities',{})); TERR=await PP.get('pp_agent_territories?select=county,city&user_id=eq.'+ME.user_id);
+  renderCities(); await renderLeads();
+  if(ME.is_admin){ document.getElementById('rulesCard').style.display=''; AGENTS=await PP.get('pp_agents?select=user_id,display_name&order=display_name'); await renderRules(); }
+}
+function has(county,city){ return TERR.some(t=>t.county===county&&(t.city===city||t.city==='*')); }
+function renderCities(){
+  const el=document.getElementById('cities'); const counties=['Utah','Salt Lake','Summit','Wasatch'];
+  el.innerHTML=counties.map(c=>{ const whole=TERR.some(t=>t.county===c&&t.city==='*');
+    return `<details ${TERR.some(t=>t.county===c)?'open':''}><summary style="cursor:pointer;font-weight:600;font-size:13px">${c} County <span class="muted" style="font-weight:400">${TERR.filter(t=>t.county===c).length}</span></summary>
+      <label class="city"><span>Whole county</span><input type="checkbox" ${whole?'checked':''} onchange="setT('${c}','*',this.checked)"></label>
+      ${CITIES.filter(x=>x.county===c).map(x=>`<label class="city"><span>${esc(x.name)} <span class="muted">${x.parcels_known||''}</span></span><input type="checkbox" ${has(c,x.name)?'checked':''} ${whole?'disabled':''} onchange="setT('${c}','${esc(x.name).replace(/'/g,"\\\\'")}',this.checked)"></label>`).join('')}</details>`; }).join('');
+}
+async function setT(county,city,on){
+  if(on) await PP.post('pp_agent_territories',{user_id:ME.user_id,county,city}); else await PP.del(`pp_agent_territories?user_id=eq.${ME.user_id}&county=eq.${encodeURIComponent(county)}&city=eq.${encodeURIComponent(city)}`);
+  TERR=await PP.get('pp_agent_territories?select=county,city&user_id=eq.'+ME.user_id); renderCities(); await renderLeads();
+}
+document.getElementById('thrRange').addEventListener('change',async e=>{ await PP.patch('pp_agents?user_id=eq.'+ME.user_id,{min_conviction:+e.target.value}); document.getElementById('thr').textContent=e.target.value; await renderLeads(); });
+function row(l){ return `<div class="city" style="cursor:pointer" onclick="PP.openLeadByKey('${l.entity_key}')"><span><b>${esc(l.owner_display)}</b> <span class="muted">${esc(l.city||l.county)}${l.assigned_agent?' · → '+esc(l.assigned_agent)+(l.split_pct<100?' '+l.split_pct+'%':''):''}</span></span><span class="mono" style="color:var(--gold)">${l.conviction_score}</span></div>`; }
+async function renderLeads(){
+  const mine=J(await PP.rpc('pp_app_territory_leads',{p_limit:500,p_worth_a_look:false})); const worth=J(await PP.rpc('pp_app_territory_leads',{p_limit:100,p_worth_a_look:true}));
+  document.getElementById('myN').textContent=mine.length; document.getElementById('mine').innerHTML=mine.length?mine.slice(0,40).map(row).join('')+(mine.length>40?`<div class="muted" style="font-size:12px;padding:6px 0">…and ${mine.length-40} more in Seller leads</div>`:''):'<div class="muted">No leads in your cities above your threshold. Add a city or lower the threshold.</div>';
+  document.getElementById('worth').innerHTML=worth.length?worth.slice(0,20).map(row).join(''):'<div class="muted">Nothing outside your cities meets the bar right now.</div>';
+  const pts=mine.filter(l=>l.lon&&l.lat);
+  if(!map){ map=L.map('map',{zoomControl:true}); L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18,attribution:'© OpenStreetMap'}).addTo(map); }
+  if(layer) layer.remove(); layer=L.layerGroup().addTo(map);
+  pts.forEach(l=>{ const c=(l.max_stage||0)>=5?'#e8704f':l.conviction_score>=85?'#d9b87d':'#e8ad54';
+    L.circleMarker([l.lat,l.lon],{radius:6,color:'#000',weight:1,fillColor:c,fillOpacity:.95}).bindPopup(`<b>${esc(l.owner_display)}</b><br>${esc(l.city||'')} · ${l.conviction_score}${l.assessed_value?' · $'+Math.round(l.assessed_value).toLocaleString():''}<br><a href="#" onclick="PP.openLeadByKey('${l.entity_key}');return false">Open</a>`).addTo(layer); });
+  document.getElementById('pinN').textContent=pts.length+' pins'; if(pts.length) map.fitBounds(pts.map(l=>[l.lat,l.lon]),{padding:[20,20]}); else map.setView([40.35,-111.75],9);
+}
+async function renderRules(){
+  const rules=await PP.get('pp_routing_rules?select=*&order=priority'); const name=id=>(AGENTS.find(a=>a.user_id===id)||{}).display_name||'unassigned';
+  document.getElementById('rules').innerHTML=rules.length?rules.map(r=>`<div class="rule"><span class="mono muted">${r.priority}</span> <b>${esc(r.name)}</b> <span class="muted">${[r.county&&'county '+r.county,r.city&&'city '+r.city,r.min_conviction&&'conviction ≥ '+r.min_conviction,r.signal_type&&'signal '+r.signal_type].filter(Boolean).join(' · ')||'matches everything'}</span> → <span style="color:var(--gold)">${esc(name(r.assign_to))} ${r.split_pct}%</span> <a href="#" onclick="delRule(${r.id});return false" style="color:var(--hot);margin-left:8px">remove</a></div>`).join(''):'<div class="muted" style="font-size:12px">No rules — every lead is unassigned until one matches.</div>';
+  document.getElementById('rCity').innerHTML='<option value="">Any city</option>'+CITIES.map(c=>`<option>${esc(c.name)}</option>`).join('');
+  document.getElementById('rTo').innerHTML='<option value="">Unassigned</option>'+AGENTS.map(a=>`<option value="${a.user_id}">${esc(a.display_name)}</option>`).join('');
+  const layers=J(await PP.rpc('pp_app_signal_layers',{})); document.getElementById('rSig').innerHTML='<option value="">Any signal</option>'+layers.map(l=>`<option value="${l.signal_type}">${l.signal_type.replace(/_/g,' ')}</option>`).join('');
+}
+async function addRule(){ const g=id=>document.getElementById(id).value; if(!g('rName')) return alert('Name the rule.');
+  await PP.post('pp_routing_rules',{name:g('rName'),priority:+g('rPri')||50,active:true,county:g('rCounty')||null,city:g('rCity')||null,min_conviction:g('rConv')?+g('rConv'):null,signal_type:g('rSig')||null,assign_to:g('rTo')||null,split_pct:+g('rSplit')||100}); await renderRules(); await renderLeads(); }
+async function delRule(id){ await PP.del('pp_routing_rules?id=eq.'+id); await renderRules(); await renderLeads(); }
+load();
+</script></body></html>
