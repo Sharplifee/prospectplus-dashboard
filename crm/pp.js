@@ -8,6 +8,13 @@ const PP = (() => {
   const sess = () => { try{ return JSON.parse(localStorage.getItem('pp.session')||'null'); }catch{ return null; } };
   const H = () => ({apikey:KEY, Authorization:'Bearer '+((sess()||{}).access_token||KEY), 'Content-Type':'application/json'});
 
+  async function write(method, path, body){
+    if(sess() && Date.now() > ((sess().expires_at)||0) - 60000) await refresh();
+    const r=await fetch(`${URL}/rest/v1/${path}`,{method,headers:{...H(),Prefer:'return=minimal'},body:body?JSON.stringify(body):undefined});
+    if(r.status===401){ signOut(); return null; } if(!r.ok) throw new Error(method+' '+r.status+' '+(await r.text()).slice(0,120)); return true;
+  }
+  const post=(p,b)=>write('POST',p,b), patch=(p,b)=>write('PATCH',p,b), del=p=>write('DELETE',p);
+  async function openLeadByKey(key){ const rows=await get('pp_conviction_queue?select=*&entity_key=eq.'+encodeURIComponent(key)+'&limit=1'); if(rows&&rows[0]) openLead(rows[0]); }
   async function get(path){
     const r = await fetch(SB+'/rest/v1/'+path, {headers:H()});
     if(!r.ok) throw new Error('HTTP '+r.status+' — '+(await r.text()).slice(0,140));
@@ -48,6 +55,7 @@ const PP = (() => {
   const NAV = [
     {grp:'Work'},
     {href:'index.html',   ic:'◎', label:'Overview'},
+    {href:'territory.html', ic:'⌖', label:'My territory'},
     {href:'leads.html',   ic:'▤', label:'Seller leads', key:'queue'},
     {href:'buyers.html',  ic:'◈', label:'Buyers', key:'buyers'},
     {href:'pipeline.html',ic:'▥', label:'Pipeline'},
@@ -58,6 +66,8 @@ const PP = (() => {
   ];
 
   function shell(title, desc, actionsHtml=''){
+    if(!sess()){ location.href='login.html'; return; }
+    requireAuth().then(ok=>{ if(ok) rpc('pp_ensure_agent',{p_display_name:null}).then(a=>{ try{ window.PP_me = typeof a==='string'?JSON.parse(a):a; }catch(e){} }).catch(()=>{}); });
     const here = location.pathname.split('/').pop() || 'index.html';
     const nav = NAV.map(n => n.grp
       ? `<div class="grp">${n.grp}</div>`
@@ -75,7 +85,7 @@ const PP = (() => {
         <div class="body" id="body"></div>
       </div>
       <div class="scrim" id="scrim" onclick="PP.closeDrawer()"></div>
-      <div class="drawer" id="drawer"></div>`;
+      <div class="drawer" id="drawer"><div style="margin-top:8px;display:flex;justify-content:space-between;align-items:center"><span>${esc((sess()||{}).email||'')}</span><a href="#" onclick="PP.signOut();return false" style="color:var(--gold)">Sign out</a></div></div>`;
     rpc('pp_app_overview').then(o => {
       if(!o) return;
       const q=document.querySelector('[data-ct="queue"]'); if(q) q.textContent=o.queue;
@@ -177,5 +187,5 @@ const PP = (() => {
   const bar = (label,v,total,cls='') => `<div class="fbar ${cls}"><div class="t"><span>${label}</span><b>${v.toLocaleString()}</b></div><div class="b"><i style="width:${Math.max(1,100*v/Math.max(total,1))}%"></i></div></div>`;
   const ago = iso => { if(!iso) return '—'; const m=(Date.now()-new Date(iso))/60000; return m<60?Math.round(m)+'m ago':m<1440?Math.round(m/60)+'h ago':Math.round(m/1440)+'d ago'; };
 
-  return {get, rpc, shell, signIn, signOut, requireAuth, sess, cls, tier, stage, pill, money, esc, openLead, closeDrawer, rec, empty, err, bar, ago};
+  return {get, post, patch, del, rpc, shell, signIn, signOut, requireAuth, sess, cls, tier, stage, pill, money, esc, openLead, openLeadByKey, closeDrawer, rec, empty, err, bar, ago};
 })();
