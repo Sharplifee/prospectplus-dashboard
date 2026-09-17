@@ -1,0 +1,34 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Ledger · Premier Prospect</title><link rel="stylesheet" href="pp.css"><script src="pp.js"></script>
+<style>.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:16px} .kpi{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px} .kpi .n{font-size:26px;font-weight:700;color:var(--gold)} .kpi .l{font-size:11px;color:var(--ink2);letter-spacing:.08em;text-transform:uppercase} .stage{font-size:11px;padding:2px 8px;border-radius:999px;border:1px solid var(--line)} .stage.closed{color:var(--ok);border-color:var(--ok)} .stage.listing,.stage.under_contract{color:var(--gold);border-color:var(--gold)} .form{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:6px;font-size:12px} .form input,.form select{width:100%}</style></head>
+<body><script>PP.shell('Ledger','Your deals and commission. Expected commission = list price × your rate; every number here is one you entered.')</script>
+<main class="content">
+  <div class="kpis"><div class="kpi"><div class="n" id="kPipe">—</div><div class="l">Commission in pipeline</div></div><div class="kpi"><div class="n" id="kYtd">—</div><div class="l">Closed this year</div></div><div class="kpi"><div class="n" id="kAll">—</div><div class="l">Closed all-time</div></div><div class="kpi"><div class="n" id="kDeals">—</div><div class="l">Open deals</div></div></div>
+  <div class="card"><h3>Deals <span id="byStage" class="muted" style="font-weight:400;font-size:12px"></span></h3><div id="deals" class="muted">Loading…</div></div>
+  <div class="card"><h3>Log a deal</h3><div class="form">
+    <input id="dName" placeholder="Owner name (search the queue)" list="owners"><datalist id="owners"></datalist>
+    <select id="dStage"><option value="appointment">Appointment</option><option value="listing">Listing</option><option value="under_contract">Under contract</option><option value="closed">Closed</option><option value="lost">Lost</option></select>
+    <input id="dPrice" type="number" placeholder="List price"><input id="dPct" type="number" step="0.25" value="3" placeholder="Commission %">
+    <input id="dClose" type="date"><input id="dNotes" placeholder="Notes"></div>
+    <button class="btn pri" style="margin-top:8px" onclick="saveDeal()">Save deal</button><span id="dMsg" class="muted" style="font-size:12px;margin-left:8px"></span></div>
+</main>
+<script>
+const J=x=>typeof x==='string'?JSON.parse(x):x; let LED=null, Q=[]; const esc=PP.esc, money=v=>'$'+Math.round(v||0).toLocaleString();
+async function load(){
+  LED=J(await PP.rpc('pp_app_ledger',{})); const d=LED.deals||[];
+  document.getElementById('kPipe').textContent=money(LED.pipeline_value); document.getElementById('kYtd').textContent=money(LED.closed_ytd); document.getElementById('kAll').textContent=money(LED.closed_value);
+  document.getElementById('kDeals').textContent=d.filter(x=>!['closed','lost'].includes(x.stage)).length;
+  document.getElementById('byStage').textContent=Object.entries(LED.deals_by_stage||{}).map(([k,v])=>k.replace('_',' ')+' '+v).join(' · ');
+  document.getElementById('deals').innerHTML=d.length?`<table class="tbl"><thead><tr><th>Owner</th><th>Stage</th><th>List price</th><th>Rate</th><th>Commission</th><th>Expected close</th><th></th></tr></thead><tbody>${d.map(x=>`<tr class="row"><td><b>${esc(x.owner_display||x.entity_key)}</b>${x.notes?'<div class="muted" style="font-size:11px">'+esc(x.notes)+'</div>':''}</td><td><span class="stage ${esc(x.stage)}">${esc(x.stage.replace('_',' '))}</span></td><td>${x.list_price?money(x.list_price):'—'}</td><td>${x.commission_pct??'—'}%</td><td style="color:var(--gold)"><b>${money(x.commission)}</b></td><td>${x.closed_at||x.expected_close||'—'}</td><td><select onchange="stage(${x.id},this.value,${x.list_price||0},${x.commission_pct||3},'${esc(x.entity_key)}')" style="font-size:11px"><option value="">move…</option>${['appointment','listing','under_contract','closed','lost'].filter(s=>s!==x.stage).map(s=>`<option value="${s}">${s.replace('_',' ')}</option>`).join('')}</select></td></tr>`).join('')}</tbody></table>`:'<div class="muted">No deals yet. Log one below, or record an appointment or listing outcome on a lead.</div>';
+  Q=await PP.get('pp_conviction_queue?select=entity_key,owner_display,assessed_value&order=conviction_score.desc&limit=1000');
+  document.getElementById('owners').innerHTML=Q.map(q=>`<option value="${esc(q.owner_display)}">`).join('');
+  document.getElementById('dName').addEventListener('change',()=>{ const q=Q.find(x=>x.owner_display===document.getElementById('dName').value); if(q&&q.assessed_value&&!document.getElementById('dPrice').value) document.getElementById('dPrice').value=Math.round(q.assessed_value); });
+}
+async function saveDeal(){
+  const g=id=>document.getElementById(id).value; const q=Q.find(x=>x.owner_display===g('dName')); const m=document.getElementById('dMsg');
+  if(!q) return m.textContent='Pick an owner from the queue list.';
+  try{ await PP.rpc('pp_save_deal',{p_id:null,p_entity_key:q.entity_key,p_stage:g('dStage'),p_list_price:g('dPrice')?+g('dPrice'):null,p_commission_pct:g('dPct')?+g('dPct'):null,p_expected_close:g('dClose')||null,p_notes:g('dNotes')||null});
+    m.textContent='Saved.'; ['dName','dPrice','dNotes','dClose'].forEach(i=>document.getElementById(i).value=''); await load(); }catch(e){ m.textContent='Failed: '+e.message; }
+}
+async function stage(id,st,price,pct,key){ if(!st) return; try{ await PP.rpc('pp_save_deal',{p_id:id,p_entity_key:key,p_stage:st,p_list_price:price||null,p_commission_pct:pct,p_expected_close:null,p_notes:null}); await load(); }catch(e){ alert('Failed: '+e.message); } }
+load();
+</script></body></html>
