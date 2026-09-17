@@ -21,6 +21,11 @@
         <button class="btn" style="margin-top:8px" onclick="invite()">Send invite</button> <span id="invMsg" class="muted" style="font-size:12px"></span>
         <div class="muted" style="font-size:12px;margin-top:6px">They get an email link, set a password, and land as a normal agent with no territory. Accounts are invite-only.</div>
         <div id="agentList" style="margin-top:10px"></div></div>
+      <div class="card" id="inviteCard" style="display:none"><h3>Invite an agent <span class="muted" style="font-weight:400;font-size:12px">(admin)</span></h3>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:12px"><input id="iEmail" placeholder="Email" type="email"><input id="iName" placeholder="Display name (optional)"></div>
+        <label style="font-size:12px;display:block;margin-top:6px"><input type="checkbox" id="iAdmin"> Make admin</label>
+        <button class="btn" style="margin-top:8px" onclick="invite()">Send invite</button><div id="iMsg" class="muted" style="font-size:12px;margin-top:6px"></div>
+        <div id="agentList" class="muted" style="font-size:11px;margin-top:6px"></div></div>
       <div class="card" id="rulesCard" style="display:none"><h3>Routing rules <span class="muted" style="font-weight:400;font-size:12px">(admin)</span></h3><div id="rules"></div>
         <details style="margin-top:8px"><summary style="cursor:pointer;color:var(--gold);font-size:13px">Add a rule</summary>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px;font-size:12px">
@@ -93,6 +98,14 @@ async function renderRules(){
   document.getElementById('rCity').innerHTML='<option value="">Any city</option>'+CITIES.map(c=>`<option>${esc(c.name)}</option>`).join('');
   document.getElementById('rTo').innerHTML='<option value="">Unassigned</option>'+AGENTS.map(a=>`<option value="${a.user_id}">${esc(a.display_name)}</option>`).join('');
   const layers=J(await PP.rpc('pp_app_signal_layers',{})); document.getElementById('rSig').innerHTML='<option value="">Any signal</option>'+layers.map(l=>`<option value="${l.signal_type}">${l.signal_type.replace(/_/g,' ')}</option>`).join('');
+}
+function renderAgents(){ document.getElementById('agentList').textContent='Agents: '+AGENTS.map(a=>a.display_name+(a.is_admin?' (admin)':'')).join(', '); }
+async function invite(){
+  const email=document.getElementById('iEmail').value.trim(), name=document.getElementById('iName').value.trim(), admin=document.getElementById('iAdmin').checked; const m=document.getElementById('iMsg');
+  if(!email) return m.textContent='Enter an email.';
+  const s=PP.sess(); const r=await fetch('https://lbvaosyfikkpvcwksiph.supabase.co/functions/v1/pp-invite',{method:'POST',headers:{apikey:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxidmFvc3lmaWtrcHZjd2tzaXBoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwMDg0MDksImV4cCI6MjA5MDU4NDQwOX0.Gh9whjmUPz4rdKYr5yo8ZHS0nSNpkQUOwdIladX6mG4',Authorization:'Bearer '+s.access_token,'Content-Type':'application/json'},body:JSON.stringify({email,display_name:name||null,make_admin:admin})});
+  const j=await r.json(); m.textContent=j.ok?'Invite sent to '+email+'.':'Failed: '+(j.error||r.status);
+  if(j.ok){ AGENTS=await PP.get('pp_agents?select=user_id,display_name,is_admin,email&order=display_name'); renderAgents(); await renderRules(); document.getElementById('iEmail').value=''; }
 }
 async function addRule(){ const g=id=>document.getElementById(id).value; if(!g('rName')) return alert('Name the rule.');
   await PP.post('pp_routing_rules',{name:g('rName'),priority:+g('rPri')||50,active:true,county:g('rCounty')||null,city:g('rCity')||null,min_conviction:g('rConv')?+g('rConv'):null,signal_type:g('rSig')||null,assign_to:g('rTo')||null,split_pct:+g('rSplit')||100}); await renderRules(); await renderLeads(); }
