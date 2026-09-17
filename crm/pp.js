@@ -10,7 +10,7 @@ const PP = (() => {
 
   async function write(method, path, body){
     if(sess() && Date.now() > ((sess().expires_at)||0) - 60000) await refresh();
-    const r=await fetch(`${URL}/rest/v1/${path}`,{method,headers:{...H(),Prefer:'return=minimal'},body:body?JSON.stringify(body):undefined});
+    const r=await fetch(`${SB}/rest/v1/${path}`,{method,headers:{...H(),Prefer:'return=minimal'},body:body?JSON.stringify(body):undefined});
     if(r.status===401){ signOut(); return null; } if(!r.ok) throw new Error(method+' '+r.status+' '+(await r.text()).slice(0,120)); return true;
   }
   const post=(p,b)=>write('POST',p,b), patch=(p,b)=>write('PATCH',p,b), del=p=>write('DELETE',p);
