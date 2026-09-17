@@ -41,9 +41,14 @@ async function load(){
       // first page renders immediately; remaining pages are fetched in parallel and appended, never re-rendered
       const first=await PP.get(p+'&limit=1000&offset=0'); rows=first.slice(); window._rows=rows; render(rows, first.length===1000);
       if(first.length===1000){
-        const pages=await Promise.all([1,2,3,4,5,6,7].map(n=>PP.get(p+'&limit=1000&offset='+(n*1000)).catch(()=>[])));
+        // sequential on purpose: parallel hits on the queue view trip the DB statement timeout and drop pages
         const tb=document.querySelector('#rows tbody');
-        pages.forEach(pg=>{ if(!pg.length) return; const start=rows.length; rows=rows.concat(pg); window._rows=rows; if(tb) tb.insertAdjacentHTML('beforeend', rowsHtml(pg,start)); });
+        for(let off=1000;;off+=1000){
+          const pg=await PP.get(p+'&limit=1000&offset='+off); if(!pg.length) break;
+          const start=rows.length; rows=rows.concat(pg); window._rows=rows; if(tb) tb.insertAdjacentHTML('beforeend', rowsHtml(pg,start));
+          document.getElementById('cnt').textContent=rows.length+' leads'+(pg.length===1000?' — loading more…':'');
+          if(pg.length<1000) break;
+        }
         document.getElementById('cnt').textContent=rows.length+' leads';
       }
       return;
