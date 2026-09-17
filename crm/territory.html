@@ -25,7 +25,7 @@
     </div>
     <div>
       <div class="card"><h3>Map <span id="pinN" class="muted" style="font-weight:400;font-size:12px"></span></h3><div id="map"></div>
-        <div class="muted" style="font-size:11px;margin-top:6px">● auction scheduled &nbsp;● conviction 85+ &nbsp;● in territory. Pins come from county parcel geometry; leads without a resolved parcel aren't pinned.</div></div>
+        <div class="muted" style="font-size:11px;margin-top:6px">Leads: ● auction ● 85+ ● in territory. Value: sized and coloured by assessed value. Activity: every city with leads, circle size = new signals in 30 days. Pins come from county parcel geometry; leads without a resolved parcel aren't pinned.</div></div>
       <div class="card"><h3>My leads <span id="myN" class="muted" style="font-weight:400;font-size:12px"></span></h3><div id="mine" class="muted">Loading…</div></div>
       <div class="card"><h3>Worth a look <span class="muted" style="font-weight:400;font-size:12px">outside my cities · $500k+ · 85+</span></h3><div id="worth" class="muted">Loading…</div></div>
     </div>
@@ -61,10 +61,17 @@ async function renderLeads(){
   document.getElementById('worth').innerHTML=worth.length?worth.slice(0,20).map(row).join(''):'<div class="muted">Nothing outside your cities meets the bar right now.</div>';
   const pts=mine.filter(l=>l.lon&&l.lat);
   if(!map){ map=L.map('map',{zoomControl:true}); L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18,attribution:'© OpenStreetMap'}).addTo(map); }
-  if(layer) layer.remove(); layer=L.layerGroup().addTo(map);
-  pts.forEach(l=>{ const c=(l.max_stage||0)>=5?'#e8704f':l.conviction_score>=85?'#d9b87d':'#e8ad54';
-    L.circleMarker([l.lat,l.lon],{radius:6,color:'#000',weight:1,fillColor:c,fillOpacity:.95}).bindPopup(`<b>${esc(l.owner_display)}</b><br>${esc(l.city||'')} · ${l.conviction_score}${l.assessed_value?' · $'+Math.round(l.assessed_value).toLocaleString():''}<br><a href="#" onclick="PP.openLeadByKey('${l.entity_key}');return false">Open</a>`).addTo(layer); });
-  document.getElementById('pinN').textContent=pts.length+' pins'; if(pts.length) map.fitBounds(pts.map(l=>[l.lat,l.lon]),{padding:[20,20]}); else map.setView([40.35,-111.75],9);
+  if(layer) layer.remove(); if(window._ctl) window._ctl.remove();
+  // three layers: Leads (pins by auction/conviction), Value (pins by assessed value), Activity (city circles from the nightly cache)
+  const popup=l=>`<b>${esc(l.owner_display)}</b><br>${esc(l.city||'')} · ${l.conviction_score}${l.assessed_value?' · $'+Math.round(l.assessed_value).toLocaleString():''}<br><a href="#" onclick="PP.openLeadByKey('${l.entity_key}');return false">Open</a>`;
+  const leadsL=L.layerGroup(pts.map(l=>{ const c=(l.max_stage||0)>=5?'#e8704f':l.conviction_score>=85?'#d9b87d':'#e8ad54'; return L.circleMarker([l.lat,l.lon],{radius:6,color:'#000',weight:1,fillColor:c,fillOpacity:.95}).bindPopup(popup(l)); }));
+  const vcol=v=>v==null?'#888':v>=1e6?'#e8704f':v>=6e5?'#d9b87d':v>=3e5?'#e8ad54':'#999';
+  const valueL=L.layerGroup(pts.map(l=>L.circleMarker([l.lat,l.lon],{radius:l.assessed_value?Math.min(12,4+l.assessed_value/1.5e5):4,color:'#000',weight:1,fillColor:vcol(l.assessed_value),fillOpacity:.9}).bindPopup(popup(l)+(l.assessed_value?'':'<br><i>no value yet</i>'))));
+  const act=J(await PP.rpc('pp_app_city_activity',{}).catch(()=>'[]'))||[];
+  const actL=L.layerGroup(act.map(c=>L.circleMarker([c.lat,c.lon],{radius:Math.min(28,8+c.new_30d/6),color:'#d9b87d',weight:1.5,fillColor:'#d9b87d',fillOpacity:.3}).bindTooltip(`${esc(c.city)} · ${c.leads} leads · +${c.new_7d} this week`,{permanent:false}).bindPopup(`<b>${esc(c.city)}</b>, ${esc(c.county)} County<br>${c.leads} leads in queue · ${c.strong} at 85+ · ${c.auction} auction scheduled<br>+${c.new_7d} new this week · +${c.new_30d} in 30 days${c.avg_value?'<br>avg assessed $'+Math.round(c.avg_value).toLocaleString():''}`)));
+  layer=leadsL.addTo(map);
+  window._ctl=L.control.layers({'Leads':leadsL,'Value':valueL,'Activity':actL},null,{collapsed:false,position:'topright'}).addTo(map);
+  document.getElementById('pinN').textContent=pts.length+' pins · '+act.length+' cities'; if(pts.length) map.fitBounds(pts.map(l=>[l.lat,l.lon]),{padding:[20,20]}); else map.setView([40.35,-111.75],9);
 }
 async function addRule(){ const g=id=>document.getElementById(id).value; if(!g('rName')) return alert('Name the rule.');
   await PP.post('pp_routing_rules',{name:g('rName'),priority:+g('rPri')||50,active:true,county:g('rCounty')||null,city:g('rCity')||null,min_conviction:g('rConv')?+g('rConv'):null,signal_type:g('rSig')||null,assign_to:g('rTo')||null,split_pct:+g('rSplit')||100}); await renderRules(); await renderLeads(); }
