@@ -15,7 +15,7 @@
   <label>Password</label><input id="p" type="password" autocomplete="current-password">
   <button class="btn pri" id="go" onclick="go()">Sign in</button>
   <div class="e" id="err"></div>
-  <div style="display:flex;justify-content:space-between;margin-top:12px;font-size:12px"><a href="#" onclick="signup();return false" style="color:var(--gold)">Create an account</a><a href="#" onclick="forgot();return false" class="muted">Forgot password</a></div>
+  <div style="display:flex;justify-content:space-between;margin-top:12px;font-size:12px"><span class="muted">Invite-only — ask your admin for a link</span><a href="#" onclick="forgot();return false" class="muted">Forgot password</a></div>
   <p class="muted" style="margin-top:18px;font-size:11.5px">The first account on a new system becomes its admin. This system contains public-record information about homeowners; treat it accordingly.</p>
 </div>
 <script>
@@ -37,5 +37,5 @@ async function forgot(){ const em=document.getElementById('e').value.trim(); if(
   msg(r.ok?'Check your email for a reset link.':'Could not send a reset email.'); }
 (function(){ const h=new URLSearchParams(location.hash.slice(1)); const t=h.get('access_token'); if(!t) return;
   localStorage.setItem('pp.session',JSON.stringify({access_token:t,refresh_token:h.get('refresh_token')||'',expires_at:Date.now()+(+h.get('expires_in')||3600)*1000}));
-  location.href = h.get('type')==='recovery' ? 'reset.html' : 'index.html'; })();
+  location.href = (h.get('type')==='recovery' || h.get('type')==='invite') ? 'reset.html' : 'index.html'; })();
 </script></body></html>
