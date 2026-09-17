@@ -54,7 +54,7 @@ async function load(){
 function rowsHtml(rows,start){ return rows.map((x,k)=>{ const i=start+k; return `<tr class="row" onclick="PP.openLead(window._rows[${i}])"><td><span class="score ${PP.cls(x.conviction_score)}">${x.conviction_score}</span><div class="muted" style="font-size:10px">${PP.tier(x.conviction_score)}</div></td>
         <td><b>${PP.esc(x.owner_display||'—')}</b><div class="muted" style="font-size:11px">${PP.esc(x.city||x.county||'')} · ${PP.esc((x.property_ref||'').slice(0,40))}${x.assigned_agent?' · → '+PP.esc(x.assigned_agent)+(x.split_pct&&x.split_pct<100?' '+x.split_pct+'%':''):''}</div></td>
         <td><span class="${x.max_stage>=4?'s-hot':'muted'}" style="font-size:12px">${PP.stage(x.max_stage)}</span></td>
-        <td class="why">${PP.esc(x.why||'')}</td><td>${x.signal_count??'—'}</td><td>${PP.pill(x.lifecycle_state)}</td></tr>`); }).join(''); }
+        <td class="why">${PP.esc(x.why||'')}</td><td>${x.signal_count??'—'}</td><td>${PP.pill(x.lifecycle_state)}</td></tr>`; }).join(''); }
 function render(rows, more){
       document.getElementById('cnt').textContent=rows.length+' leads'+(more?' — loading more…':'');
       const r=document.getElementById('rows');
