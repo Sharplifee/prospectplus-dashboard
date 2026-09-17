@@ -1,26 +1,10 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Sign in — Premier Prospect</title>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="pp.css"><script src="pp.js"></script>
-<style>body{display:flex;align-items:center;justify-content:center;background:var(--bg)}
-.box{width:380px;max-width:92vw;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:34px}
-.box .nm{font-size:22px;font-weight:300;letter-spacing:-.02em}.box .nm sup{font-size:9px;color:var(--gold);vertical-align:super}
-.box .sub{font-size:10.5px;color:var(--dim);letter-spacing:.14em;text-transform:uppercase;margin:3px 0 26px}
-.box label{display:block;font-size:12px;color:var(--dim);margin:12px 0 5px}.box input{width:100%}
-.box .btn{width:100%;justify-content:center;margin-top:18px;padding:11px}
-.box .e{color:#f3b1a4;font-size:12.5px;margin-top:10px;min-height:16px}</style></head>
-<body><div class="box">
-  <div class="nm">Premier Prospect<sup>™</sup></div><div class="sub">A Williams &amp; Co. System</div>
-  <label>Email</label><input id="e" type="email" autocomplete="username">
-  <label>Password</label><input id="p" type="password" autocomplete="current-password">
-  <button class="btn pri" id="go" onclick="go()">Sign in</button>
-  <div class="e" id="err"></div>
-  <p class="muted" style="margin-top:18px;font-size:11.5px">Access is by invitation. This system contains public-record information about homeowners; treat it accordingly.</p>
-</div>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Set a new password · Premier Prospect</title><link rel="stylesheet" href="pp.css"><script src="pp.js"></script>
+<style>body{display:grid;place-items:center;min-height:100vh}.box{width:min(380px,92vw);background:var(--card);border:1px solid var(--line);border-radius:16px;padding:28px}.box label{display:block;font-size:12px;color:var(--ink2);margin:14px 0 6px}.box input{width:100%;background:#0f0f14;border:1px solid var(--line);border-radius:10px;padding:10px 12px;color:var(--ink);font-size:14px}.box .btn{width:100%;justify-content:center;margin-top:18px;padding:11px}.box .e{font-size:12.5px;margin-top:10px;min-height:16px}</style></head>
+<body><div class="box"><div class="nm">Set a new password</div>
+  <label>New password</label><input id="p" type="password" autocomplete="new-password">
+  <button class="btn pri" onclick="save()">Save</button><div class="e" id="err"></div></div>
 <script>
-if(PP.sess()) location.href='index.html';
-async function go(){ const b=document.getElementById('go'); b.disabled=true; document.getElementById('err').textContent='';
-  try{ await PP.signIn(document.getElementById('e').value.trim(), document.getElementById('p').value); location.href='index.html'; }
-  catch(x){ document.getElementById('err').textContent=x.message; b.disabled=false; } }
-document.getElementById('p').onkeydown=e=>{ if(e.key==='Enter') go(); };
+async function save(){ const s=PP.sess(); if(!s) return location.href='login.html'; const pw=document.getElementById('p').value; if(pw.length<8) return document.getElementById('err').textContent='At least 8 characters.';
+  const r=await fetch('https://lbvaosyfikkpvcwksiph.supabase.co/auth/v1/user',{method:'PUT',headers:{apikey:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxidmFvc3lmaWtrcHZjd2tzaXBoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwMDg0MDksImV4cCI6MjA5MDU4NDQwOX0.Gh9whjmUPz4rdKYr5yo8ZHS0nSNpkQUOwdIladX6mG4',Authorization:'Bearer '+s.access_token,'Content-Type':'application/json'},body:JSON.stringify({password:pw})});
+  document.getElementById('err').textContent = r.ok ? 'Saved. Taking you in.' : 'Could not save; the link may have expired.'; if(r.ok) setTimeout(()=>location.href='index.html',800); }
 </script></body></html>
