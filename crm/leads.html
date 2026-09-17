@@ -38,13 +38,14 @@ async function load(){
     }
     if((F.scope||'mine')==='all'){
       // PostgREST caps a request at 1,000 rows — page through the whole queue
-      // first page renders immediately; remaining pages are fetched in parallel and appended, never re-rendered
-      const first=await PP.get(p+'&limit=1000&offset=0'); rows=first.slice(); window._rows=rows; render(rows, first.length===1000);
+      // pp_app_queue checks the agent gate once and reads at service speed (paging the view under a user token
+      // re-evaluated row-level security per skipped row: 0.6s → 4s per page). First page renders at once; the rest append.
+      const J=x=>typeof x==='string'?JSON.parse(x):x; const args=off=>({p_offset:off,p_limit:1000,p_min_conviction:F.conv||0,p_min_docs:F.docs||1,p_auction:!!F.auction,p_equity:!!F.equity,p_county:F.county||null,p_search:F.search||null});
+      const first=J(await PP.rpc('pp_app_queue',args(0))); rows=first.slice(); window._rows=rows; render(rows, first.length===1000);
       if(first.length===1000){
-        // sequential on purpose: parallel hits on the queue view trip the DB statement timeout and drop pages
         const tb=document.querySelector('#rows tbody');
         for(let off=1000;;off+=1000){
-          const pg=await PP.get(p+'&limit=1000&offset='+off); if(!pg.length) break;
+          const pg=J(await PP.rpc('pp_app_queue',args(off))); if(!pg.length) break;
           const start=rows.length; rows=rows.concat(pg); window._rows=rows; if(tb) tb.insertAdjacentHTML('beforeend', rowsHtml(pg,start));
           document.getElementById('cnt').textContent=rows.length+' leads'+(pg.length===1000?' — loading more…':'');
           if(pg.length<1000) break;
