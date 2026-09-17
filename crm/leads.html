@@ -38,21 +38,29 @@ async function load(){
     }
     if((F.scope||'mine')==='all'){
       // PostgREST caps a request at 1,000 rows — page through the whole queue
-      for(let off=0;;off+=1000){ const page=await PP.get(p+'&limit=1000&offset='+off); rows=rows.concat(page); window._rows=rows; render(rows, page.length===1000); if(page.length<1000) break; }
+      // first page renders immediately; remaining pages are fetched in parallel and appended, never re-rendered
+      const first=await PP.get(p+'&limit=1000&offset=0'); rows=first.slice(); window._rows=rows; render(rows, first.length===1000);
+      if(first.length===1000){
+        const pages=await Promise.all([1,2,3,4,5,6,7].map(n=>PP.get(p+'&limit=1000&offset='+(n*1000)).catch(()=>[])));
+        const tb=document.querySelector('#rows tbody');
+        pages.forEach(pg=>{ if(!pg.length) return; const start=rows.length; rows=rows.concat(pg); window._rows=rows; if(tb) tb.insertAdjacentHTML('beforeend', rowsHtml(pg,start)); });
+        document.getElementById('cnt').textContent=rows.length+' leads';
+      }
       return;
     }
     window._rows=rows; render(rows,false);
   }catch(e){ document.getElementById('rows').innerHTML=PP.err('Query failed: '+e.message); }
 }
+function rowsHtml(rows,start){ return rows.map((x,k)=>{ const i=start+k; return `<tr class="row" onclick="PP.openLead(window._rows[${i}])"><td><span class="score ${PP.cls(x.conviction_score)}">${x.conviction_score}</span><div class="muted" style="font-size:10px">${PP.tier(x.conviction_score)}</div></td>
+        <td><b>${PP.esc(x.owner_display||'—')}</b><div class="muted" style="font-size:11px">${PP.esc(x.city||x.county||'')} · ${PP.esc((x.property_ref||'').slice(0,40))}${x.assigned_agent?' · → '+PP.esc(x.assigned_agent)+(x.split_pct&&x.split_pct<100?' '+x.split_pct+'%':''):''}</div></td>
+        <td><span class="${x.max_stage>=4?'s-hot':'muted'}" style="font-size:12px">${PP.stage(x.max_stage)}</span></td>
+        <td class="why">${PP.esc(x.why||'')}</td><td>${x.signal_count??'—'}</td><td>${PP.pill(x.lifecycle_state)}</td></tr>`); }).join(''); }
 function render(rows, more){
       document.getElementById('cnt').textContent=rows.length+' leads'+(more?' — loading more…':'');
       const r=document.getElementById('rows');
       if(!rows.length){ r.innerHTML=PP.empty('▤', (F.scope||'mine')==='mine'?'Nothing in your territory matches':'No leads match these filters', (F.scope||'mine')==='mine'?'Add cities on My territory, lower your threshold, or switch the scope to Everything.':'Try widening the document or conviction threshold.'); return; }
       r.innerHTML=`<table class="tbl"><thead><tr><th style="width:60px">Score</th><th>Owner</th><th>Stage</th><th>Why this lead</th><th>Docs</th><th>Status</th></tr></thead><tbody>${
-        rows.map((x,i)=>`<tr class="row" onclick="PP.openLead(window._rows[${i}])"><td><span class="score ${PP.cls(x.conviction_score)}">${x.conviction_score}</span><div class="muted" style="font-size:10px">${PP.tier(x.conviction_score)}</div></td>
-        <td><b>${PP.esc(x.owner_display||'—')}</b><div class="muted" style="font-size:11px">${PP.esc(x.city||x.county||'')} · ${PP.esc((x.property_ref||'').slice(0,40))}${x.assigned_agent?' · → '+PP.esc(x.assigned_agent)+(x.split_pct&&x.split_pct<100?' '+x.split_pct+'%':''):''}</div></td>
-        <td><span class="${x.max_stage>=4?'s-hot':'muted'}" style="font-size:12px">${PP.stage(x.max_stage)}</span></td>
-        <td class="why">${PP.esc(x.why||'')}</td><td>${x.signal_count??'—'}</td><td>${PP.pill(x.lifecycle_state)}</td></tr>`).join('')}</tbody></table>`;
+        rowsHtml(rows,0)}</tbody></table>`;
 }
 function apply(){F.scope=document.getElementById('scope').value;F.search=document.getElementById('s').value;F.docs=+document.getElementById('docs').value;F.conv=+document.getElementById('conv').value;
   F.county=document.getElementById('county').value;F.auction=document.getElementById('auction').checked;F.equity=document.getElementById('equity').checked;load();}
