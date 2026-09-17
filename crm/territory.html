@@ -9,6 +9,9 @@
         <input type="range" id="thrRange" min="50" max="95" step="5" style="width:100%"><div class="muted" style="font-size:12px">Leads below this stay out of your list.</div></div>
       <div class="card"><h3>Cities</h3><div id="cities" class="muted">Loading…</div>
         <div class="muted" style="font-size:12px;margin-top:8px">Tick a whole county or individual cities. Saved to your account — the app shows the same list.</div></div>
+      <div class="card" id="agentsCard" style="display:none"><h3>Agents <span class="muted" style="font-weight:400;font-size:12px">(admin)</span></h3><div id="agents"></div>
+        <div style="display:flex;gap:6px;margin-top:8px"><input id="invEmail" type="email" placeholder="Invite by email" style="flex:1"><button class="btn" onclick="inviteAgent()">Invite</button></div>
+        <div id="invMsg" class="muted" style="font-size:12px;margin-top:4px">Invitees set their own password from the email and appear here on first sign-in.</div></div>
       <div class="card" id="rulesCard" style="display:none"><h3>Routing rules <span class="muted" style="font-weight:400;font-size:12px">(admin)</span></h3><div id="rules"></div>
         <details style="margin-top:8px"><summary style="cursor:pointer;color:var(--gold);font-size:13px">Add a rule</summary>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px;font-size:12px">
@@ -36,7 +39,7 @@ async function load(){
   document.getElementById('thr').textContent=ME.min_conviction; document.getElementById('thrRange').value=ME.min_conviction;
   CITIES=J(await PP.rpc('pp_app_cities',{})); TERR=await PP.get('pp_agent_territories?select=county,city&user_id=eq.'+ME.user_id);
   renderCities(); await renderLeads();
-  if(ME.is_admin){ document.getElementById('rulesCard').style.display=''; AGENTS=await PP.get('pp_agents?select=user_id,display_name&order=display_name'); await renderRules(); }
+  if(ME.is_admin){ document.getElementById('rulesCard').style.display=''; document.getElementById('agentsCard').style.display=''; AGENTS=await PP.get('pp_agents?select=user_id,display_name,email,is_admin,active&order=display_name'); renderAgents(); await renderRules(); }
 }
 function has(county,city){ return TERR.some(t=>t.county===county&&(t.city===city||t.city==='*')); }
 function renderCities(){
@@ -63,6 +66,13 @@ async function renderLeads(){
     L.circleMarker([l.lat,l.lon],{radius:6,color:'#000',weight:1,fillColor:c,fillOpacity:.95}).bindPopup(`<b>${esc(l.owner_display)}</b><br>${esc(l.city||'')} · ${l.conviction_score}${l.assessed_value?' · $'+Math.round(l.assessed_value).toLocaleString():''}<br><a href="#" onclick="PP.openLeadByKey('${l.entity_key}');return false">Open</a>`).addTo(layer); });
   document.getElementById('pinN').textContent=pts.length+' pins'; if(pts.length) map.fitBounds(pts.map(l=>[l.lat,l.lon]),{padding:[20,20]}); else map.setView([40.35,-111.75],9);
 }
+function renderAgents(){
+  document.getElementById('agents').innerHTML=AGENTS.map(a=>`<div class="city"><span><b>${esc(a.display_name)}</b> <span class="muted">${esc(a.email||'')}</span> ${a.is_admin?'<span style="color:var(--gold)">admin</span>':''} ${a.active===false?'<span class="muted">inactive</span>':''}</span>${a.user_id!==ME.user_id&&a.active!==false?`<a href="#" onclick="deactivate('${a.user_id}');return false" style="color:var(--hot)">deactivate</a>`:''}</div>`).join('');
+}
+async function inviteAgent(){ const e=document.getElementById('invEmail').value.trim(); if(!e) return;
+  const r=await fetch('https://lbvaosyfikkpvcwksiph.supabase.co/functions/v1/invite-agent',{method:'POST',headers:{apikey:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxidmFvc3lmaWtrcHZjd2tzaXBoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwMDg0MDksImV4cCI6MjA5MDU4NDQwOX0.Gh9whjmUPz4rdKYr5yo8ZHS0nSNpkQUOwdIladX6mG4',Authorization:'Bearer '+PP.sess().access_token,'Content-Type':'application/json'},body:JSON.stringify({email:e})});
+  const j=await r.json().catch(()=>({})); document.getElementById('invMsg').textContent=r.ok?'Invite sent to '+e+'.':'Invite failed: '+(j.error||r.status); if(r.ok) document.getElementById('invEmail').value=''; }
+async function deactivate(uid){ if(!confirm('Deactivate this agent? Their territory and routing targets are cleared; history is kept.')) return; await PP.rpc('pp_deactivate_agent',{p_user_id:uid}); AGENTS=await PP.get('pp_agents?select=user_id,display_name,email,is_admin,active&order=display_name'); renderAgents(); await renderRules(); }
 async function renderRules(){
   const rules=await PP.get('pp_routing_rules?select=*&order=priority'); const name=id=>(AGENTS.find(a=>a.user_id===id)||{}).display_name||'unassigned';
   document.getElementById('rules').innerHTML=rules.length?rules.map(r=>`<div class="rule"><span class="mono muted">${r.priority}</span> <b>${esc(r.name)}</b> <span class="muted">${[r.county&&'county '+r.county,r.city&&'city '+r.city,r.min_conviction&&'conviction ≥ '+r.min_conviction,r.signal_type&&'signal '+r.signal_type].filter(Boolean).join(' · ')||'matches everything'}</span> → <span style="color:var(--gold)">${esc(name(r.assign_to))} ${r.split_pct}%</span> <a href="#" onclick="delRule(${r.id});return false" style="color:var(--hot);margin-left:8px">remove</a></div>`).join(''):'<div class="muted" style="font-size:12px">No rules — every lead is unassigned until one matches.</div>';
