@@ -60,6 +60,7 @@ const PP = (() => {
     {href:'leads.html',   ic:'▤', label:'Seller leads', key:'queue'},
     {href:'buyers.html',  ic:'◈', label:'Buyers', key:'buyers'},
     {href:'pipeline.html',ic:'▥', label:'Pipeline'},
+    {href:'ledger.html',  ic:'$', label:'Ledger'},
     {href:'activity.html',ic:'◷', label:'Activity'},
     {grp:'Understand'},
     {href:'intel.html',   ic:'◇', label:'How scoring works'},
