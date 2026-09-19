@@ -76,7 +76,7 @@ const PP = (() => {
   ];
 
   function shell(title, desc, actionsHtml=''){
-    if(!sess()){ deviceSession().then(s=>{ if(s) location.reload(); else location.href='login.html'; }); return; }
+
     requireAuth().then(ok=>{ if(ok) rpc('pp_ensure_agent',{p_display_name:null}).then(a=>{ try{ window.PP_me = typeof a==='string'?JSON.parse(a):a; }catch(e){} }).catch(()=>{}); });
     const here = location.pathname.split('/').pop() || 'index.html';
     const nav = NAV.map(n => n.grp
@@ -104,6 +104,7 @@ const PP = (() => {
       else h.textContent='Pipeline healthy · '+(o.last_refresh||'').slice(0,10);
     }).catch(()=>{});
     rpc('pp_app_buyer_overview_cached').then(b=>{ const e=document.querySelector('[data-ct="buyers"]'); if(e&&b) e.textContent=b.total; }).catch(()=>{});
+    if(!sess()){ deviceSession().then(s=>{ if(s) location.reload(); else location.href='login.html'; }); }
   }
 
   const cls = s => s>=95?'s-hot':s>=85?'s-warm':s>=70?'s-mid':'s-low';
