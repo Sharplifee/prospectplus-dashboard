@@ -48,7 +48,7 @@ const PP = (() => {
   // No login gate. With no session, a device session (Supabase anonymous auth) is created silently — a real agent
   // with its own territory, contacts and deals. Signing in to an invited account is optional (sidebar link).
   async function deviceSession(){
-    const r=await fetch(`${URL}/auth/v1/signup`,{method:'POST',headers:{apikey:KEY,'Content-Type':'application/json'},body:'{}'});
+    const r=await fetch(SB+'/auth/v1/signup',{method:'POST',headers:{apikey:KEY,'Content-Type':'application/json'},body:'{}'});
     if(!r.ok) return null; const j=await r.json();
     const s={access_token:j.access_token,refresh_token:j.refresh_token,email:null,anonymous:true,expires_at:Date.now()+((j.expires_in||3600)*1000)};
     localStorage.setItem('pp.session',JSON.stringify(s)); return s;
@@ -76,7 +76,7 @@ const PP = (() => {
   ];
 
   function shell(title, desc, actionsHtml=''){
-    if(!sess()){ deviceSession().then(()=>location.reload()); return; }
+    if(!sess()){ deviceSession().then(s=>{ if(s) location.reload(); else location.href='login.html'; }); return; }
     requireAuth().then(ok=>{ if(ok) rpc('pp_ensure_agent',{p_display_name:null}).then(a=>{ try{ window.PP_me = typeof a==='string'?JSON.parse(a):a; }catch(e){} }).catch(()=>{}); });
     const here = location.pathname.split('/').pop() || 'index.html';
     const nav = NAV.map(n => n.grp
