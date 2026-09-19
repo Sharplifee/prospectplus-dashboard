@@ -45,11 +45,19 @@ const PP = (() => {
     localStorage.setItem('pp.session', JSON.stringify({...s, access_token:d.access_token, refresh_token:d.refresh_token, expires_at:Date.now()+(d.expires_in||3600)*1000}));
     return true;
   }
-  function signOut(){ localStorage.removeItem('pp.session'); location.href='login.html'; }
+  // No login gate. With no session, a device session (Supabase anonymous auth) is created silently — a real agent
+  // with its own territory, contacts and deals. Signing in to an invited account is optional (sidebar link).
+  async function deviceSession(){
+    const r=await fetch(`${URL}/auth/v1/signup`,{method:'POST',headers:{apikey:KEY,'Content-Type':'application/json'},body:'{}'});
+    if(!r.ok) return null; const j=await r.json();
+    const s={access_token:j.access_token,refresh_token:j.refresh_token,email:null,anonymous:true,expires_at:Date.now()+((j.expires_in||3600)*1000)};
+    localStorage.setItem('pp.session',JSON.stringify(s)); return s;
+  }
+  function signOut(){ localStorage.removeItem('pp.session'); location.reload(); }   // reload → fresh device session, not a wall
   async function requireAuth(){
-    const s=sess();
-    if(!s){ location.href='login.html'; return false; }
-    if(Date.now() > (s.expires_at||0) - 60000){ if(!(await refresh())){ location.href='login.html'; return false; } }
+    let s=sess();
+    if(!s){ s=await deviceSession(); return !!s; }
+    if(Date.now() > (s.expires_at||0) - 60000){ if(!(await refresh())){ localStorage.removeItem('pp.session'); s=await deviceSession(); return !!s; } }
     return true;
   }
 
@@ -68,7 +76,7 @@ const PP = (() => {
   ];
 
   function shell(title, desc, actionsHtml=''){
-    if(!sess()){ location.href='login.html'; return; }
+    if(!sess()){ deviceSession().then(()=>location.reload()); return; }
     requireAuth().then(ok=>{ if(ok) rpc('pp_ensure_agent',{p_display_name:null}).then(a=>{ try{ window.PP_me = typeof a==='string'?JSON.parse(a):a; }catch(e){} }).catch(()=>{}); });
     const here = location.pathname.split('/').pop() || 'index.html';
     const nav = NAV.map(n => n.grp
@@ -87,7 +95,7 @@ const PP = (() => {
         <div class="body" id="body"></div>
       </div>
       <div class="scrim" id="scrim" onclick="PP.closeDrawer()"></div>
-      <div class="drawer" id="drawer"><div style="margin-top:8px;display:flex;justify-content:space-between;align-items:center"><span>${esc((sess()||{}).email||'')}</span><a href="#" onclick="PP.signOut();return false" style="color:var(--gold)">Sign out</a></div></div>`;
+      <div class="drawer" id="drawer"><div style="margin-top:8px;display:flex;justify-content:space-between;align-items:center">${(sess()||{}).email?`<span>${esc(sess().email)}</span><a href="#" onclick="PP.signOut();return false" style="color:var(--gold)">Sign out</a>`:`<span class="muted">This device</span><a href="login.html" style="color:var(--gold)">Sign in to an account</a>`}</div></div>`;
     rpc('pp_app_overview').then(o => {
       if(!o) return;
       const q=document.querySelector('[data-ct="queue"]'); if(q) q.textContent=o.queue;
