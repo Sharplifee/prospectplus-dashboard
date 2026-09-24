@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Premier Prospect — a Williams &amp; Co. system</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#eef0f2; --paper-2:#e3e6ea; --ink:#0f1f3d; --ink-2:#1b2d52; --slate:#3b4a63; --mute:#6b7689;
+  --seal:#9a6b2f; --seal-2:#b8853f; --line:#c9cfd8; --line-dark:#2b3d60; --white:#fbfbfa;
+  --sans:'IBM Plex Sans', -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif;
+  --serif:'Fraunces', Georgia, 'Times New Roman', serif;
+  box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){ --paper:#0f1520; --paper-2:#151d2c; --ink:#e8ebf0; --ink-2:#d5dae3; --slate:#b6bfcd; --mute:#8b96a8; --line:#2a3548; --line-dark:#3a4a68; --white:#111a29; } }
+:root[data-theme="dark"]{ --paper:#0f1520; --paper-2:#151d2c; --ink:#e8ebf0; --ink-2:#d5dae3; --slate:#b6bfcd; --mute:#8b96a8; --line:#2a3548; --line-dark:#3a4a68; --white:#111a29; }
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-weight:400;line-height:1.6;-webkit-font-smoothing:antialiased}
+a{color:inherit}
+img{max-width:100%}
+.wrap{max-width:1080px;margin:0 auto;padding:0 28px}
+.nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:40;background:var(--paper);border-bottom:1px solid var(--line)}
+.nav .wrap{display:flex;align-items:center;justify-content:space-between;gap:18px;padding-top:16px;padding-bottom:16px;flex-wrap:wrap}
+.brand{font-family:var(--serif);font-size:22px;font-weight:500;letter-spacing:-.01em}
+.brand small{font-family:var(--sans);font-size:12px;color:var(--mute);margin-left:12px;font-weight:400}
+.toggle{display:inline-flex;border:1px solid var(--line-dark);border-radius:4px;overflow:hidden}
+.toggle button{background:transparent;border:0;color:var(--slate);font:inherit;font-size:14px;padding:8px 20px;cursor:pointer}
+.toggle button.on{background:var(--ink);color:var(--paper)}
+:root[data-theme="dark"] .toggle button.on, :root:not([data-theme="light"]) .toggle button.on{}
+.toggle button:focus-visible{outline:2px solid var(--seal);outline-offset:-2px}
+.stamp{font-size:12px;color:var(--mute)}
+
+h1,h2,h3{font-family:var(--serif);font-weight:400;letter-spacing:-.015em;line-height:1.12}
+h1{font-size:clamp(38px,6vw,64px)}
+h2{font-size:clamp(28px,3.6vw,40px);margin-bottom:22px}
+h3{font-size:22px;margin-bottom:10px}
+p{max-width:64ch;margin-bottom:16px;color:var(--ink-2)}
+p.lede{font-size:19px;line-height:1.55;max-width:56ch}
+b{font-weight:600}
+section{padding:80px 0;border-bottom:1px solid var(--line)}
+section.dark{background:var(--ink);color:var(--paper);border-color:var(--line-dark)}
+section.dark p{color:#c9d1de}
+section.dark h2,section.dark h3{color:var(--paper)}
+section.dark .fig{color:var(--paper)}
+.hid{display:none}
+
+/* hero */
+.hero{padding:88px 0 64px}
+.hero h1{margin-bottom:22px;max-width:16ch}
+.hero .lede{margin-bottom:34px}
+
+/* ledger — the memorable element: a recorder's index strip of real document kinds */
+.ledger{border:1px solid var(--line-dark);border-radius:4px;background:var(--white);overflow:hidden;margin:36px 0 10px}
+.ledger .head{display:grid;grid-template-columns:120px 1fr 1.6fr;gap:14px;padding:10px 16px;font-size:12px;color:var(--mute);border-bottom:1px solid var(--line);background:var(--paper-2)}
+.ledger .row{display:grid;grid-template-columns:120px 1fr 1.6fr;gap:14px;padding:12px 16px;border-bottom:1px solid var(--line);font-size:14px;align-items:baseline}
+.ledger .row:last-child{border-bottom:0}
+.ledger .koi{font-family:var(--serif);font-weight:500;color:var(--seal)}
+.ledger .what{color:var(--ink)}
+.ledger .means{color:var(--mute)}
+.cap{font-size:13px;color:var(--mute);max-width:70ch}
+
+/* figures */
+.figs{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);margin:30px 0}
+.fig{padding:22px 18px 22px 0;border-right:1px solid var(--line)}
+.fig:last-child{border-right:0}
+.fig .n{font-family:var(--serif);font-size:38px;font-weight:300;line-height:1;color:var(--ink);letter-spacing:-.02em}
+.fig .l{font-size:13px;color:var(--mute);margin-top:8px;line-height:1.4}
+section.dark .figs{border-color:var(--line-dark)}
+section.dark .fig{border-color:var(--line-dark)}
+section.dark .fig .l{color:#9fb0c8}
+
+/* two column */
+.two{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start}
+@media(max-width:820px){.two{grid-template-columns:1fr;gap:28px}}
+
+/* sequence */
+.seq{counter-reset:s;margin-top:28px;border-top:1px solid var(--line)}
+.seq > div{display:grid;grid-template-columns:56px 1fr;gap:18px;padding:24px 0;border-bottom:1px solid var(--line)}
+.seq > div::before{counter-increment:s;content:counter(s);font-family:var(--serif);font-size:30px;font-weight:300;color:var(--seal);line-height:1}
+.seq h3{font-size:19px;margin-bottom:6px}
+.seq p{margin-bottom:0;font-size:15.5px;color:var(--slate)}
+section.dark .seq,section.dark .seq > div{border-color:var(--line-dark)}
+section.dark .seq p{color:#b7c3d6}
+
+/* tables */
+table{width:100%;border-collapse:collapse;font-size:15px;margin-top:22px}
+th{text-align:left;font-weight:500;color:var(--mute);font-size:13px;padding:10px 12px 10px 0;border-bottom:1px solid var(--line-dark)}
+td{padding:12px 12px 12px 0;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-2)}
+td.v{font-family:var(--serif);font-size:19px;color:var(--ink);white-space:nowrap}
+section.dark td{color:#d0d8e4;border-color:var(--line-dark)}
+section.dark td.v{color:var(--paper)}
+section.dark th{color:#9fb0c8;border-color:#4a5d80}
+.tblwrap{overflow-x:auto}
+
+/* quote card */
+.lead{border-left:3px solid var(--seal);padding:6px 0 6px 22px;margin:28px 0}
+.lead .who{font-family:var(--serif);font-size:20px;margin-bottom:6px}
+.lead .why{color:var(--slate);font-size:15px}
+.lead .ref{color:var(--mute);font-size:13px;margin-top:6px}
+
+/* screens */
+.screens{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:22px;margin-top:26px}
+.screen{border:1px solid var(--line);background:var(--white);padding:22px;border-radius:4px}
+.screen h3{font-size:18px}
+.screen p{font-size:14.5px;margin-bottom:0;color:var(--slate)}
+
+/* terms */
+.terms{display:grid;grid-template-columns:1fr 1fr;gap:40px;margin-top:20px}
+@media(max-width:820px){.terms{grid-template-columns:1fr}}
+.terms h3{font-size:20px}
+.terms p{font-size:15.5px}
+
+.cta{display:inline-block;background:var(--seal);color:#fff;text-decoration:none;font-weight:500;padding:13px 26px;border-radius:4px;font-size:15px;border:0;cursor:pointer;font-family:var(--sans)}
+.cta:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
+.final{padding:100px 0;text-align:left}
+.final h2{max-width:22ch;font-size:clamp(30px,4.4vw,48px)}
+.foot{padding:36px 0 60px;font-size:13px;color:var(--mute)}
+.foot p{color:var(--mute);font-size:13px}
+@media(max-width:640px){
+  .wrap{padding:0 20px}
+  section{padding:56px 0}
+  .hero{padding:56px 0 40px}
+  .ledger .head,.ledger .row{grid-template-columns:86px 1fr;font-size:13px}
+  .ledger .means{grid-column:2}
+  .fig{padding:18px 14px 18px 0}
+  .fig .n{font-size:30px}
+}
+@media (prefers-reduced-motion: no-preference){
+  .ledger .row{animation:ink .6s ease both}
+  .ledger .row:nth-child(2){animation-delay:.08s}.ledger .row:nth-child(3){animation-delay:.16s}.ledger .row:nth-child(4){animation-delay:.24s}.ledger .row:nth-child(5){animation-delay:.32s}.ledger .row:nth-child(6){animation-delay:.40s}
+  @keyframes ink{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+}
+</style>
+</head>
+<body>
+
+<div class="nav"><div class="wrap">
+  <div class="brand">Premier Prospect<small>a Williams &amp; Co. system</small></div>
+  <div class="toggle" role="tablist" aria-label="Choose a side">
+    <button id="b-sell" class="on" role="tab" aria-selected="true" onclick="show('sell')">Sellers</button>
+    <button id="b-buy" role="tab" aria-selected="false" onclick="show('buy')">Buyers</button>
+  </div>
+  <span class="stamp">Figures read from the live system, September 23, 2026</span>
+</div></div>
+
+<!-- =============================== SELLERS =============================== -->
+<div id="page-sell">
+
+<section class="hero"><div class="wrap">
+  <h1>The county already knows who is about to sell. We read it every night.</h1>
+  <p class="lede">Premier Prospect reads the public record in Utah the way a title examiner would, one document at a time, and turns it into a ranked list of homeowners whose situation has changed. Every name on that list is tied to a recorded document, a parcel, or a tax roll entry. Nothing is estimated, purchased from a data broker, or guessed.</p>
+
+  <div class="ledger" aria-label="A sample of the recorded instruments the system reads">
+    <div class="head"><span>Instrument</span><span>What the county records</span><span>What it means for a listing</span></div>
+    <div class="row"><span class="koi">N LN</span><span class="what">Notice of lien or judgment</span><span class="means">A creditor has attached the home. Our most predictive single signal.</span></div>
+    <div class="row"><span class="koi">AF DC</span><span class="what">Affidavit of death</span><span class="means">An heir has stepped in. A property that will be sold, not lived in.</span></div>
+    <div class="row"><span class="koi">ND</span><span class="what">Notice of default</span><span class="means">The lender has started the clock. Weeks ahead of any public auction listing.</span></div>
+    <div class="row"><span class="koi">PERREPD</span><span class="what">Personal representative deed</span><span class="means">An estate is disposing of property right now.</span></div>
+    <div class="row"><span class="koi">SUB TEE</span><span class="what">Substitution of trustee</span><span class="means">The quiet filing that precedes a foreclosure. Almost nobody tracks it.</span></div>
+    <div class="row"><span class="koi">WD</span><span class="what">Warranty deed</span><span class="means">The sale closed. The lead retires itself, and the buyer joins the buyer side.</span></div>
+  </div>
+  <p class="cap">Six of the more than one hundred instrument codes the system classifies. Codes are taken from the Utah County Recorder's own index and verified against the document detail page before they are allowed to score.</p>
+</div></section>
+
+<section><div class="wrap">
+  <h2>The problem is not a shortage of records. It is that nobody reads them.</h2>
+  <div class="two">
+    <div>
+      <p>A homeowner's situation changes on paper long before it changes on the MLS. A lien is recorded. A parent dies and an heir is named. A spouse is removed from title. A lender substitutes a trustee. These are public documents, filed with the county, dated and numbered.</p>
+      <p>They are also nearly unusable. Each county runs its own system. A notice of default names the borrower as the grantee, not the grantor. Trustee sales are published in newspapers, not recorded. The same person appears as "SMITH, JOHN A", "SMITH JOHN A TEE" and "JOHN A SMITH ET AL" across three filings. The tax roll packs owner, parcel and two dollar figures into a single line of text.</p>
+    </div>
+    <div>
+      <p>So the industry waits for the listing, and then five agents call the same house on the same afternoon. The listing was decided weeks earlier, over a kitchen table, by someone who called a friend.</p>
+      <p><b>Premier Prospect exists to be in the room before that phone call.</b> It reads every instrument the county records, resolves the names into people, joins them to parcels and tax history, scores how much the evidence converges, and hands an agent a name, a reason, and a document number they can look up themselves.</p>
+    </div>
+  </div>
+</div></section>
+
+<section class="dark"><div class="wrap">
+  <h2>What is running today</h2>
+  <div class="figs">
+    <div class="fig"><div class="n">113,033</div><div class="l">live signals on homeowners, after institutions, builders and lenders are removed</div></div>
+    <div class="fig"><div class="n">6,125</div><div class="l">distinct owners resolved from those signals</div></div>
+    <div class="fig"><div class="n">5,399</div><div class="l">owners in the ranked seller queue</div></div>
+    <div class="fig"><div class="n">496</div><div class="l">in the top tier, every one tied to a confirmed property</div></div>
+  </div>
+  <div class="figs">
+    <div class="fig"><div class="n">17</div><div class="l">sources produced new records in the last 30 days</div></div>
+    <div class="fig"><div class="n">85,268</div><div class="l">records collected in the last 30 days</div></div>
+    <div class="fig"><div class="n">726</div><div class="l">leads retired automatically after a recorded sale or completed foreclosure</div></div>
+    <div class="fig"><div class="n">4</div><div class="l">counties: Utah, Salt Lake, Wasatch, Summit</div></div>
+  </div>
+  <p>These are not projections. They are counts read from the production database on the date shown at the top of this page. Utah County is the deepest coverage today; Salt Lake County is covered through its courts and assessor while a recorder feed is added.</p>
+</div></section>
+
+<section><div class="wrap">
+  <h2>How a name becomes a lead</h2>
+  <p>The pipeline runs unattended every night. Each stage has to pass before the next one runs.</p>
+  <div class="seq">
+    <div><div><h3>Collect</h3><p>County recorder indexes, district court calendars, the delinquent tax roll and the assessor are read on their own schedules. Each record keeps its entry number, date and county, so anything the system says can be traced back to a document.</p></div></div>
+    <div><div><h3>Resolve</h3><p>Name variants collapse into one owner. Trusts held by a family stay in; banks, LLCs, builders, cities and HOAs are removed at the door. Death affidavits are re-keyed to the living heir, because the heir is the one who will sell.</p></div></div>
+    <div><div><h3>Confirm</h3><p>An owner only qualifies for the top tier when the name is tied to real property: a recorded document, a parcel serial, a tax roll line, or the assessor's file. A name that appears only on a court calendar is capped, however alarming the case looks.</p></div></div>
+    <div><div><h3>Score</h3><p>The strongest single signal anchors the score. Independent corroboration raises it. Evidence decays as it ages, clusters of filings inside thirty days raise it, and a recorded sale or trustee's deed retires it. Every lead carries a plain-English reason.</p></div></div>
+    <div><div><h3>Prove</h3><p>Before anything is published, an integrity gate checks the invariants and re-reads a random sample of top-tier documents from the county's own website. If the document on the page does not match the label in the system, the run fails and nothing ships.</p></div></div>
+  </div>
+</div></section>
+
+<section><div class="wrap">
+  <h2>What a lead looks like</h2>
+  <p>This is a real entry from the top of the queue on the date above, exactly as the agent sees it, with the owner's name reduced to initials for this page.</p>
+  <div class="lead">
+    <div class="who">A. G. W., trustee, and others, Springville, Utah County</div>
+    <div class="why">Conviction 100. Affidavit of death, deed transfer, and a 27-year-old original loan on the same property. Four documents. Assessed at $663,100. Likely high equity. Low competition signal: no auction, no public listing, nothing another agent would see.</div>
+    <div class="ref">Property reference: county entry numbers and parcel serial attached to the record. The agent can open the county page and read the same documents.</div>
+  </div>
+  <p>The reason line is generated from the documents, not written by a person. Equity is described as "likely" because Utah is a non-disclosure state; the system says what it knows and labels what it infers.</p>
+</div></section>
+
+<section class="dark"><div class="wrap">
+  <h2>The evidence behind the ranking</h2>
+  <p>The system backtests itself against the only ground truth that exists: deeds that were later recorded for the same owner. Filings are captured from May 20, 2026, so the window is short and the numbers will move. They are shown as they are.</p>
+  <div class="tblwrap"><table>
+    <tr><th>Signal layer</th><th>Owners observed</th><th>Later recorded a sale</th><th>Rate</th></tr>
+    <tr><td>Lien or judgment recorded</td><td class="v">454</td><td class="v">99</td><td class="v">21.8%</td></tr>
+    <tr><td>Trustee substitution</td><td class="v">21</td><td class="v">1</td><td class="v">4.8%</td></tr>
+    <tr><td>Death affidavit</td><td class="v">88</td><td class="v">1</td><td class="v">1.1%</td></tr>
+    <tr><td>Tax delinquency alone</td><td class="v">2,156</td><td class="v">13</td><td class="v">0.6%</td></tr>
+    <tr><td>Court filings (divorce, probate, creditor suits)</td><td class="v">1,580</td><td class="v">0</td><td class="v">too new to measure</td></tr>
+  </table></div>
+  <p style="margin-top:22px">Two things follow from this table, and the system acts on both. A recorded lien is the single most predictive document in the county, so it anchors the top tier. A tax delinquency on its own is close to noise, so it is only allowed to corroborate. Earlier in the summer the same test showed that a tax delinquency combined with two other distress documents converted at a rate near one hundred percent on a small sample, which is the whole thesis: one signal is a rumor, several on the same property is a decision.</p>
+  <p>Court and estate layers average under three weeks old. Their rates are reported as zero rather than hidden, and they will be re-measured nightly as deeds land.</p>
+</div></section>
+
+<section><div class="wrap">
+  <h2>Integrity is enforced, not audited</h2>
+  <div class="two">
+    <div>
+      <p>Lead systems usually look clean when someone checks them. This one refuses to be dirty in the first place.</p>
+      <p>The database rejects bad rows before they are written: a recorder source cannot emit a trustee sale, a placeholder name cannot enter, a county label must match its source, and an outcome can only be logged by a registered agent. There is no test data in production and no sample data on any screen; empty sections say they are empty.</p>
+    </div>
+    <div>
+      <p>After every nightly score, the gate checks that every top-tier lead is property-confirmed, that no lender or trust sits in the queue as a homeowner, that every buyer's purchase count equals distinct recorded deeds, that every registered source is still producing, and that a random sample of top-tier documents still says on the county's website what the system says it says.</p>
+      <p>Ten gated runs so far. Nine passed. The one that failed caught four comparable sales labeled with the wrong county on the first night, which is exactly what the gate is for.</p>
+    </div>
+  </div>
+</div></section>
+
+<section><div class="wrap">
+  <h2>What the agent holds</h2>
+  <p>An iPhone app and a web workspace, both reading the same live queue. No login screen: a device is issued a session and the data is scoped to that account.</p>
+  <div class="screens">
+    <div class="screen"><h3>Home</h3><p>Today's top leads, what changed overnight, and the signal layers that produced them.</p></div>
+    <div class="screen"><h3>Sellers</h3><p>The ranked queue, filterable by county, city, conviction, equity and signal type. Each row opens to its documents and reason line.</p></div>
+    <div class="screen"><h3>Map</h3><p>Geocoded parcels across 47 cities, so a day of door knocks can be planned by street.</p></div>
+    <div class="screen"><h3>Buyers</h3><p>Who is actually buying in the county, from recorded deeds, and which sellers fit them.</p></div>
+    <div class="screen"><h3>Execution</h3><p>Call, appointment and listing outcomes, recorded against the score at the moment of the call, so the model learns from what agents actually close.</p></div>
+    <div class="screen"><h3>Scripts</h3><p>An opening for each situation. An estate call is not a foreclosure call, and the app knows which one it is.</p></div>
+  </div>
+</div></section>
+
+<section class="dark"><div class="wrap">
+  <h2>Where this is going</h2>
+  <div class="seq">
+    <div><div><h3>Contact enrichment, then launch</h3><p>Every lead is a verified name and property. Phone numbers come from a licensed skip-trace step that runs only against contactable, unresolved leads, with the do-not-call scrub in the same pass. This is the gate between the current build and the first agents working the list.</p></div></div>
+    <div><div><h3>Salt Lake County recorder</h3><p>The largest market in the state is currently covered through courts and the assessor. Adding its recorder feed is the single biggest coverage gain available.</p></div></div>
+    <div><div><h3>Deeper notice-of-default history</h3><p>The nightly sweep reads the newest few days of instruments. A full backfill of defaults will multiply the earliest foreclosure signal in the queue.</p></div></div>
+    <div><div><h3>Outcome learning</h3><p>Every call an agent logs is stored with the evidence that produced the lead. As outcomes accumulate, the weights move toward what actually converts, per county and per signal.</p></div></div>
+  </div>
+</div></section>
+
+<section><div class="wrap">
+  <h2>How it is offered</h2>
+  <div class="terms">
+    <div>
+      <h3>Not open to the public</h3>
+      <p>The system is licensed to a limited number of agents per market. A ranked list of motivated sellers loses its value the moment everyone has it, so seats are capped by county and the cap is not negotiable.</p>
+    </div>
+    <div>
+      <h3>Owned, not resold</h3>
+      <p>Premier Prospect is a Williams &amp; Co. asset. Agents receive access; they do not receive the data, the model or the pipeline. Nothing here is licensed from a national vendor or shared with one.</p>
+    </div>
+    <div>
+      <h3>What we do not claim</h3>
+      <p>No closed transaction has yet been attributed through the product, because the first agents have not started. We would rather show a backtest against recorded deeds than a conversion figure we cannot source.</p>
+    </div>
+    <div>
+      <h3>What a partner gets</h3>
+      <p>A working, self-verifying system with four months of collected history, a defined launch step, and a territory that will not be sold to the next person who asks.</p>
+    </div>
+  </div>
+</div></section>
+
+<section class="final"><div class="wrap">
+  <h2>The record is public. Reading all of it, every night, and proving it before it ships, is the business.</h2>
+  <p class="lede">If you want to see the live queue, the county documents behind a lead, or the integrity log, the fastest way is a walkthrough on a real screen.</p>
+  <a class="cta" href="mailto:cwsharp23@icloud.com?subject=Premier%20Prospect%20walkthrough">Request a walkthrough</a>
+</div></section>
+
+</div>
+
+<!-- =============================== BUYERS =============================== -->
+<div id="page-buy" class="hid">
+
+<section class="hero"><div class="wrap">
+  <h1>The buyers who are actually buying are named on the deeds.</h1>
+  <p class="lede">Most buyer lists are built from web forms and hopes. This one is built from recorded warranty deeds. If a person or entity took title to a home in these counties, they are a buyer, and the county said so.</p>
+  <div class="ledger" aria-label="How buyers are derived from recorded documents">
+    <div class="head"><span>Source</span><span>What is read</span><span>What it establishes</span></div>
+    <div class="row"><span class="koi">WD</span><span class="what">Warranty deed, grantee side</span><span class="means">Who took title, in which county, on what date.</span></div>
+    <div class="row"><span class="koi">D TR</span><span class="what">Deed of trust on the same entry</span><span class="means">Whether the purchase was financed, and by whom.</span></div>
+    <div class="row"><span class="koi">Entries</span><span class="what">Distinct entry numbers per buyer</span><span class="means">Repeat activity, counted per document so nothing is double-counted.</span></div>
+    <div class="row"><span class="koi">Type</span><span class="what">Person, entity, builder</span><span class="means">A family buying a home is a different buyer from an LLC assembling lots.</span></div>
+  </div>
+  <p class="cap">Top buyers are verified as grantees on the county's own document pages before they are ranked. Counts are per distinct recorded entry.</p>
+</div></section>
+
+<section class="dark"><div class="wrap">
+  <h2>What is running today</h2>
+  <div class="figs">
+    <div class="fig"><div class="n">1,374</div><div class="l">buyer profiles built from recorded deeds</div></div>
+    <div class="fig"><div class="n">86</div><div class="l">repeat buyers, two or more recorded purchases</div></div>
+    <div class="fig"><div class="n">18</div><div class="l">strong buyers, three or more recorded purchases</div></div>
+    <div class="fig"><div class="n">243</div><div class="l">entity buyers, including 25 builder or land acquisition profiles</div></div>
+  </div>
+  <p>The buyer side and the seller side are the same engine reading the same documents. When a seller lead retires because its deed was recorded, the grantee on that deed becomes a buyer profile the same night.</p>
+</div></section>
+
+<section><div class="wrap">
+  <h2>Why this side matters to a listing</h2>
+  <div class="two">
+    <div>
+      <p>A seller in distress does not want a valuation. They want to know the house will sell, quickly, to someone real. Walking into that conversation with the names of the people who have bought three homes in that county this year, and whether they paid cash, is a different conversation from walking in with a comparable sales report.</p>
+    </div>
+    <div>
+      <p>The system pairs its highest-conviction sellers against buyers in the same county, weighted by how recently and how often the buyer has transacted. Price bands are shown only when the county provides enough to state one; where it does not, the app says "not yet resolved" rather than inventing a number.</p>
+    </div>
+  </div>
+  <div class="tblwrap"><table>
+    <tr><th>Buyer type</th><th>Profiles</th><th>What it usually means</th></tr>
+    <tr><td>Recent buyer</td><td class="v">1,027</td><td>Took title once in the window. A household, most often.</td></tr>
+    <tr><td>Entity buyer</td><td class="v">243</td><td>An LLC, trust or company. Investors, lenders reclaiming, and builders.</td></tr>
+    <tr><td>Repeat buyer</td><td class="v">57</td><td>An individual with two or more purchases. Small investors and flippers.</td></tr>
+    <tr><td>Builder or land acquisition</td><td class="v">25</td><td>Entities assembling lots and parcels.</td></tr>
+    <tr><td>Repeat or active investment entity</td><td class="v">20</td><td>Entities with sustained purchase activity. The most useful cash conversation in the county.</td></tr>
+  </table></div>
+</div></section>
+
+<section class="dark"><div class="wrap">
+  <h2>What we do not claim on this side</h2>
+  <p>Buyer profiles carry names, counties, dates and document numbers. They do not yet carry phone numbers or email; that is the same enrichment step that gates the seller launch. Cash-versus-financed is derived from whether a deed of trust was recorded on the same entry, and is reported as unresolved where the county index does not show it. Nothing on this side is scored from web traffic, form fills, or purchased intent data.</p>
+</div></section>
+
+<section class="final"><div class="wrap">
+  <h2>One engine. Both sides of every listing appointment.</h2>
+  <p class="lede">Ask for a walkthrough and we will open the live buyer table alongside the seller queue for a single county, with the deeds behind both.</p>
+  <a class="cta" href="mailto:cwsharp23@icloud.com?subject=Premier%20Prospect%20walkthrough">Request a walkthrough</a>
+</div></section>
+
+</div>
+
+<div class="foot"><div class="wrap">
+  <p>Premier Prospect is a Williams &amp; Co. system operating on public county records in the State of Utah. Every figure on this page is read from the production database as of September 23, 2026. Owner names shown to agents are public record; this page reduces them to initials.</p>
+</div></div>
+
+<script>
+function show(w){
+  var sell = w==='sell';
+  document.getElementById('page-sell').classList.toggle('hid',!sell);
+  document.getElementById('page-buy').classList.toggle('hid',sell);
+  document.getElementById('b-sell').classList.toggle('on',sell);
+  document.getElementById('b-buy').classList.toggle('on',!sell);
+  document.getElementById('b-sell').setAttribute('aria-selected',sell);
+  document.getElementById('b-buy').setAttribute('aria-selected',!sell);
+  try{ localStorage.setItem('pp-side',w); }catch(e){}
+  window.scrollTo({top:0});
+}
+try{ var s=localStorage.getItem('pp-side'); if(s==='buy') show('buy'); }catch(e){}
+</script>
+</body>
+</html>
