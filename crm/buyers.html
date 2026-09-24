@@ -1,28 +1,81 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="pp.css"><script src="pp.js"></script><title>Buyers — Premier Prospect</title></head><body><script>
-PP.shell('Buyers','People and entities who completed a purchase — the grantee on a recorded warranty deed. Proven, not inferred.');
-let S='';
+PP.shell('Buyers','Every buyer is the grantee on a recorded warranty deed, or a person who just sold one and has not bought yet. Proven at the county, not inferred.','<button class="btn pri" onclick="addBuyer()">+ Add a buyer</button>');
+let S='', F='all';
+const money=v=>v==null?'—':'$'+Math.round(v).toLocaleString();
+const LBL={purchase:'Recorded purchase',financing:'Financed purchase',private_financing:'Privately financed',cash_purchase:'Cash purchase',move_up:'Sold, no purchase since',parcel_value:'Assessed value of property bought'};
+function filterQ(){ return F==='investors'?'&or=(is_entity.eq.true,purchases.gte.2,private_financed.gt.0)&is_move_up=eq.false':F==='cash'?'&cash_purchases=gt.0':F==='justsold'?'&is_move_up=eq.true':''; }
+function tags(x){ const t=[]; if(x.is_move_up) t.push('<span class="pill p-live">just sold</span>'); else t.push(`<span class="pill">${x.purchases} purchase${x.purchases===1?'':'s'}</span>`);
+  if(x.cash_purchases>0) t.push('<span class="pill p-won">cash</span>'); if(x.private_financed>0) t.push('<span class="pill p-hot">private $</span>');
+  if(x.value_low!=null) t.push(`<span class="pill">${money(x.value_low)}${x.value_high>x.value_low?'–'+money(x.value_high):''}</span>`); if(x.distinct_counties>1) t.push('<span class="pill p-live">multi-county</span>'); return t.join(' '); }
 async function load(){
   const b=document.getElementById('body'); b.innerHTML='<div class="muted">Loading…</div>';
   try{
-    const [bo,rows]=await Promise.all([PP.rpc('pp_app_buyer_overview_cached'),
-      PP.get('pp_buyer_intel?select=*&order=buyer_score.desc,purchases.desc&limit=300'+(S?'&buyer_display=ilike.*'+encodeURIComponent(S)+'*':''))]);
+    const [bo,rows,mine]=await Promise.all([PP.rpc('pp_app_buyer_overview'),
+      F==='mine'?[]:PP.get('pp_buyer_intel?select=*&order=buyer_score.desc,purchases.desc&limit=300'+filterQ()+(S?'&buyer_display=ilike.*'+encodeURIComponent(S)+'*':'')),
+      PP.rpc('pp_app_my_buyer_leads')]);
+    const o=typeof bo==='string'?JSON.parse(bo):bo; const my=typeof mine==='string'?JSON.parse(mine):(mine||[]); window._my=my; window._rows=rows;
+    const seg=[['all','All'],['investors','Investors'],['cash','Cash'],['justsold','Just sold'],['mine','Mine ('+my.length+')']].map(([k,l])=>`<button class="btn sm ${F===k?'pri':''}" onclick="F='${k}';load()">${l}</button>`).join(' ');
     b.innerHTML=`<div class="kpis">
-      <div class="kpi"><div class="l">Proven buyers</div><div class="v">${bo.total}</div><div class="h">closed a purchase</div></div>
-      <div class="kpi"><div class="l">Repeat buyers</div><div class="v hot">${bo.repeat_count}</div><div class="h">2+ purchases</div></div>
-      <div class="kpi"><div class="l">Highly active</div><div class="v hot">${bo.highly_active}</div><div class="h">4+ purchases</div></div>
-      <div class="kpi"><div class="l">Investment entities</div><div class="v">${bo.entities}</div><div class="h">LLCs, trusts</div></div>
-      <div class="kpi"><div class="l">Bought in 30 days</div><div class="v ok">${bo.last_30d}</div><div class="h">recent closings</div></div>
-      <div class="kpi"><div class="l">Builders</div><div class="v dim">${bo.builders}</div><div class="h">land, not resale</div></div></div>
-      <div class="controls"><input id="s" placeholder="Search buyer…" value="${PP.esc(S)}" style="min-width:240px"><button class="btn pri" onclick="S=document.getElementById('s').value;load()">Search</button><span class="muted">${rows.length} shown</span></div>
-      ${rows.length?`<table class="tbl"><thead><tr><th>Score</th><th>Buyer</th><th>Type</th><th>Purchases</th><th>Counties</th><th>Last</th><th>Verify</th></tr></thead><tbody>${
-        rows.map(x=>`<tr><td><span class="score s-warm">${x.buyer_score}</span></td><td><b>${PP.esc(x.buyer_display||'—')}</b></td>
-        <td class="muted">${PP.esc(x.buyer_type||'')}</td><td>${x.purchases}</td><td class="muted">${(x.counties||[]).join(', ')}</td>
+      <div class="kpi"><div class="l">Proven buyers</div><div class="v">${o.total}</div><div class="h">grantee on a warranty deed</div></div>
+      <div class="kpi"><div class="l">Just sold</div><div class="v hot">${o.just_sold}</div><div class="h">no purchase recorded since</div></div>
+      <div class="kpi"><div class="l">Cash buyers</div><div class="v ok">${o.cash}</div><div class="h">no trust deed, full coverage</div></div>
+      <div class="kpi"><div class="l">Repeat buyers</div><div class="v hot">${o.repeat}</div><div class="h">2+ purchases</div></div>
+      <div class="kpi"><div class="l">Private financing</div><div class="v hot">${o.private_financed}</div><div class="h">hard money = investor</div></div>
+      <div class="kpi"><div class="l">My captured</div><div class="v">${o.captured}</div><div class="h">people you spoke with</div></div></div>
+      <div class="controls">${seg}<input id="s" placeholder="Search buyer…" value="${PP.esc(S)}" style="min-width:220px"><button class="btn" onclick="S=document.getElementById('s').value;load()">Search</button><span class="muted">${F==='mine'?my.length:rows.length} shown</span></div>
+      ${F==='mine' ? (my.length?`<table class="tbl"><thead><tr><th>Status</th><th>Buyer</th><th>Contact</th><th>Looking for</th><th>Financing</th><th>Source</th><th></th></tr></thead><tbody>${my.map((l,i)=>`<tr><td><span class="pill p-live">${PP.esc((l.status||'new').replace('_',' '))}</span></td><td><b>${PP.esc(l.name)}</b>${l.notes?`<div class="muted" style="font-size:12px">${PP.esc(l.notes)}</div>`:''}</td><td class="mono">${PP.esc(l.phone||'')}${l.phone&&l.email?'<br>':''}${PP.esc(l.email||'')}</td><td class="muted">${PP.esc(l.county||'')}${(l.cities||[]).length?' · '+PP.esc(l.cities.join(', ')):''}${l.price_low!=null?' · '+money(l.price_low)+'–'+money(l.price_high):''}${l.beds_min?' · '+l.beds_min+'+ bd':''}</td><td>${PP.esc((l.financing||'unknown').replace('_',' '))}</td><td class="muted">${PP.esc((l.source||'').replace('_',' '))}</td><td><button class="btn sm" onclick="editMine(${i})">Update</button></td></tr>`).join('')}</tbody></table>`
+        : PP.empty('◈','Nobody captured yet','Open house, sign call, referral, sphere — add the buyers you actually talk to and they get matched to sellers automatically.'))
+      : (rows.length?`<table class="tbl"><thead><tr><th>Score</th><th>Buyer</th><th>Why</th><th>Counties</th><th>Last</th><th>Verify</th></tr></thead><tbody>${
+        rows.map((x,i)=>`<tr style="cursor:pointer" onclick="openBuyer(${i})"><td><span class="score s-warm">${x.buyer_score}</span></td><td><b>${PP.esc(x.buyer_display||'—')}</b><div class="muted" style="font-size:12px">${PP.esc(x.buyer_type||'')}</div><div style="margin-top:4px">${tags(x)}</div></td>
+        <td class="muted" style="max-width:380px;font-size:12px;line-height:1.4">${PP.esc(x.why||'')}</td><td class="muted">${(x.counties||[]).join(', ')}</td>
         <td class="muted">${x.days_since_last!=null?x.days_since_last+'d ago':'—'}</td><td class="mono">${(x.entries||[]).slice(0,2).map(e=>'#'+e).join(', ')}</td></tr>`).join('')}</tbody></table>`
-      : PP.empty('◈','No buyers match','Buyers are derived from recorded warranty deeds — try another name.')}
-      <div class="sec">Why this is different</div>
-      <div class="card"><p>Every buyer here is the grantee on a recorded warranty deed — a party that <b>actually closed</b>, with an entry number you can look up at the county. Trust deeds are excluded because their grantee is the lender; quit-claims are excluded because they're family transfers; government right-of-way purchases are excluded because they're not a market. Cash detection is deliberately not claimed yet — trust-deed coverage is too thin to support it honestly.</p></div>`;
+      : PP.empty('◈','No buyers match','Buyers are derived from recorded warranty deeds — try another filter or name.'))}
+      <div class="sec">How this side works</div>
+      <div class="card"><p>Six evidence layers, all from county documents: the <b>recorded purchase</b> (warranty deed, grantee side), <b>financing</b> matched to that purchase within 14 days with lender and loan amount, <b>private or hard-money financing</b> (how investors buy), <b>cash</b> — claimed only where one county feed records deeds and trust deeds together, so absence proves something (Utah County's trust-deed feed is partial, so its buyers say "financing unknown"), the <b>assessed value</b> of what they bought, and <b>just sold</b> — a person who sold by warranty deed in the last 120 days and has no purchase recorded since. Trust-deed grantees are excluded because that's the lender; quit-claims because they're family transfers. Every buyer is re-checked nightly at the recorder by the same integrity gate that guards sellers.</p></div>`;
     document.getElementById('s').onkeydown=e=>{if(e.key==='Enter'){S=e.target.value;load()}};
   }catch(e){ b.innerHTML=PP.err('Could not load buyers: '+e.message); }
+}
+async function openBuyer(i){
+  const x=window._rows[i]; const dr=document.getElementById('drawer');
+  dr.innerHTML=`<div class="hd"><div><h2>${PP.esc(x.buyer_display||'—')}</h2><div class="muted" style="margin-top:3px"><span class="score s-warm">${x.buyer_score}</span> · ${PP.esc(x.buyer_type||'')} · ${PP.esc(x.buyer_stage||'')}</div></div><button class="btn sm" onclick="PP.closeDrawer()">✕</button></div>
+    <div class="bd"><p style="color:var(--gold);font-size:13px;line-height:1.5">${PP.esc(x.why||'')}</p><div style="margin:6px 0 12px">${tags(x)}</div>
+    <h4>Financing</h4>${x.is_move_up?'<div class="muted">Sold, not yet bought. Proceeds in hand.</div>':x.financing_known?`<div class="kv"><span>Financed</span><span>${x.financed_purchases||0}</span></div><div class="kv"><span>Cash</span><span>${x.cash_purchases||0}</span></div>${x.lender_class?`<div class="kv"><span>Lender type</span><span>${PP.esc(x.lender_class.replace('_',' '))}</span></div>`:''}${x.loan_low!=null?`<div class="kv"><span>Loan size</span><span>${money(x.loan_low)}${x.loan_high>x.loan_low?' – '+money(x.loan_high):''}</span></div>`:''}`:'<div class="muted">Unknown. Cash is only claimed where trust-deed coverage is complete.</div>'}
+    ${x.value_low!=null?`<div class="kv"><span>Bought at (assessed)</span><span>${money(x.value_low)}${x.value_high>x.value_low?' – '+money(x.value_high):''}</span></div>`:''}
+    <h4>Evidence at the recorder</h4><div id="ev" class="muted">Loading…</div>
+    <h4>Sellers who fit this buyer</h4><div id="sf" class="muted">Loading…</div>
+    <div class="note">${x.is_move_up?'They have the proceeds and no house on record yet. Call about where they are going, not where they were.':'Reach out with a specific property, not a pitch. A repeat buyer will take a call about a house that fits what they have already bought.'}</div></div>`;
+  dr.classList.add('open'); document.getElementById('scrim').classList.add('open');
+  try{ let ev=await PP.rpc('pp_app_buyer_evidence',{p_buyer_key:x.buyer_key}); ev=typeof ev==='string'?JSON.parse(ev):ev;
+    document.getElementById('ev').innerHTML=ev.length?ev.map(e=>`<div class="kv"><span>${LBL[e.signal_type]||PP.esc(e.signal_type)}${e.lender?'<div class="muted" style="font-size:11px">'+PP.esc(e.lender)+'</div>':''}${e.property_address?'<div class="muted" style="font-size:11px">'+PP.esc(e.property_address)+'</div>':''}</span><span class="mono">${e.entry?'#'+PP.esc(e.entry):''}${e.amount!=null?' · '+money(e.amount):''}${e.observed_at?' · '+e.observed_at.slice(0,10):''}</span></div>`).join(''):'<div class="muted">No evidence rows.</div>';
+    let sf=await PP.rpc('pp_app_buyer_sellers',{p_buyer_key:x.buyer_key,p_limit:8}); sf=typeof sf==='string'?JSON.parse(sf):sf;
+    document.getElementById('sf').innerHTML=sf.length?sf.map(s=>`<div class="kv" style="cursor:pointer" onclick="PP.openLeadByKey('${s.entity_key.replace(/'/g,"\\'")}')"><span><b>${PP.esc(s.owner_display||'—')}</b><div class="muted" style="font-size:11px">${PP.esc(s.match_reason||'')}</div></span><span><span class="score s-warm">${s.conviction_score}</span> ${s.assessed_value!=null?money(s.assessed_value):''}</span></div>`).join(''):'<div class="muted">No top-tier sellers in this county right now.</div>';
+  }catch(e){ document.getElementById('ev').textContent='Could not load: '+e.message; }
+}
+function addBuyer(){
+  const dr=document.getElementById('drawer');
+  dr.innerHTML=`<div class="hd"><div><h2>Add a buyer</h2><div class="muted" style="margin-top:3px">Someone you actually spoke with. Placeholder names are rejected.</div></div><button class="btn sm" onclick="PP.closeDrawer()">✕</button></div>
+   <div class="bd" id="bf"><div class="kv"><span>Name</span><input id="f_name" placeholder="Full name"></div><div class="kv"><span>Phone</span><input id="f_phone"></div><div class="kv"><span>Email</span><input id="f_email"></div>
+   <div class="kv"><span>County</span><select id="f_county"><option>Utah</option><option>Salt Lake</option><option>Wasatch</option><option>Summit</option></select></div>
+   <div class="kv"><span>Cities</span><input id="f_cities" placeholder="comma separated"></div>
+   <div class="kv"><span>Price</span><span><input id="f_lo" placeholder="low" style="width:45%"> <input id="f_hi" placeholder="high" style="width:45%"></span></div>
+   <div class="kv"><span>Min beds / timeline</span><span><input id="f_beds" placeholder="beds" style="width:45%"> <input id="f_days" placeholder="days" style="width:45%"></span></div>
+   <div class="kv"><span>Financing</span><select id="f_fin"><option value="unknown">Unknown</option><option value="cash">Cash</option><option value="preapproved">Pre-approved</option><option value="needs_lender">Needs a lender</option></select></div>
+   <div class="kv"><span>Source</span><select id="f_src"><option value="open_house">Open house</option><option value="sign_call">Sign call</option><option value="referral">Referral</option><option value="sphere">Sphere</option><option value="web">Web</option><option value="other">Other</option></select></div>
+   <div class="kv"><span>Notes</span><textarea id="f_notes" rows="3" style="width:100%"></textarea></div>
+   <div id="f_err" class="err" style="display:none"></div><div style="margin-top:12px"><button class="btn pri" onclick="saveBuyer()">Save buyer</button></div></div>`;
+  dr.classList.add('open'); document.getElementById('scrim').classList.add('open');
+}
+async function saveBuyer(){
+  const g=id=>document.getElementById(id).value.trim(); const n=v=>{const x=parseFloat(String(v).replace(/[^0-9.]/g,'')); return isNaN(x)?null:x;};
+  const cities=g('f_cities').split(',').map(s=>s.trim()).filter(Boolean);
+  try{ await PP.rpc('pp_app_add_buyer_lead',{p_name:g('f_name'),p_phone:g('f_phone')||null,p_email:g('f_email')||null,p_county:g('f_county'),p_cities:cities.length?cities:null,p_price_low:n(g('f_lo')),p_price_high:n(g('f_hi')),p_beds_min:n(g('f_beds')),p_timeline_days:n(g('f_days')),p_financing:g('f_fin'),p_source:g('f_src'),p_notes:g('f_notes')||null});
+    PP.closeDrawer(); F='mine'; load(); }
+  catch(e){ const el=document.getElementById('f_err'); el.style.display='block'; el.textContent='Not saved: '+e.message; }
+}
+async function editMine(i){
+  const l=window._my[i]; const st=prompt('Status for '+l.name+' (new, working, matched, under_contract, closed, dead):', l.status||'new'); if(st===null) return;
+  const notes=prompt('Notes:', l.notes||''); if(notes===null) return;
+  try{ await PP.rpc('pp_app_update_buyer_lead',{p_id:l.id,p_status:st.trim(),p_notes:notes}); load(); }catch(e){ alert('Not saved: '+e.message); }
 }
 window.PP_reload=load; load();
 </script></body></html>
