@@ -9,6 +9,7 @@ const PP = (() => {
   const H = () => ({apikey:KEY, Authorization:'Bearer '+((sess()||{}).access_token||KEY), 'Content-Type':'application/json'});
 
   async function write(method, path, body){
+    await ready();
     if(sess() && Date.now() > ((sess().expires_at)||0) - 60000) await refresh();
     const r=await fetch(`${SB}/rest/v1/${path}`,{method,headers:{...H(),Prefer:'return=minimal'},body:body?JSON.stringify(body):undefined});
     if(r.status===401){ signOut(); return null; } if(!r.ok) throw new Error(method+' '+r.status+' '+(await r.text()).slice(0,120)); return true;
@@ -16,13 +17,19 @@ const PP = (() => {
   const post=(p,b)=>write('POST',p,b), patch=(p,b)=>write('PATCH',p,b), del=p=>write('DELETE',p);
   async function claim(key){ try{ const r=await rpc('pp_claim_lead',{p_entity_key:key}); const o=typeof r==='string'?JSON.parse(r):r; alert(o.ok?'Added '+o.county+' / '+(o.city==='*'?'whole county':o.city)+' to your territory.':'Could not claim: '+(o.reason||'')); if(window.PP_reload) window.PP_reload(); }catch(e){ alert('Claim failed: '+e.message); } }
   async function openLeadByKey(key){ const rows=await get('pp_conviction_queue?select=*&entity_key=eq.'+encodeURIComponent(key)+'&limit=1'); if(rows&&rows[0]) openLead(rows[0]); }
+  let _ready=null;
+  function ready(){ if(!_ready) _ready=requireAuth().catch(()=>false); return _ready; }
   async function get(path){
-    const r = await fetch(SB+'/rest/v1/'+path, {headers:H()});
+    await ready();
+    let r = await fetch(SB+'/rest/v1/'+path, {headers:H()});
+    if(r.status===401 && await refresh()) r = await fetch(SB+'/rest/v1/'+path, {headers:H()});
     if(!r.ok) throw new Error('HTTP '+r.status+' — '+(await r.text()).slice(0,140));
     return r.json();
   }
   async function rpc(name, body={}){
-    const r = await fetch(SB+'/rest/v1/rpc/'+name, {method:'POST', headers:H(), body:JSON.stringify(body)});
+    await ready();
+    let r = await fetch(SB+'/rest/v1/rpc/'+name, {method:'POST', headers:H(), body:JSON.stringify(body)});
+    if(r.status===401 && await refresh()) r = await fetch(SB+'/rest/v1/rpc/'+name, {method:'POST', headers:H(), body:JSON.stringify(body)});
 
     if(!r.ok) throw new Error('HTTP '+r.status+' — '+(await r.text()).slice(0,140));
     const t = await r.text(); return t ? JSON.parse(t) : null;
@@ -54,7 +61,9 @@ const PP = (() => {
     localStorage.setItem('pp.session',JSON.stringify(s)); return s;
   }
   function signOut(){ localStorage.removeItem('pp.session'); location.reload(); }   // reload → fresh device session, not a wall
-  async function requireAuth(){
+  let _authing=null;
+  function requireAuth(){ if(!_authing) _authing=_requireAuth().finally(()=>{ setTimeout(()=>{_authing=null;},0); }); return _authing; }
+  async function _requireAuth(){
     let s=sess();
     if(!s){ s=await deviceSession(); return !!s; }
     if(Date.now() > (s.expires_at||0) - 60000){ if(!(await refresh())){ localStorage.removeItem('pp.session'); s=await deviceSession(); return !!s; } }
