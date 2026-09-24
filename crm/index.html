@@ -10,7 +10,7 @@ async function load(){
         <div class="kpi"><div class="l">Auction scheduled</div><div class="v hot">${o.auction}</div><div class="h">hard deadline set</div></div>
         <div class="kpi"><div class="l">3+ documents</div><div class="v">${o.multi_doc_3plus}</div><div class="h">the hand-over bundle</div></div>
         <div class="kpi"><div class="l">Likely high equity</div><div class="v ok">${o.high_equity}</div><div class="h">room to sell into</div></div>
-        <div class="kpi"><div class="l">Proven buyers</div><div class="v">${bo?bo.total:'—'}</div><div class="h">${bo?bo.repeat_count+' repeat':''}</div></div>
+        <div class="kpi"><div class="l">Proven buyers</div><div class="v">${bo?bo.total:'—'}</div><div class="h">${bo?(bo.repeat??bo.repeat_count)+' repeat':''}</div></div>
         <div class="kpi"><div class="l">Worked today</div><div class="v dim">${o.worked_today}</div><div class="h">${o.in_progress} in progress</div></div>
       </div>
       <div class="grid2">
@@ -18,7 +18,7 @@ async function load(){
           <a class="btn" style="width:100%;justify-content:space-between;margin-bottom:8px" href="leads.html?auction=1"><span>🔨 Auction scheduled — a date is set</span><b>${o.auction}</b></a>
           <a class="btn" style="width:100%;justify-content:space-between;margin-bottom:8px" href="leads.html?docs=3"><span>📑 Three or more county filings on one owner</span><b>${o.multi_doc_3plus}</b></a>
           <a class="btn" style="width:100%;justify-content:space-between;margin-bottom:8px" href="leads.html?equity=1"><span>📈 Likely high equity — old mortgage</span><b>${o.high_equity}</b></a>
-          <a class="btn" style="width:100%;justify-content:space-between" href="buyers.html"><span>◈ Repeat buyers actively acquiring</span><b>${bo?bo.repeat_count:'—'}</b></a>
+          <a class="btn" style="width:100%;justify-content:space-between" href="buyers.html"><span>◈ Repeat buyers actively acquiring</span><b>${bo?(bo.repeat??bo.repeat_count):'—'}</b></a>
         </div>
         <div class="card"><h3>Queue by foreclosure stage</h3>
           ${st.map(s=>PP.bar(s.label,s.n,o.queue,s.stage>=4?'hot':'')).join('')}
