@@ -59,7 +59,9 @@ async function renderLeads(){
   const mine=J(await PP.rpc('pp_app_territory_leads',{p_limit:500,p_worth_a_look:false})); const worth=J(await PP.rpc('pp_app_territory_leads',{p_limit:100,p_worth_a_look:true}));
   document.getElementById('myN').textContent=mine.length; document.getElementById('mine').innerHTML=mine.length?mine.slice(0,40).map(row).join('')+(mine.length>40?`<div class="muted" style="font-size:12px;padding:6px 0">…and ${mine.length-40} more in Seller leads</div>`:''):'<div class="muted">No leads in your cities above your threshold. Add a city or lower the threshold.</div>';
   document.getElementById('worth').innerHTML=worth.length?worth.slice(0,20).map(row).join(''):'<div class="muted">Nothing outside your cities meets the bar right now.</div>';
-  const pts=mine.filter(l=>l.lon&&l.lat);
+  let pts=mine.filter(l=>l.lon&&l.lat);
+  if(!pts.length){ try{ let mp=await PP.rpc('pp_app_map_points'); mp=typeof mp==='string'?JSON.parse(mp):mp;
+    pts=(mp||[]).map(p=>({entity_key:p.entity_key,owner_display:p.owner,conviction_score:p.conviction,lon:p.lon,lat:p.lat,assessed_value:p.value,max_stage:p.stage,city:p.city})); }catch(e){} }
   if(!map){ map=L.map('map',{zoomControl:true}); L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18,attribution:'© OpenStreetMap'}).addTo(map); }
   if(layer) layer.remove(); if(window._ctl) window._ctl.remove();
   // three layers: Leads (pins by auction/conviction), Value (pins by assessed value), Activity (city circles from the nightly cache)
