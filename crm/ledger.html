@@ -31,4 +31,4 @@ async function saveDeal(){
 }
 async function stage(id,st,price,pct,key){ if(!st) return; try{ await PP.rpc('pp_save_deal',{p_id:id,p_entity_key:key,p_stage:st,p_list_price:price||null,p_commission_pct:pct,p_expected_close:null,p_notes:null}); await load(); }catch(e){ alert('Failed: '+e.message); } }
 load();
-</script></body></html>
+</script><script>(function(){const m=document.querySelector("main.content"),b=document.getElementById("body");if(m&&b&&!b.contains(m))b.appendChild(m);})();</script></body></html>
