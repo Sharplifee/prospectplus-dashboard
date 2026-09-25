@@ -29,4 +29,19 @@ async function load(){
   }catch(e){ b.innerHTML=PP.err('Could not load overview: '+e.message); }
 }
 window.PP_reload=load; load();
+</script><script>
+(async function donnaCard(){
+  const esc=PP.esc; let a;
+  try{ a=await PP.rpc('pp_app_assistant'); a=typeof a==='string'?JSON.parse(a):a; }catch(e){ return; }
+  if(!a) return;
+  const name=a.name||'Donna', open=(a.items||[]).filter(i=>i.status==='open');
+  const el=document.createElement('div'); el.className='card'; el.id='donna'; el.style.marginBottom='14px';
+  el.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+      <div><h3 style="margin:0">${esc(name)}</h3><div class="muted" style="font-size:12px">Your chief of staff. She has today's briefing ready, answers your line, and logs what you tell her.</div></div>
+      ${a.line?`<a class="btn pri" href="tel:${a.line}">Call ${esc(name)} · ${a.line.replace(/^\+1(\d{3})(\d{3})(\d{4})$/,'($1) $2-$3')}</a>`:''}</div>
+    <div style="margin-top:10px">${open.length?open.slice(0,8).map(i=>`<div class="kv" style="display:flex;justify-content:space-between;gap:10px;padding:6px 0;border-bottom:1px solid var(--line)"><span>${i.kind==='message'?'✉':'☐'} ${esc(i.summary)} ${i.caller_name||i.caller_number?`<span class="muted" style="font-size:11px">· ${esc(i.caller_name||i.caller_number)}</span>`:''}${i.due_at?`<span class="muted" style="font-size:11px"> · due ${i.due_at.slice(0,10)}</span>`:''}</span><button class="btn sm" onclick="PP.patch('pp_assistant_log?id=eq.${i.id}',{status:'done'}).then(()=>location.reload())">Done</button></div>`).join(''):`<div class="muted" style="font-size:13px">Nothing waiting on you.</div>`}</div>
+    <div style="margin-top:10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap"><input id="dn" value="${esc(name)}" style="max-width:180px"><button class="btn sm" onclick="PP.rpc('pp_app_set_assistant_name',{p_name:document.getElementById('dn').value}).then(()=>location.reload())">Rename her</button><span class="muted" style="font-size:11px">Put your phone on your profile so she knows it's you when you call.</span></div>`;
+  const tryInsert=()=>{ const b=document.getElementById('body'); if(b&&b.firstChild){ b.insertBefore(el,b.firstChild); return true; } return false; };
+  if(!tryInsert()){ const t=setInterval(()=>{ if(tryInsert()) clearInterval(t); },300); setTimeout(()=>clearInterval(t),15000); }
+})();
 </script></body></html>
