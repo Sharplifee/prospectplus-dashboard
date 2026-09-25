@@ -32,7 +32,7 @@ window.PP_reload=load; load();
 </script><script>
 (async function donnaCard(){
   const esc=PP.esc; let a;
-  try{ a=await PP.rpc('pp_app_assistant'); a=typeof a==='string'?JSON.parse(a):a; }catch(e){ return; }
+  try{ await PP.rpc('pp_ensure_agent',{p_display_name:null}); a=await PP.rpc('pp_app_assistant'); a=typeof a==='string'?JSON.parse(a):a; }catch(e){ return; }
   if(!a) return;
   const name=a.name||'Donna', open=(a.items||[]).filter(i=>i.status==='open');
   const el=document.createElement('div'); el.className='card'; el.id='donna'; el.style.marginBottom='14px';
