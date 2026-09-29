@@ -1,47 +1,50 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="pp.css"><script src="pp.js"></script><title>Overview — Premier Prospect</title></head><body><script>
-PP.shell('Overview','What to work today, and where the system stands.','<button class="btn" onclick="load()">Refresh</button>');
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#0f1f3d"><link rel="stylesheet" href="pp.css"><script src="pp.js"></script><title>Today — Premier Prospect</title></head><body><script>
+PP.shell('Today','What to work first, who is waiting on you, and where the system stands.','<button class="btn" onclick="load()">Refresh</button>');
+const J=x=>typeof x==='string'?JSON.parse(x):x, esc=PP.esc, fmt=n=>n==null?'—':Number(n).toLocaleString();
+async function donna(){
+  try{ await PP.rpc('pp_ensure_agent',{p_display_name:null}); const a=J(await PP.rpc('pp_app_assistant')); if(!a) return '';
+    const name=a.name||'Donna', open=(a.items||[]).filter(i=>i.status==='open');
+    const line=a.line?a.line.replace(/^\+1(\d{3})(\d{3})(\d{4})$/,'($1) $2-$3'):'';
+    return `<section class="donna" aria-label="${esc(name)}, your chief of staff">
+      <div><div class="role">Chief of staff</div><h3>${esc(name)}</h3>
+        <div class="muted" style="font-size:13px;margin-top:4px;max-width:560px">Has today's briefing ready, answers your line, takes messages and logs what you tell her.</div></div>
+      ${a.line?`<a class="btn pri" href="tel:${esc(a.line)}">Call ${esc(name)} · ${esc(line)}</a>`:''}
+      <div class="items">${open.length?open.slice(0,8).map(i=>`<div class="it"><span>${i.kind==='message'?'Message':'Task'} · ${esc(i.summary)}${i.caller_name||i.caller_number?` <span class="muted" style="font-size:11.5px">· ${esc(i.caller_name||i.caller_number)}</span>`:''}${i.due_at?` <span class="muted" style="font-size:11.5px">· due ${esc(i.due_at.slice(0,10))}</span>`:''}</span><button class="btn sm" onclick="done(${i.id})">Done</button></div>`).join(''):`<div class="muted" style="font-size:13px">Nothing waiting on you.</div>`}</div>
+      <div class="rn"><label class="muted" for="dn" style="font-size:12px">Her name</label><input id="dn" value="${esc(name)}" style="max-width:170px"><button class="btn sm" onclick="rename()">Save</button><span class="muted" style="font-size:11.5px">Add your phone to your profile so she knows it's you when you call.</span></div>
+    </section>`;
+  }catch(e){ return ''; }
+}
+async function done(id){ try{ await PP.patch('pp_assistant_log?id=eq.'+id,{status:'done'}); load(); }catch(e){ alert('Could not update: '+e.message); } }
+async function rename(){ const v=document.getElementById('dn').value.trim(); if(!v) return; try{ await PP.rpc('pp_app_set_assistant_name',{p_name:v}); load(); }catch(e){ alert('Could not rename: '+e.message); } }
 async function load(){
-  const b=document.getElementById('body'); b.innerHTML='<div class="muted">Loading…</div>';
+  const b=document.getElementById('body'); b.innerHTML=PP.loading();
   try{
-    const [o,st,bo]=await Promise.all([PP.rpc('pp_app_overview'),PP.rpc('pp_app_stage_breakdown'),PP.rpc('pp_app_buyer_overview_cached')]);
-    b.innerHTML=`
+    const [o,st,bo,dn]=await Promise.all([PP.rpc('pp_app_overview'),PP.rpc('pp_app_stage_breakdown'),PP.rpc('pp_app_buyer_overview_cached'),donna()]);
+    const stages=J(st)||[], fc=(stages.find(s=>s.stage>=4)||{n:0}).n, rep=bo?(bo.repeat??bo.repeat_count):null;
+    b.innerHTML=`${dn}
       <div class="kpis">
-        <div class="kpi"><div class="l">Ready to work</div><div class="v hot">${o.conv85}</div><div class="h">conviction 85+</div></div>
-        <div class="kpi"><div class="l">Auction scheduled</div><div class="v hot">${o.auction}</div><div class="h">hard deadline set</div></div>
-        <div class="kpi"><div class="l">3+ documents</div><div class="v">${o.multi_doc_3plus}</div><div class="h">the hand-over bundle</div></div>
-        <div class="kpi"><div class="l">Likely high equity</div><div class="v ok">${o.high_equity}</div><div class="h">room to sell into</div></div>
-        <div class="kpi"><div class="l">Proven buyers</div><div class="v">${bo?bo.total:'—'}</div><div class="h">${bo?(bo.repeat??bo.repeat_count)+' repeat':''}</div></div>
-        <div class="kpi"><div class="l">Worked today</div><div class="v dim">${o.worked_today}</div><div class="h">${o.in_progress} in progress</div></div>
+        <a class="kpi" href="leads.html?conv=85&scope=all"><div class="l">Ready to work</div><div class="v hot">${fmt(o.conv85)}</div><div class="h">conviction 85 and up</div></a>
+        <a class="kpi" href="leads.html?auction=1&scope=all"><div class="l">Foreclosure filed</div><div class="v hot">${fmt(fc)}</div><div class="h">notice of default recorded</div></a>
+        <a class="kpi" href="leads.html?docs=3&scope=all"><div class="l">Three or more filings</div><div class="v">${fmt(o.multi_doc_3plus)}</div><div class="h">independent documents, one owner</div></a>
+        <a class="kpi" href="leads.html?equity=1&scope=all"><div class="l">Likely high equity</div><div class="v ok">${fmt(o.high_equity)}</div><div class="h">old mortgage, room to sell</div></a>
+        <a class="kpi" href="buyers.html"><div class="l">Proven buyers</div><div class="v">${bo?fmt(bo.total):'—'}</div><div class="h">${rep!=null?fmt(rep)+' repeat buyers':'from recorded deeds'}</div></a>
+        <a class="kpi" href="activity.html"><div class="l">Worked today</div><div class="v dim">${fmt(o.worked_today)}</div><div class="h">${fmt(o.in_progress)} in progress</div></a>
       </div>
       <div class="grid2">
-        <div class="card"><h3>Work these first</h3>
-          <a class="btn" style="width:100%;justify-content:space-between;margin-bottom:8px" href="leads.html?auction=1"><span>🔨 Auction scheduled — a date is set</span><b>${o.auction}</b></a>
-          <a class="btn" style="width:100%;justify-content:space-between;margin-bottom:8px" href="leads.html?docs=3"><span>📑 Three or more county filings on one owner</span><b>${o.multi_doc_3plus}</b></a>
-          <a class="btn" style="width:100%;justify-content:space-between;margin-bottom:8px" href="leads.html?equity=1"><span>📈 Likely high equity — old mortgage</span><b>${o.high_equity}</b></a>
-          <a class="btn" style="width:100%;justify-content:space-between" href="buyers.html"><span>◈ Repeat buyers actively acquiring</span><b>${bo?(bo.repeat??bo.repeat_count):'—'}</b></a>
-        </div>
+        <div class="card"><h3>Work these first</h3><div class="wl">
+          <a href="leads.html?auction=1&scope=all"><span class="t">Foreclosure filed<span class="s">A notice of default is on record. The clock is running.</span></span><span class="n hot">${fmt(fc)}</span></a>
+          <a href="leads.html?docs=3&scope=all"><span class="t">Three or more county filings<span class="s">Separate documents converging on one owner.</span></span><span class="n">${fmt(o.multi_doc_3plus)}</span></a>
+          <a href="leads.html?equity=1&scope=all"><span class="t">Likely high equity<span class="s">Oldest loan is decades old. Selling leaves money on the table for them.</span></span><span class="n">${fmt(o.high_equity)}</span></a>
+          <a href="buyers.html"><span class="t">Repeat buyers acquiring now<span class="s">Two or more recorded purchases. Call them about a specific house.</span></span><span class="n">${rep!=null?fmt(rep):'—'}</span></a>
+        </div></div>
         <div class="card"><h3>Queue by foreclosure stage</h3>
-          ${st.map(s=>PP.bar(s.label,s.n,o.queue,s.stage>=4?'hot':'')).join('')}
+          ${stages.map(s=>PP.bar(s.label,s.n,o.queue,s.stage>=4?'hot':'')).join('')}
+          <div class="muted" style="margin-top:10px">${fmt(o.queue)} owners ranked · ${fmt(o.multi_doc)} backed by two or more filings</div>
         </div>
       </div>
       <div class="sec">System at a glance</div>
-      <div class="card"><p>${o.signals.toLocaleString()} live public records from ${o.sources} sources across ${o.counties} counties. ${o.queue.toLocaleString()} owners in the ranked queue, ${o.multi_doc} backed by two or more distinct filings. ${o.auto_removed} leads removed themselves after selling. Pipeline: ${o.failed_24h===0?'healthy':o.failed_24h+' failed runs'}, last refresh ${(o.last_refresh||'').slice(0,16).replace('T',' ')}.</p></div>`;
-  }catch(e){ b.innerHTML=PP.err('Could not load overview: '+e.message); }
+      <div class="card"><p>${fmt(o.signals)} live public records from ${fmt(o.sources)} sources across ${fmt(o.counties)} counties. ${fmt(o.auto_removed)} leads removed themselves after the owner sold, so nobody calls a house that already closed. Pipeline ${o.failed_24h===0?'healthy':'degraded — '+o.failed_24h+' failed runs'}; last refreshed ${esc(PP.ago(o.last_refresh))}.</p></div>`;
+  }catch(e){ b.innerHTML=PP.err('Could not load today: '+e.message); }
 }
 window.PP_reload=load; load();
-</script><script>
-(async function donnaCard(){
-  const esc=PP.esc; let a;
-  try{ await PP.rpc('pp_ensure_agent',{p_display_name:null}); a=await PP.rpc('pp_app_assistant'); a=typeof a==='string'?JSON.parse(a):a; }catch(e){ return; }
-  if(!a) return;
-  const name=a.name||'Donna', open=(a.items||[]).filter(i=>i.status==='open');
-  const el=document.createElement('div'); el.className='card'; el.id='donna'; el.style.marginBottom='14px';
-  el.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
-      <div><h3 style="margin:0">${esc(name)}</h3><div class="muted" style="font-size:12px">Your chief of staff. She has today's briefing ready, answers your line, and logs what you tell her.</div></div>
-      ${a.line?`<a class="btn pri" href="tel:${a.line}">Call ${esc(name)} · ${a.line.replace(/^\+1(\d{3})(\d{3})(\d{4})$/,'($1) $2-$3')}</a>`:''}</div>
-    <div style="margin-top:10px">${open.length?open.slice(0,8).map(i=>`<div class="kv" style="display:flex;justify-content:space-between;gap:10px;padding:6px 0;border-bottom:1px solid var(--line)"><span>${i.kind==='message'?'✉':'☐'} ${esc(i.summary)} ${i.caller_name||i.caller_number?`<span class="muted" style="font-size:11px">· ${esc(i.caller_name||i.caller_number)}</span>`:''}${i.due_at?`<span class="muted" style="font-size:11px"> · due ${i.due_at.slice(0,10)}</span>`:''}</span><button class="btn sm" onclick="PP.patch('pp_assistant_log?id=eq.${i.id}',{status:'done'}).then(()=>location.reload())">Done</button></div>`).join(''):`<div class="muted" style="font-size:13px">Nothing waiting on you.</div>`}</div>
-    <div style="margin-top:10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap"><input id="dn" value="${esc(name)}" style="max-width:180px"><button class="btn sm" onclick="PP.rpc('pp_app_set_assistant_name',{p_name:document.getElementById('dn').value}).then(()=>location.reload())">Rename her</button><span class="muted" style="font-size:11px">Put your phone on your profile so she knows it's you when you call.</span></div>`;
-  const tryInsert=()=>{ const b=document.getElementById('body'); if(b&&b.firstChild){ b.insertBefore(el,b.firstChild); return true; } return false; };
-  if(!tryInsert()){ const t=setInterval(()=>{ if(tryInsert()) clearInterval(t); },300); setTimeout(()=>clearInterval(t),15000); }
-})();
 </script></body></html>

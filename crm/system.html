@@ -1,7 +1,7 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="pp.css"><script src="pp.js"></script><title>System health — Premier Prospect</title></head><body><script>
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#0f1f3d"><link rel="stylesheet" href="pp.css"><script src="pp.js"></script><title>System health — Premier Prospect</title></head><body><script>
 PP.shell('System health','Is the pipeline running, is data fresh, and which sources are producing.','<button class="btn" onclick="load()">Refresh</button>');
 async function load(){
-  const b=document.getElementById('body'); b.innerHTML='<div class="muted">Loading…</div>';
+  const b=document.getElementById('body'); b.innerHTML=PP.loading();
   try{
     const s=await PP.rpc('pp_app_system');
     const ok=s.failed_24h===0;

@@ -1,15 +1,16 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="pp.css"><script src="pp.js"></script><title>Pipeline — Premier Prospect</title></head><body><script>
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#0f1f3d"><link rel="stylesheet" href="pp.css"><script src="pp.js"></script><title>Pipeline — Premier Prospect</title></head><body><script>
 PP.shell('Pipeline','From raw queue to closed listing. Every outcome you record moves a lead through these stages.');
 async function load(){
-  const b=document.getElementById('body'); b.innerHTML='<div class="muted">Loading…</div>';
+  const b=document.getElementById('body'); b.innerHTML=PP.loading();
   try{
-    const [o,board,cs]=await Promise.all([PP.rpc('pp_app_overview'),PP.rpc('pp_app_lifecycle_board'),PP.rpc('pp_app_county_breakdown')]);
+    const [o,board,cs,st]=await Promise.all([PP.rpc('pp_app_overview'),PP.rpc('pp_app_lifecycle_board'),PP.rpc('pp_app_county_breakdown'),PP.rpc('pp_app_stage_breakdown')]);
+    const fc=((typeof st==='string'?JSON.parse(st):st)||[]).filter(s=>s.stage>=4).reduce((a,s)=>a+s.n,0);
     const states=['attempted','no_answer','contacted','callback','appointment','listed_with_us','sold','not_interested','dead'];
     const bm={}; board.forEach(x=>bm[x.state]=x);
     b.innerHTML=`<div class="grid2">
       <div class="card"><h3>Lead funnel</h3>
         ${PP.bar('In queue',o.queue,o.queue)}${PP.bar('Conviction 85+',o.conv85,o.queue)}${PP.bar('2+ documents',o.multi_doc,o.queue)}
-        ${PP.bar('3+ documents',o.multi_doc_3plus,o.queue,'hot')}${PP.bar('Auction scheduled',o.auction,o.queue,'hot')}</div>
+        ${PP.bar('3+ documents',o.multi_doc_3plus,o.queue,'hot')}${PP.bar('Foreclosure filed',fc,o.queue,'hot')}</div>
       <div class="card"><h3>Your pipeline</h3>
         ${PP.bar('Worked today',o.worked_today,Math.max(o.queue,1))}${PP.bar('In progress',o.in_progress,Math.max(o.queue,1))}
         ${PP.bar('Appointments',o.appointments,Math.max(o.queue,1),'ok')}${PP.bar('Listings won',o.listings_won,Math.max(o.queue,1),'ok')}

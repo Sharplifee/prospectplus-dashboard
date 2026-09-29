@@ -1,13 +1,13 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>My territory · Premier Prospect</title><link rel="stylesheet" href="pp.css"><script src="pp.js"></script>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#0f1f3d"><title>My territory · Premier Prospect</title><link rel="stylesheet" href="pp.css"><script src="pp.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
-<style>#map{height:420px;border-radius:14px;border:1px solid var(--line)} .city{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--line);font-size:13px} .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px} @media(max-width:900px){.grid{grid-template-columns:1fr}} .rule{padding:8px 0;border-bottom:1px solid var(--line);font-size:12px}</style></head>
+<style>#map{height:440px;border-radius:var(--r);border:1px solid var(--line)} .grid{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:16px;align-items:start} @media(max-width:1100px){.grid{grid-template-columns:1fr}} .rule{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid var(--line);font-size:12.5px} .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:11.5px;color:var(--mute);margin-top:8px} .legend i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px;vertical-align:-1px}</style></head>
 <body><script>PP.shell('My territory','Your cities, your threshold, your routing. Everything here is yours alone.')</script>
 <main class="content">
   <div class="grid">
     <div>
       <div class="card"><h3>Conviction threshold <span id="thr" class="mono" style="color:var(--gold)"></span></h3>
         <input type="range" id="thrRange" min="50" max="95" step="5" style="width:100%"><div class="muted" style="font-size:12px">Leads below this stay out of your list.</div></div>
-      <div class="card"><h3>Cities</h3><div id="cities" class="muted">Loading…</div>
+      <div class="card"><h3>Cities</h3><div id="cities"><div class="loading">Loading cities…</div></div>
         <div class="muted" style="font-size:12px;margin-top:8px">Tick a whole county or individual cities. Saved to your account — the app shows the same list.</div></div>
       <div class="card" id="agentsCard" style="display:none"><h3>Agents <span class="muted" style="font-weight:400;font-size:12px">(admin)</span></h3><div id="agents"></div>
         <div style="display:flex;gap:6px;margin-top:8px"><input id="invEmail" type="email" placeholder="Invite by email" style="flex:1"><button class="btn" onclick="inviteAgent()">Invite</button></div>
@@ -25,9 +25,9 @@
     </div>
     <div>
       <div class="card"><h3>Map <span id="pinN" class="muted" style="font-weight:400;font-size:12px"></span></h3><div id="map"></div>
-        <div class="muted" style="font-size:11px;margin-top:6px">Leads: ● auction ● 85+ ● in territory. Value: sized and coloured by assessed value. Activity: every city with leads, circle size = new signals in 30 days. Pins come from county parcel geometry; leads without a resolved parcel aren't pinned.</div></div>
-      <div class="card"><h3>My leads <span id="myN" class="muted" style="font-weight:400;font-size:12px"></span></h3><div id="mine" class="muted">Loading…</div></div>
-      <div class="card"><h3>Worth a look <span class="muted" style="font-weight:400;font-size:12px">outside my cities · $500k+ · 85+</span></h3><div id="worth" class="muted">Loading…</div></div>
+        <div class="legend"><span><i style="background:#b3412e"></i>Foreclosure filed</span><span><i style="background:#9a6b2f"></i>Conviction 85+</span><span><i style="background:#d9a441"></i>Below 85</span></div><div class="muted" style="font-size:11.5px;margin-top:6px">Switch layers top-right: Value sizes pins by assessed value; Activity shows every city with leads, sized by new filings in 30 days. Pins come from county parcel geometry, so leads without a resolved parcel are not pinned.</div></div>
+      <div class="card"><h3>My leads <span id="myN" class="muted" style="font-weight:400;font-size:12px"></span></h3><div id="mine"><div class="loading">Loading…</div></div></div>
+      <div class="card"><h3>Worth a look <span class="muted" style="font-weight:400;font-size:12px">outside my cities · $500k+ · 85+</span></h3><div id="worth"><div class="loading">Loading…</div></div></div>
     </div>
   </div>
 </main>
@@ -54,7 +54,7 @@ async function setT(county,city,on){
   TERR=await PP.get('pp_agent_territories?select=county,city&user_id=eq.'+ME.user_id); renderCities(); await renderLeads();
 }
 document.getElementById('thrRange').addEventListener('change',async e=>{ await PP.patch('pp_agents?user_id=eq.'+ME.user_id,{min_conviction:+e.target.value}); document.getElementById('thr').textContent=e.target.value; await renderLeads(); });
-function row(l){ return `<div class="city" style="cursor:pointer" onclick="PP.openLeadByKey('${l.entity_key}')"><span><b>${esc(l.owner_display)}</b> <span class="muted">${esc(l.city||l.county)}${l.assigned_agent?' · → '+esc(l.assigned_agent)+(l.split_pct<100?' '+l.split_pct+'%':''):''}</span></span><span class="mono" style="color:var(--gold)">${l.conviction_score}</span></div>`; }
+function row(l){ return `<div class="city" role="button" tabindex="0" style="cursor:pointer" onclick="PP.openLeadByKey('${esc(l.entity_key)}')"><span><b>${esc(l.owner_display)}</b> <span class="muted">${esc(l.city||l.county)}${l.assigned_agent?' · → '+esc(l.assigned_agent)+(l.split_pct<100?' '+l.split_pct+'%':''):''}</span></span><span class="score ${PP.cls(l.conviction_score)}" style="font-size:17px">${l.conviction_score}</span></div>`; }
 async function renderLeads(){
   const mine=J(await PP.rpc('pp_app_territory_leads',{p_limit:500,p_worth_a_look:false})); const worth=J(await PP.rpc('pp_app_territory_leads',{p_limit:100,p_worth_a_look:true}));
   document.getElementById('myN').textContent=mine.length; document.getElementById('mine').innerHTML=mine.length?mine.slice(0,40).map(row).join('')+(mine.length>40?`<div class="muted" style="font-size:12px;padding:6px 0">…and ${mine.length-40} more in Seller leads</div>`:''):'<div class="muted">No leads in your cities above your threshold. Add a city or lower the threshold.</div>';
@@ -66,21 +66,39 @@ async function renderLeads(){
   if(layer) layer.remove(); if(window._ctl) window._ctl.remove();
   // three layers: Leads (pins by auction/conviction), Value (pins by assessed value), Activity (city circles from the nightly cache)
   const popup=l=>`<b>${esc(l.owner_display)}</b><br>${esc(l.city||'')} · ${l.conviction_score}${l.assessed_value?' · $'+Math.round(l.assessed_value).toLocaleString():''}<br><a href="#" onclick="PP.openLeadByKey('${l.entity_key}');return false">Open</a>`;
-  const leadsL=L.layerGroup(pts.map(l=>{ const c=(l.max_stage||0)>=5?'#e8704f':l.conviction_score>=85?'#d9b87d':'#e8ad54'; return L.circleMarker([l.lat,l.lon],{radius:6,color:'#000',weight:1,fillColor:c,fillOpacity:.95}).bindPopup(popup(l)); }));
-  const vcol=v=>v==null?'#888':v>=1e6?'#e8704f':v>=6e5?'#d9b87d':v>=3e5?'#e8ad54':'#999';
+  const leadsL=L.layerGroup(pts.map(l=>{ const c=(l.max_stage||0)>=4?'#b3412e':l.conviction_score>=85?'#9a6b2f':'#d9a441'; return L.circleMarker([l.lat,l.lon],{radius:6,color:'#000',weight:1,fillColor:c,fillOpacity:.95}).bindPopup(popup(l)); }));
+  const vcol=v=>v==null?'#9aa0ad':v>=1e6?'#b3412e':v>=6e5?'#9a6b2f':v>=3e5?'#d9a441':'#9aa0ad';
   const valueL=L.layerGroup(pts.map(l=>L.circleMarker([l.lat,l.lon],{radius:l.assessed_value?Math.min(12,4+l.assessed_value/1.5e5):4,color:'#000',weight:1,fillColor:vcol(l.assessed_value),fillOpacity:.9}).bindPopup(popup(l)+(l.assessed_value?'':'<br><i>no value yet</i>'))));
   const act=J(await PP.rpc('pp_app_city_activity',{}).catch(()=>'[]'))||[];
-  const actL=L.layerGroup(act.map(c=>L.circleMarker([c.lat,c.lon],{radius:Math.min(28,8+c.new_30d/6),color:'#d9b87d',weight:1.5,fillColor:'#d9b87d',fillOpacity:.3}).bindTooltip(`${esc(c.city)} · ${c.leads} leads · +${c.new_7d} this week`,{permanent:false}).bindPopup(`<b>${esc(c.city)}</b>, ${esc(c.county)} County<br>${c.leads} leads in queue · ${c.strong} at 85+ · ${c.auction} auction scheduled<br>+${c.new_7d} new this week · +${c.new_30d} in 30 days${c.avg_value?'<br>avg assessed $'+Math.round(c.avg_value).toLocaleString():''}`)));
+  const actL=L.layerGroup(act.map(c=>L.circleMarker([c.lat,c.lon],{radius:Math.min(28,8+c.new_30d/6),color:'#0f1f3d',weight:1.2,fillColor:'#9a6b2f',fillOpacity:.28}).bindTooltip(`${esc(c.city)} · ${c.leads} leads · +${c.new_7d} this week`,{permanent:false}).bindPopup(`<b>${esc(c.city)}</b>, ${esc(c.county)} County<br>${c.leads} leads in queue · ${c.strong} at 85+ · ${c.auction} auction scheduled<br>+${c.new_7d} new this week · +${c.new_30d} in 30 days${c.avg_value?'<br>avg assessed $'+Math.round(c.avg_value).toLocaleString():''}`)));
   layer=leadsL.addTo(map);
   window._ctl=L.control.layers({'Leads':leadsL,'Value':valueL,'Activity':actL},null,{collapsed:false,position:'topright'}).addTo(map);
   document.getElementById('pinN').textContent=pts.length+' pins · '+act.length+' cities'; if(pts.length) map.fitBounds(pts.map(l=>[l.lat,l.lon]),{padding:[20,20]}); else map.setView([40.35,-111.75],9);
 }
 async function addRule(){ const g=id=>document.getElementById(id).value; if(!g('rName')) return alert('Name the rule.');
   await PP.post('pp_routing_rules',{name:g('rName'),priority:+g('rPri')||50,active:true,county:g('rCounty')||null,city:g('rCity')||null,min_conviction:g('rConv')?+g('rConv'):null,signal_type:g('rSig')||null,assign_to:g('rTo')||null,split_pct:+g('rSplit')||100}); await renderRules(); await renderLeads(); }
-async function invite(){ const email=document.getElementById('invEmail').value.trim(), display_name=document.getElementById('invName').value.trim(), make_admin=document.getElementById('invAdmin').checked; const out=document.getElementById('invOut'); if(!email) return out.textContent='Enter an email.';
-  out.textContent='Creating…'; const s=PP.sess(); const r=await fetch('https://lbvaosyfikkpvcwksiph.supabase.co/functions/v1/invite-agent',{method:'POST',headers:{apikey:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxidmFvc3lmaWtrcHZjd2tzaXBoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwMDg0MDksImV4cCI6MjA5MDU4NDQwOX0.Gh9whjmUPz4rdKYr5yo8ZHS0nSNpkQUOwdIladX6mG4',Authorization:'Bearer '+s.access_token,'Content-Type':'application/json'},body:JSON.stringify({email,display_name,make_admin})}); const j=await r.json();
-  if(!r.ok||!j.ok) return out.textContent='Failed: '+(j.error||r.status);
-  out.innerHTML=`Invite ready for <b>${esc(email)}</b>${j.emailed?' — emailed.':' — email not sent ('+esc(j.email_error||'')+'). Share this link:'}<br><input style="width:100%;margin-top:4px;font-size:11px" value="${esc(j.invite_link||'')}" onclick="this.select()" readonly>`; AGENTS=await PP.get('pp_agents?select=user_id,display_name&order=display_name'); await renderRules(); }
+async function renderRules(){
+  const rules=await PP.get('pp_routing_rules?select=*&order=priority.asc,id.asc').catch(()=>[]);
+  const nm=id=>{ const a=AGENTS.find(x=>x.user_id===id); return a?(a.display_name||a.email||'agent'):'Unassigned'; };
+  document.getElementById('rules').innerHTML=rules.length?rules.map(r=>`<div class="rule"><span><b>${esc(r.name)}</b> <span class="muted">#${r.priority} · ${esc(r.county||'any county')}${r.city?' / '+esc(r.city):''}${r.min_conviction?' · '+r.min_conviction+'+':''}${r.signal_type?' · '+esc(r.signal_type.replace(/_/g,' ')):''} → ${esc(nm(r.assign_to))}${r.split_pct&&r.split_pct<100?' '+r.split_pct+'%':''}</span></span><button class="btn sm no" onclick="delRule(${r.id})">Remove</button></div>`).join(''):'<div class="muted">No routing rules. Leads stay with whoever claims the territory.</div>';
+  document.getElementById('rTo').innerHTML='<option value="">Unassigned</option>'+AGENTS.filter(a=>a.active!==false&&(a.display_name||a.email)).map(a=>`<option value="${esc(a.user_id)}">${esc(a.display_name||a.email)}</option>`).join('');
+  document.getElementById('rCity').innerHTML='<option value="">Any city</option>'+CITIES.map(c=>`<option>${esc(c.name)}</option>`).join('');
+  try{ const m=await PP.rpc('pp_app_signal_mix'); document.getElementById('rSig').innerHTML='<option value="">Any signal</option>'+(J(m)||[]).map(x=>`<option value="${esc(x.signal_type)}">${esc(x.signal_type.replace(/_/g,' '))}</option>`).join(''); }catch(e){}
+  const named=AGENTS.filter(a=>a.display_name||a.email);
+  document.getElementById('agents').innerHTML=named.length?named.map(a=>`<div class="rule"><span><b>${esc(a.display_name||'—')}</b> <span class="muted">${esc(a.email||'')}</span></span><span class="muted">${a.is_admin?'admin':''}${a.active===false?' · inactive':''}</span></div>`).join(''):'<div class="muted">No named agents yet.</div>';
+}
+async function inviteAgent(){
+  const email=document.getElementById('invEmail').value.trim(), out=document.getElementById('invMsg');
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ out.textContent='Enter a valid email address.'; return; }
+  out.textContent='Creating the invite…'; const s=PP.sess();
+  try{
+    const r=await fetch('https://lbvaosyfikkpvcwksiph.supabase.co/functions/v1/invite-agent',{method:'POST',headers:{apikey:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxidmFvc3lmaWtrcHZjd2tzaXBoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwMDg0MDksImV4cCI6MjA5MDU4NDQwOX0.Gh9whjmUPz4rdKYr5yo8ZHS0nSNpkQUOwdIladX6mG4',Authorization:'Bearer '+s.access_token,'Content-Type':'application/json'},body:JSON.stringify({email,display_name:null,make_admin:false})});
+    const j=await r.json().catch(()=>({}));
+    if(!r.ok||!j.ok){ out.textContent='Not sent: '+(j.error||('HTTP '+r.status)); return; }
+    out.innerHTML=`Invite ready for <b>${esc(email)}</b>${j.emailed?' — emailed.':' — email not sent. Share this link:'}${j.invite_link&&!j.emailed?`<input style="width:100%;margin-top:6px;font-size:11px" value="${esc(j.invite_link)}" onclick="this.select()" readonly>`:''}`;
+    AGENTS=await PP.get('pp_agents?select=user_id,display_name,email,is_admin,active&order=display_name'); await renderRules();
+  }catch(e){ out.textContent='Not sent: '+e.message; }
+}
 async function delRule(id){ await PP.del('pp_routing_rules?id=eq.'+id); await renderRules(); await renderLeads(); }
 load();
 </script></body></html>

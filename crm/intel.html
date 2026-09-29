@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="pp.css"><script src="pp.js"></script><title>How scoring works — Premier Prospect</title></head><body><script>
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#0f1f3d"><link rel="stylesheet" href="pp.css"><script src="pp.js"></script><title>How scoring works — Premier Prospect</title></head><body><script>
 PP.shell('How scoring works','Why a lead ranks where it does — so you can defend it to a homeowner.');
 async function load(){
   const b=document.getElementById('body');
@@ -19,7 +19,7 @@ async function load(){
       <div class="kv" style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--line)"><b class="s-mid">60–74</b><span>Qualify</span></div>
       <div class="kv" style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--line)"><b class="s-low">45–59</b><span>Nurture</span></div>
       <div class="kv" style="display:flex;justify-content:space-between;padding:6px 0"><b class="s-low">&lt;45</b><span>Watch</span></div></div>
-    <div class="card" style="margin-top:12px" id="mix"><h3>What's flowing in</h3><div class="muted">Loading…</div></div>
+    <div class="card" style="margin-top:12px" id="mix"><h3>What's flowing in</h3>${PP.loading()}</div>
   </div></div>`;
   try{ let bt=await PP.rpc('pp_app_backtest'); bt=typeof bt==='string'?JSON.parse(bt):bt;
     document.getElementById('bt').innerHTML=bt.length?'<table class="tbl" style="border:none"><tr><th>Signal</th><th>Owners</th><th>Later sold</th></tr>'+bt.filter(x=>x.owners>=10).map(x=>`<tr><td>${PP.esc(x.signal_type.replace(/_/g,' '))}</td><td>${x.owners}</td><td class="${x.sold_pct>=10?'s-hot':x.sold_pct>=2?'s-warm':'s-low'}">${x.later_sold?x.sold_pct+'% ('+x.later_sold+')':'none yet'}</td></tr>`).join('')+'</table>':'<div class="muted">No backtest yet.</div>';

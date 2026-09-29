@@ -70,51 +70,81 @@ const PP = (() => {
     return true;
   }
 
+  const ICON = {
+    today:'<path d="M3 12h4l3-8 4 16 3-8h4"/>',
+    territory:'<path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/>',
+    sellers:'<path d="M4 20V10l8-6 8 6v10"/><path d="M9 20v-6h6v6"/>',
+    buyers:'<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.6 3.4-5.5 6.5-5.5s5.7 1.9 6.5 5.5"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M18.5 14.8c1.6.8 2.6 2.5 3 5.2"/>',
+    pipeline:'<path d="M3 5h18l-7 8v6l-4-2v-4z"/>',
+    ledger:'<path d="M5 3h11l3 3v15H5z"/><path d="M8 9h8M8 13h8M8 17h5"/>',
+    activity:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+    scoring:'<path d="M4 20h16"/><path d="M6 16l4-5 3 3 5-7"/>',
+    system:'<path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"/><circle cx="12" cy="12" r="3.5"/>',
+    more:'<circle cx="5" cy="12" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="19" cy="12" r="1.4"/>'
+  };
+  const svg = k => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICON[k]}</svg>`;
   const NAV = [
     {grp:'Work'},
-    {href:'index.html',   ic:'◎', label:'Overview'},
-    {href:'territory.html', ic:'⌖', label:'My territory'},
-    {href:'leads.html',   ic:'▤', label:'Seller leads', key:'queue'},
-    {href:'buyers.html',  ic:'◈', label:'Buyers', key:'buyers'},
-    {href:'pipeline.html',ic:'▥', label:'Pipeline'},
-    {href:'ledger.html',  ic:'$', label:'Ledger'},
-    {href:'activity.html',ic:'◷', label:'Activity'},
+    {href:'index.html',     ic:'today',     label:'Today', tab:1},
+    {href:'territory.html', ic:'territory', label:'My territory', tab:1, short:'Territory'},
+    {href:'leads.html',     ic:'sellers',   label:'Seller leads', key:'queue', tab:1, short:'Sellers'},
+    {href:'buyers.html',    ic:'buyers',    label:'Buyers', key:'buyers', tab:1},
+    {href:'pipeline.html',  ic:'pipeline',  label:'Pipeline'},
+    {href:'ledger.html',    ic:'ledger',    label:'Ledger'},
+    {href:'activity.html',  ic:'activity',  label:'Activity'},
     {grp:'Understand'},
-    {href:'intel.html',   ic:'◇', label:'How scoring works'},
-    {href:'system.html',  ic:'⚙', label:'System health'},
+    {href:'intel.html',     ic:'scoring',   label:'How scoring works'},
+    {href:'system.html',    ic:'system',    label:'System health'},
   ];
 
   function shell(title, desc, actionsHtml=''){
-
     requireAuth().then(ok=>{ if(ok) rpc('pp_ensure_agent',{p_display_name:null}).then(a=>{ try{ window.PP_me = typeof a==='string'?JSON.parse(a):a; }catch(e){} }).catch(()=>{}); });
     const here = location.pathname.split('/').pop() || 'index.html';
+    const links = NAV.filter(n=>!n.grp);
     const nav = NAV.map(n => n.grp
       ? `<div class="grp">${n.grp}</div>`
-      : `<a href="${n.href}" class="${n.href===here?'on':''}"><span class="ic">${n.ic}</span>${n.label}${n.key?`<span class="ct" data-ct="${n.key}"></span>`:''}</a>`
+      : `<a href="${n.href}" class="${n.href===here?'on':''}" ${n.href===here?'aria-current="page"':''}><span class="ic">${svg(n.ic)}</span>${n.label}${n.key?`<span class="ct" data-ct="${n.key}"></span>`:''}</a>`
     ).join('');
+    const s = sess()||{};
+    const acct = s.email
+      ? `<span>${esc(s.email)}</span><a href="#" onclick="PP.signOut();return false">Sign out</a>`
+      : `<span>Working on this device</span><a href="login.html">Sign in</a>`;
+    const onMore = !links.some(n=>n.tab && n.href===here);
+    const tabs = links.filter(n=>n.tab).map(n=>`<a href="${n.href}" class="${n.href===here?'on':''}">${svg(n.ic)}<span>${n.short||n.label}</span></a>`).join('')
+      + `<button type="button" class="${onMore?'on':''}" onclick="PP.more(true)" aria-haspopup="dialog">${svg('more')}<span>More</span></button>`;
+    const moreHtml = links.filter(n=>!n.tab).map(n=>`<a href="${n.href}">${svg(n.ic)}${n.label}</a>`).join('');
+    document.title = title + ' — Premier Prospect';
     document.body.innerHTML = `
-      <aside class="side">
+      <aside class="side" aria-label="Main navigation">
         <div class="brand"><div class="nm">Premier Prospect<sup>™</sup></div><div class="sub">A Williams &amp; Co. System</div></div>
         <nav class="nav">${nav}</nav>
-        <div class="ft"><div><span class="dot" id="pp-dot"></span><span id="pp-health">checking…</span></div>
-</div>
+        <div class="ft"><div><span class="dot" id="pp-dot"></span><span id="pp-health">Checking pipeline…</span></div>
+          <div style="display:flex;justify-content:space-between;gap:8px">${acct}</div></div>
       </aside>
+      <header class="mtop"><div class="nm">Premier Prospect<sup>™</sup></div><div class="hl"><span class="dot" id="pp-dot-m"></span><span id="pp-health-m">…</span></div></header>
       <div class="main">
         <div class="top"><div><h1>${title}</h1><div class="desc">${desc}</div></div><div class="acts">${actionsHtml}</div></div>
-        <div class="body" id="body"></div>
+        <main class="body" id="body"><div class="loading">Loading…</div></main>
       </div>
-      <div class="scrim" id="scrim" onclick="PP.closeDrawer()"></div>
-      <div class="drawer" id="drawer"><div style="margin-top:8px;display:flex;justify-content:space-between;align-items:center">${(sess()||{}).email?`<span>${esc(sess().email)}</span><a href="#" onclick="PP.signOut();return false" style="color:var(--gold)">Sign out</a>`:`<span class="muted">This device</span><a href="login.html" style="color:var(--gold)">Sign in to an account</a>`}</div></div>`;
+      <nav class="tabs" aria-label="Main navigation">${tabs}</nav>
+      <div class="more" id="pp-more" role="dialog" aria-label="More"><div class="grab"></div>${moreHtml}<div class="acct">${acct}</div></div>
+      <div class="scrim" id="scrim" onclick="PP.closeDrawer();PP.more(false)"></div>
+      <div class="drawer" id="drawer" role="dialog" aria-modal="true"></div>`;
+    // screens that write their own <main class="content"> after this script ran: fold it into the page body
+    const fold = () => document.querySelectorAll('main.content').forEach(m => { const b=document.getElementById('body'); if(!b) return; if(!b.contains(m)) b.appendChild(m); b.querySelectorAll(':scope > .loading').forEach(x=>x.remove()); });
+    document.addEventListener('DOMContentLoaded', fold); setTimeout(fold, 0);
+    document.addEventListener('keydown', e => { if(e.key==='Escape'){ closeDrawer(); more(false); } });
     rpc('pp_app_overview').then(o => {
       if(!o) return;
-      const q=document.querySelector('[data-ct="queue"]'); if(q) q.textContent=o.queue;
-      const h=document.getElementById('pp-health'); const d=document.getElementById('pp-dot');
-      if(o.failed_24h>0){ h.textContent=o.failed_24h+' failed runs'; d.classList.add('bad'); }
-      else h.textContent='Pipeline healthy · '+(o.last_refresh||'').slice(0,10);
-    }).catch(()=>{});
-    rpc('pp_app_buyer_overview_cached').then(b=>{ const e=document.querySelector('[data-ct="buyers"]'); if(e&&b) e.textContent=b.total; }).catch(()=>{});
+      const q=document.querySelector('[data-ct="queue"]'); if(q) q.textContent=Number(o.queue).toLocaleString();
+      const bad=o.failed_24h>0, txt=bad?o.failed_24h+' failed runs today':'Pipeline healthy · updated '+ago(o.last_refresh);
+      ['pp-health','pp-health-m'].forEach(id=>{ const h=document.getElementById(id); if(h) h.textContent=id==='pp-health-m'?(bad?'Degraded':'Live'):txt; });
+      ['pp-dot','pp-dot-m'].forEach(id=>{ const d=document.getElementById(id); if(d&&bad) d.classList.add('bad'); });
+    }).catch(()=>{ const h=document.getElementById('pp-health'); if(h) h.textContent='Status unavailable'; });
+    rpc('pp_app_buyer_overview_cached').then(b=>{ const e=document.querySelector('[data-ct="buyers"]'); if(e&&b) e.textContent=Number(b.total).toLocaleString(); }).catch(()=>{});
     if(!sess()){ deviceSession().then(s=>{ if(s) location.reload(); else location.href='login.html'; }); }
   }
+  function more(open){ const m=document.getElementById('pp-more'), s=document.getElementById('scrim'); if(!m) return; m.classList.toggle('open',!!open); if(s) s.classList.toggle('open',!!open || document.getElementById('drawer').classList.contains('open')); }
 
   const cls = s => s>=95?'s-hot':s>=85?'s-warm':s>=70?'s-mid':'s-low';
   const tier = s => s>=88?'Act now':s>=75?'This week':s>=60?'Qualify':s>=45?'Nurture':'Watch';
@@ -134,9 +164,9 @@ const PP = (() => {
     dr.innerHTML = `
       <div class="hd"><div><h2>${esc(r.owner_display||'—')}</h2>
         <div class="muted" style="margin-top:3px"><span class="score ${cls(r.conviction_score)}">${r.conviction_score}</span> · ${tier(r.conviction_score)} · ${stage(r.max_stage)}</div></div>
-        <button class="btn sm" onclick="PP.closeDrawer()">✕</button></div>
+        <button class="btn sm" onclick="PP.closeDrawer()" aria-label="Close">Close</button></div>
       <div class="bd">
-        ${r.why?`<p style="color:var(--gold);font-size:13px;line-height:1.5">${esc(r.why)}</p>`:''}
+        ${r.why?`<div class="why-lead">${esc(r.why)}</div>`:''}
         <h4>Verify before you call</h4>
         <div class="kv"><span>Property</span><span class="mono">${esc(r.property_ref||'—')}</span></div>
         <div class="kv"><span>County entries</span><span class="mono">${esc(r.county_entries||'—')}</span></div>
@@ -175,7 +205,7 @@ const PP = (() => {
         <div style="margin-top:10px;display:flex;gap:6px"><input id="pp-note" placeholder="Add a note…" style="flex:1"><button class="btn sm" onclick="PP.rec('${esc(r.entity_key)}','note',null,document.getElementById('pp-note').value)">Save</button></div>
         ${r.touch_count?`<h4>History</h4><div class="kv"><span>Touches</span><span>${r.touch_count}</span></div><div class="kv"><span>Status</span><span>${pill(r.lifecycle_state)}</span></div>`:''}
       </div>`;
-    dr.classList.add('open'); document.getElementById('scrim').classList.add('open');
+    dr.classList.add('open'); document.getElementById('scrim').classList.add('open'); dr.scrollTop=0; const fb=dr.querySelector('button'); if(fb) fb.focus({preventScroll:true});
     rpc('pp_app_seller_buyers',{p_entity_key:r.entity_key,p_limit:5}).then(d=>{
       if(typeof d==='string') d=JSON.parse(d);
       const el=document.getElementById('pp-buyers'); if(!el) return;
@@ -206,10 +236,11 @@ const PP = (() => {
       closeDrawer(); if(window.PP_reload) await window.PP_reload();
     }catch(e){ alert('Could not record: '+e.message); }
   }
+  const loading = (t='Loading…') => `<div class="loading">${t}</div>`;
   const empty = (ic,title,sub) => `<div class="empty"><div class="ic">${ic}</div><b>${title}</b>${sub||''}</div>`;
   const err = m => `<div class="err">${esc(m)}</div>`;
   const bar = (label,v,total,cls='') => `<div class="fbar ${cls}"><div class="t"><span>${label}</span><b>${v.toLocaleString()}</b></div><div class="b"><i style="width:${Math.max(1,100*v/Math.max(total,1))}%"></i></div></div>`;
   const ago = iso => { if(!iso) return '—'; const m=(Date.now()-new Date(iso))/60000; return m<60?Math.round(m)+'m ago':m<1440?Math.round(m/60)+'h ago':Math.round(m/1440)+'d ago'; };
 
-  return {get, post, patch, del, rpc, claim, shell, signIn, signOut, requireAuth, sess, cls, tier, stage, pill, money, esc, openLead, openLeadByKey, closeDrawer, rec, empty, err, bar, ago};
+  return {get, post, patch, del, rpc, claim, shell, more, loading, signIn, signOut, requireAuth, sess, cls, tier, stage, pill, money, esc, openLead, openLeadByKey, closeDrawer, rec, empty, err, bar, ago};
 })();
