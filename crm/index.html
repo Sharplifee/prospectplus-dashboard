@@ -6,7 +6,7 @@ async function donna(){
     const name=a.name||'Donna', open=(a.items||[]).filter(i=>i.status==='open');
     const line=a.line?a.line.replace(/^\+1(\d{3})(\d{3})(\d{4})$/,'($1) $2-$3'):'';
     return `<section class="donna" aria-label="${esc(name)}, your chief of staff">
-      <div><div class="role">Chief of staff</div><h3>${esc(name)}</h3>
+      <div><h3>${esc(name)}</h3>
         <div class="muted" style="font-size:13px;margin-top:4px;max-width:560px">Has today's briefing ready, answers your line, takes messages and logs what you tell her.</div></div>
       ${a.line?`<a class="btn pri" href="tel:${esc(a.line)}">Call ${esc(name)} · ${esc(line)}</a>`:''}
       <div class="items">${open.length?open.slice(0,8).map(i=>`<div class="it"><span>${i.kind==='message'?'Message':'Task'} · ${esc(i.summary)}${i.caller_name||i.caller_number?` <span class="muted" style="font-size:11.5px">· ${esc(i.caller_name||i.caller_number)}</span>`:''}${i.due_at?` <span class="muted" style="font-size:11.5px">· due ${esc(i.due_at.slice(0,10))}</span>`:''}</span><button class="btn sm" onclick="done(${i.id})">Done</button></div>`).join(''):`<div class="muted" style="font-size:13px">Nothing waiting on you.</div>`}</div>
@@ -21,7 +21,7 @@ async function load(){
   try{
     const [o,st,bo,dn]=await Promise.all([PP.rpc('pp_app_overview'),PP.rpc('pp_app_stage_breakdown'),PP.rpc('pp_app_buyer_overview_cached'),donna()]);
     const stages=J(st)||[], fc=(stages.find(s=>s.stage>=4)||{n:0}).n, rep=bo?(bo.repeat??bo.repeat_count):null;
-    b.innerHTML=`${dn}
+    b.innerHTML=`
       <div class="kpis">
         <a class="kpi" href="leads.html?conv=85&scope=all"><div class="l">Ready to work</div><div class="v hot">${fmt(o.conv85)}</div><div class="h">conviction 85 and up</div></a>
         <a class="kpi" href="leads.html?auction=1&scope=all"><div class="l">Foreclosure filed</div><div class="v hot">${fmt(fc)}</div><div class="h">notice of default recorded</div></a>
@@ -43,7 +43,8 @@ async function load(){
         </div>
       </div>
       <div class="sec">System at a glance</div>
-      <div class="card"><p>${fmt(o.signals)} live public records from ${fmt(o.sources)} sources across ${fmt(o.counties)} counties. ${fmt(o.auto_removed)} leads removed themselves after the owner sold, so nobody calls a house that already closed. Pipeline ${o.failed_24h===0?'healthy':'degraded — '+o.failed_24h+' failed runs'}; last refreshed ${esc(PP.ago(o.last_refresh))}.</p></div>`;
+      <div class="card"><p>${fmt(o.signals)} live public records from ${fmt(o.sources)} sources across ${fmt(o.counties)} counties. ${fmt(o.auto_removed)} leads removed themselves after the owner sold, so nobody calls a house that already closed. Pipeline ${o.failed_24h===0?'healthy':'degraded — '+o.failed_24h+' failed runs'}; last refreshed ${esc(PP.ago(o.last_refresh))}.</p></div>
+      ${dn?'<div class="sec">Your chief of staff</div>'+dn:''}`;
   }catch(e){ b.innerHTML=PP.err('Could not load today: '+e.message); }
 }
 window.PP_reload=load; load();

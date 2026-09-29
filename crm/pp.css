@@ -198,7 +198,7 @@ details[open]>summary::before{content:"–"}
 
 /* ── Donna ── */
 .donna{display:grid;grid-template-columns:1fr auto;gap:18px;align-items:start;background:var(--rail);color:var(--rail-ink);
-  border-radius:var(--r2);padding:22px 24px;margin-bottom:22px;border:1px solid var(--rail-line)}
+  border-radius:var(--r2);padding:22px 24px;margin-bottom:0;border:1px solid var(--rail-line)}
 .donna h3{font-family:var(--serif);font-size:22px;font-weight:400;letter-spacing:-.01em;text-transform:none;color:var(--rail-ink);margin:0}
 .donna .muted{color:var(--rail-mute)}
 .donna .role{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--seal2);margin-bottom:6px}

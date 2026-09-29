@@ -86,9 +86,9 @@ const PP = (() => {
   const NAV = [
     {grp:'Work'},
     {href:'index.html',     ic:'today',     label:'Today', tab:1},
-    {href:'territory.html', ic:'territory', label:'My territory', tab:1, short:'Territory'},
-    {href:'leads.html',     ic:'sellers',   label:'Seller leads', key:'queue', tab:1, short:'Sellers'},
     {href:'buyers.html',    ic:'buyers',    label:'Buyers', key:'buyers', tab:1},
+    {href:'leads.html',     ic:'sellers',   label:'Seller leads', key:'queue', tab:1, short:'Sellers'},
+    {href:'territory.html', ic:'territory', label:'My territory', tab:1, short:'Territory'},
     {href:'pipeline.html',  ic:'pipeline',  label:'Pipeline'},
     {href:'ledger.html',    ic:'ledger',    label:'Ledger'},
     {href:'activity.html',  ic:'activity',  label:'Activity'},
