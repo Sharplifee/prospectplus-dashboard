@@ -27,7 +27,7 @@ async function load(){
         <a class="kpi" href="leads.html?auction=1&scope=all"><div class="l">Foreclosure filed</div><div class="v hot">${fmt(fc)}</div><div class="h">notice of default recorded</div></a>
         <a class="kpi" href="leads.html?docs=3&scope=all"><div class="l">Three or more filings</div><div class="v">${fmt(o.multi_doc_3plus)}</div><div class="h">independent documents, one owner</div></a>
         <a class="kpi" href="leads.html?equity=1&scope=all"><div class="l">Likely high equity</div><div class="v ok">${fmt(o.high_equity)}</div><div class="h">old mortgage, room to sell</div></a>
-        <a class="kpi" href="buyers.html"><div class="l">Proven buyers</div><div class="v">${bo?fmt(bo.total):'—'}</div><div class="h">${rep!=null?fmt(rep)+' repeat buyers':'from recorded deeds'}</div></a>
+        <a class="kpi" href="buyers.html"><div class="l">Buyers in the market</div><div class="v">${bo?fmt(bo.total):'—'}</div><div class="h">${rep!=null?fmt(rep)+' repeat buyers':'from recorded deeds'}</div></a>
         <a class="kpi" href="activity.html"><div class="l">Worked today</div><div class="v dim">${fmt(o.worked_today)}</div><div class="h">${fmt(o.in_progress)} in progress</div></a>
       </div>
       <div class="grid2">

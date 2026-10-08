@@ -1,5 +1,5 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#0f1f3d"><link rel="stylesheet" href="pp.css"><script src="pp.js"></script><title>Buyers — Premier Prospect</title></head><body><script>
-PP.shell('Buyers','Every buyer is the grantee on a recorded warranty deed, or a person who just sold one and has not bought yet. Proven at the county, not inferred.','<button class="btn pri" onclick="addBuyer()">+ Add a buyer</button>');
+PP.shell('Buyers','People still in the market: owners who just sold and haven't bought again, repeat buyers, and investors. One-time homebuyers who already bought are left out. All from recorded deeds.','<button class="btn pri" onclick="addBuyer()">+ Add a buyer</button>');
 let S='', F='all';
 const money=v=>v==null?'—':'$'+Math.round(v).toLocaleString();
 const LBL={purchase:'Recorded purchase',financing:'Financed purchase',private_financing:'Privately financed',cash_purchase:'Cash purchase',move_up:'Sold, no purchase since',parcel_value:'Assessed value of property bought'};
@@ -16,7 +16,7 @@ async function load(){
     const o=typeof bo==='string'?JSON.parse(bo):bo; const my=typeof mine==='string'?JSON.parse(mine):(mine||[]); window._my=my; window._rows=rows;
     const seg=[['all','All'],['investors','Investors'],['cash','Cash'],['justsold','Just sold'],['mine','Mine ('+my.length+')']].map(([k,l])=>`<button class="btn sm ${F===k?'pri':''}" onclick="F='${k}';load()">${l}</button>`).join(' ');
     b.innerHTML=`<div class="kpis">
-      <div class="kpi"><div class="l">Proven buyers</div><div class="v">${o.total}</div><div class="h">grantee on a warranty deed</div></div>
+      <div class="kpi"><div class="l">Buyers in the market</div><div class="v">${o.total}</div><div class="h">just sold, repeat, or investor</div></div>
       <div class="kpi"><div class="l">Just sold</div><div class="v hot">${o.just_sold}</div><div class="h">no purchase recorded since</div></div>
       <div class="kpi"><div class="l">Cash buyers</div><div class="v ok">${o.cash}</div><div class="h">no trust deed, full coverage</div></div>
       <div class="kpi"><div class="l">Repeat buyers</div><div class="v hot">${o.repeat}</div><div class="h">2+ purchases</div></div>
@@ -28,7 +28,7 @@ async function load(){
       : (rows.length?`<table class="tbl stack"><thead><tr><th>Score</th><th>Buyer</th><th>Why</th><th>Counties</th><th>Last</th><th>Verify</th></tr></thead><tbody>${
         rows.map((x,i)=>`<tr style="cursor:pointer" onclick="openBuyer(${i})"><td><span class="score s-warm">${x.buyer_score}</span></td><td><b>${PP.esc(x.buyer_display||'—')}</b><div class="muted" style="font-size:12px">${PP.esc(x.buyer_type||'')}</div><div style="margin-top:4px">${tags(x)}</div></td>
         <td class="muted" style="max-width:380px;font-size:12px;line-height:1.4">${PP.esc(x.why||'')}</td><td class="muted xs-hide">${(x.counties||[]).join(', ')}</td>
-        <td class="muted">${x.days_since_last!=null?'Last bought '+x.days_since_last+'d ago':'—'}</td><td class="mono xs-hide">${(x.entries||[]).slice(0,2).map(e=>'#'+e).join(', ')}</td></tr>`).join('')}</tbody></table>`
+        <td class="muted">${x.days_since_last!=null?(x.is_move_up?'Sold ':'Last bought ')+x.days_since_last+'d ago':'—'}</td><td class="mono xs-hide">${(x.entries||[]).slice(0,2).map(e=>'#'+e).join(', ')}</td></tr>`).join('')}</tbody></table>`
       : PP.empty('◈','No buyers match','Buyers are derived from recorded warranty deeds — try another filter or name.'))}
       <div class="sec">How this side works</div>
       <div class="card"><p>Six evidence layers, all from county documents: the <b>recorded purchase</b> (warranty deed, grantee side), <b>financing</b> matched to that purchase within 14 days with lender and loan amount, <b>private or hard-money financing</b> (how investors buy), <b>cash</b> — claimed only where one county feed records deeds and trust deeds together, so absence proves something (Utah County's trust-deed feed is partial, so its buyers say "financing unknown"), the <b>assessed value</b> of what they bought, and <b>just sold</b> — a person who sold by warranty deed in the last 120 days and has no purchase recorded since. Trust-deed grantees are excluded because that's the lender; quit-claims because they're family transfers. Every buyer is re-checked nightly at the recorder by the same integrity gate that guards sellers.</p></div>`;
