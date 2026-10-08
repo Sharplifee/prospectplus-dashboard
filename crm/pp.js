@@ -91,6 +91,7 @@ const PP = (() => {
     {href:'territory.html', ic:'territory', label:'My territory', tab:1, short:'Territory'},
     {href:'pipeline.html',  ic:'pipeline',  label:'Pipeline'},
     {href:'ledger.html',    ic:'ledger',    label:'Ledger'},
+    {href:'income.html',    ic:'ledger',    label:'Income map'},
     {href:'activity.html',  ic:'activity',  label:'Activity'},
     {grp:'Understand'},
     {href:'intel.html',     ic:'scoring',   label:'How scoring works'},

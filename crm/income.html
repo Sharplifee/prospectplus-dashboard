@@ -1,0 +1,184 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#0f1f3d"><link rel="stylesheet" href="pp.css"><script src="pp.js"></script><title>Income map — Premier Prospect</title>
+<style>
+.im p{max-width:72ch;margin:0}
+.im .stack{display:flex;flex-direction:column;gap:14px;margin-bottom:34px}
+.im .small{font-size:13px}
+.im .tw{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r);background:var(--card)}
+.im table.t{border-collapse:collapse;width:100%;font-size:13.5px;min-width:680px}
+.im table.t th,.im table.t td{padding:9px 12px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+.im table.t th{font:500 11px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--mute)}
+.im table.t td.n,.im table.t th.n{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums}
+.im table.t tr:last-child td{border-bottom:0}
+.im tr.grp td{background:var(--card2);font:600 11.5px var(--mono);letter-spacing:.05em;text-transform:uppercase;color:var(--mute)}
+.im tr.us td{background:var(--good-bg)}
+.im .ladder{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+.im .offer{border:1px solid var(--line);background:var(--card);border-radius:var(--r2);padding:16px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.im .offer.core{border-color:var(--seal);box-shadow:inset 0 3px 0 var(--seal)}
+.im .offer h3{margin:0;font:600 16px var(--sans)}
+.im .offer .price{font:600 19px/1.15 var(--mono)}
+.im .offer ul{margin:0;padding-left:18px;font-size:13.5px;display:flex;flex-direction:column;gap:3px}
+.im .offer .vs{font-size:12.5px;color:var(--mute);border-top:1px dashed var(--line);padding-top:8px}
+.im .eb{font:500 11px/1.3 var(--mono);letter-spacing:.09em;text-transform:uppercase;color:var(--mute)}
+.im .callout{border-left:3px solid var(--seal);padding:4px 0 4px 14px}
+.im .panel{border:1px solid var(--line);background:var(--card);border-radius:var(--r2);padding:18px;display:flex;flex-direction:column;gap:16px}
+.im .tabs{display:flex;gap:6px;flex-wrap:wrap}
+.im .tabs button{font:500 13px var(--sans);border:1px solid var(--line);background:transparent;color:var(--ink);padding:7px 12px;border-radius:5px;cursor:pointer}
+.im .tabs button[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.im .ctrls{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px 22px}
+.im .ctrl{display:flex;flex-direction:column;gap:4px;min-width:0}
+.im .ctrl label{font-size:13px;display:flex;justify-content:space-between;gap:8px}
+.im .ctrl output{font-family:var(--mono);font-variant-numeric:tabular-nums;font-weight:500}
+.im .ctrl small{color:var(--mute);font-size:12px}
+.im input[type=range]{width:100%;accent-color:var(--seal)}
+.im .flow{display:flex;flex-direction:column;gap:8px}
+.im .row{display:grid;grid-template-columns:170px minmax(0,1fr) 120px;gap:12px;align-items:center}
+.im .row .lab{font-size:13px}.im .row .lab b{display:block;font-weight:600}
+.im .bar{height:24px;background:var(--card2);border-radius:4px;overflow:hidden}
+.im .bar i{display:block;height:100%;border-radius:4px;transition:width .35s ease}
+.im .sell i{background:var(--good)}.im .buy i{background:var(--seal)}.im .sub i{background:var(--slate)}
+.im .row .v{text-align:right;font:500 15px var(--mono);font-variant-numeric:tabular-nums}
+.im .total{display:flex;flex-wrap:wrap;gap:10px 28px;padding-top:12px;border-top:1px solid var(--line)}
+.im .total div{display:flex;flex-direction:column;gap:2px}
+.im .total .big{font:600 24px/1.1 var(--mono)}
+.im ol.steps{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:8px;max-width:72ch}
+.im .foot{font-size:13px;color:var(--mute);display:flex;flex-direction:column;gap:6px}
+.im .foot a{color:var(--seal)}
+@media (prefers-reduced-motion:reduce){.im .bar i{transition:none}}
+@media (max-width:640px){.im .row{grid-template-columns:1fr;gap:4px}.im .row .v{text-align:left}}
+</style></head><body><script>
+PP.shell('Income map','What the lead book is worth, what the market charges for leads, and the offers that turn both into revenue.','<button class="btn" onclick="load()">Refresh</button>');
+const LC=.0298,BC=.0273;
+let D=null,S=null;
+const usd=v=>'$'+Math.round(v).toLocaleString('en-US');
+const n=v=>Number(v||0).toLocaleString('en-US');
+
+const MARKET=`<div class="tw"><table class="t"><thead><tr><th>Source</th><th>How they charge</th><th>Price</th><th>Exclusive?</th><th>What the agent gets</th></tr></thead><tbody>
+<tr class="grp"><td colspan="5">Pay at closing</td></tr>
+<tr><td>Zillow Preferred (replaced Flex Oct 2025)</td><td>Share of commission</td><td class="n">15–40% · sellers 40%</td><td>One agent per referral</td><td>Mostly buyers; invite-only; Follow Up Boss required</td></tr>
+<tr><td>Realtor.com ReadyConnect</td><td>Share of commission</td><td class="n">buyers 28–40% · sellers 40%</td><td>One agent</td><td>Live-transferred inquiries; fee window up to 24 months</td></tr>
+<tr><td>Redfin Partner</td><td>Share of commission</td><td class="n">~33–40%</td><td>Shared pool</td><td>Overflow Redfin customers</td></tr>
+<tr><td>HomeLight</td><td>Share of commission</td><td class="n">33%</td><td>Agents compete</td><td>Matched sellers; 3-year tail</td></tr>
+<tr><td>OJO · Agent Pronto · UpNest · FastExpert</td><td>Share of commission</td><td class="n">25–30%</td><td>Varies</td><td>Matched inquiries</td></tr>
+<tr class="grp"><td colspan="5">Subscription by zip or territory</td></tr>
+<tr><td>KeyLeads</td><td>Per zip</td><td class="n">$199/zip · 20 leads</td><td>Yes</td><td>Pre-foreclosure owners with phone, ~$10 each</td></tr>
+<tr><td>Offrs</td><td>Volume tiers</td><td class="n">$399–$999/mo</td><td>Called exclusive</td><td>15–60 predicted sellers a month</td></tr>
+<tr><td>Realtor.com Connections Plus</td><td>Per zip</td><td class="n">~$200 shared · $1,000+ exclusive</td><td>Exclusive costs 5×</td><td>Buyer inquiries; 6–12 mo minimum</td></tr>
+<tr><td>Zillow Premier Agent (legacy)</td><td>Ad spend by zip</td><td class="n">$20–$60/lead</td><td>Shared</td><td>Buyer inquiries</td></tr>
+<tr><td>Market Leader Network Boost</td><td>Monthly bundle</td><td class="n">$300/mo · ~50 leads</td><td>Yes</td><td>Ad leads; 6-mo minimum</td></tr>
+<tr><td>SmartZip</td><td>Farm size</td><td class="n">$500–$1,000+/mo</td><td>No</td><td>Predictive seller scores; 12-mo contract</td></tr>
+<tr class="grp"><td colspan="5">Shared county data</td></tr>
+<tr><td>Mojo · Landvoice (Draper, UT) · REDX</td><td>Per county or product</td><td class="n">$40–$60/mo</td><td>No</td><td>Raw pre-foreclosure, FSBO, expired lists</td></tr>
+<tr><td>PropStream · BatchLeads · PropertyRadar</td><td>Platform tiers</td><td class="n">$99–$749/mo</td><td>No</td><td>Same public filings everyone pulls</td></tr>
+<tr><td>Skip tracing (Tracerfy, REISkip)</td><td>Per hit</td><td class="n">2–15¢</td><td>—</td><td>Phone numbers</td></tr>
+<tr class="grp"><td colspan="5">Ads and appointments</td></tr>
+<tr><td>Meta / Ylopo seller ads</td><td>Cost per lead</td><td class="n">$25–$30 seller · $6–$20 buyer</td><td>Yes</td><td>Form fills; online leads close 0.4–1.2%</td></tr>
+<tr><td>Google Local Services</td><td>Cost per lead</td><td class="n">$20–$60</td><td>Yes</td><td>Inbound calls</td></tr>
+<tr><td>Pay per appointment (Opt Real Estate)</td><td>Per appointment</td><td class="n">$500–$1,000</td><td>Yes</td><td>A seller sitting down with the agent</td></tr>
+</tbody></table></div>`;
+
+const LADDER=`<div class="ladder">
+<div class="offer"><span class="eb">Entry · shared</span><h3>County Signal Feed</h3><span class="price">$99/mo per county</span><ul><li>Full nurture list (scores 55–84), deduped and confirmed</li><li>Map and plain-English reason for every lead</li></ul><span class="vs">vs Mojo $49 and PropStream $99: same price band, scored instead of raw</span></div>
+<div class="offer"><span class="eb">Territory · exclusive</span><h3>Territory Seat</h3><span class="price">$299/mo per territory</span><ul><li>Up to 20 top-tier sellers a month, one agent only</li><li>Phones once tracing is funded</li><li>Plus 20% at close</li></ul><span class="vs">vs KeyLeads $199/zip for one signal type and Offrs $399+</span></div>
+<div class="offer core"><span class="eb">Core · pay at close</span><h3>Partner Referral</h3><span class="price">30% at closing, $0 up front</span><ul><li>Top-tier sellers and just-sold buyers, routed by territory</li><li>Assistant explains each signal and preps the call</li><li>12-month fee window per lead</li></ul><span class="vs">vs Zillow and Realtor.com at 40% on sellers, Redfin 33–40%, HomeLight 33%</span></div>
+<div class="offer"><span class="eb">Premium · done for you</span><h3>Set Appointment</h3><span class="price">$400 per appointment or 35% at close</span><ul><li>System and assistant call, qualify and book the seller</li><li>Agent shows up to the listing appointment</li></ul><span class="vs">vs $500–$1,000 per appointment and $1,600–$3,000/mo ISAs</span></div>
+</div>`;
+
+function scen(d){
+  const r=Number(d.lien_rate)||10, p=Math.round((Number(d.median_value)||550000)/10000)*10000;
+  return {cons:{N:100,R:Math.round(r/2*2)/2,C:10,P:p,F:30,B:250,BR:15,BC:5,BF:25,S:3,SP:299},
+          base:{N:150,R:r,C:20,P:p,F:30,B:250,BR:30,BC:10,BF:25,S:7,SP:299},
+          strong:{N:230,R:Math.min(40,r+5),C:30,P:p,F:35,B:250,BR:40,BC:15,BF:30,S:10,SP:299}};
+}
+function rows(el,cls,steps){const max=steps[0][1]||1;el.innerHTML=steps.map(([lab,val,fmt,sub])=>{const w=fmt==='$'?100:Math.max(1.5,val/max*100);return `<div class="row"><div class="lab"><b>${lab}</b><span class="muted">${sub}</span></div><div class="bar ${cls}"><i style="width:${w}%"></i></div><div class="v">${fmt==='$'?usd(val):val.toLocaleString('en-US',{maximumFractionDigits:1})}</div></div>`}).join('');}
+const $=id=>document.getElementById(id);
+const IDS=['N','R','C','P','F','B','BR','BC','BF','S','SP'];
+function setS(k){const v=S[k];IDS.forEach(i=>$('s'+i).value=v[i]);document.querySelectorAll('.im .tabs button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.s===k));calc();}
+function calc(){
+  const g=k=>+$('s'+k).value;
+  const N=g('N'),R=g('R')/100,C=g('C')/100,P=g('P'),F=g('F')/100,B=g('B'),BR=g('BR')/100,BCp=g('BC')/100,BF=g('BF')/100,Sn=g('S'),SP=g('SP');
+  const o={N:N,R:(R*100).toFixed(1)+'%',C:Math.round(C*100)+'%',P:usd(P),F:Math.round(F*100)+'%',B:B,BR:Math.round(BR*100)+'%',BC:Math.round(BCp*100)+'%',BF:Math.round(BF*100)+'%',S:Sn,SP:usd(SP)};
+  IDS.forEach(i=>$('o'+i).textContent=o[i]);
+  const sW=N*R*C,sG=sW*P*LC,sF=sG*F,bW=B*BR*BCp,bG=bW*P*BC,bF=bG*BF,sub=Sn*SP,mo=sF+bF+sub;
+  rows($('flowS'),'sell',[['Found',N,'n','top-tier sellers'],['Will sell',N*R,'n','owners who sell'],['Your agents win',sW,'n','closed listings'],['Your fee',sF,'$',usd(sG)+' agent commission']]);
+  rows($('flowB'),'buy',[['Found',B,'n','just-sold buyers'],['Will buy',B*BR,'n','buy again'],['Your agents win',bW,'n','closed purchases'],['Your fee',bF,'$',usd(bG)+' agent commission']]);
+  rows($('flowT'),'sub',[['Seats sold',Sn,'n','exclusive territories'],['Your fee',sub,'$','recurring monthly']]);
+  $('tMo').textContent=usd(mo);$('tYr').textContent=usd(mo*12);$('tG').textContent=usd((sG+bG)*12);
+  $('tStock').textContent=usd((D.tier_a||0)*R*C*P*LC*F);$('tStockL').textContent='One-time: today\'s '+n(D.tier_a)+' top sellers';
+}
+const ctrl=(id,label,min,max,step,hint)=>`<div class="ctrl"><label for="s${id}">${label} <output id="o${id}"></output></label><input id="s${id}" type="range" min="${min}" max="${max}" step="${step}"><small>${hint}</small></div>`;
+
+async function load(){
+  const b=document.getElementById('body'); b.innerHTML=PP.loading();
+  try{
+    let d=await PP.rpc('pp_app_income_inputs'); if(typeof d==='string') d=JSON.parse(d); if(!d) throw new Error('no data yet');
+    D=d; S=scen(d);
+    const asOf=new Date(d.as_of).toLocaleString('en-US',{timeZone:'America/Denver',month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});
+    const segs=(d.segments||[]).map(s=>`<tr><td>${PP.esc(s.seg)}</td><td class="n">${n(s.n)}</td><td>${PP.esc(s.counties||'')}</td><td class="n">${s.median?usd(s.median):'—'}</td></tr>`).join('');
+    b.innerHTML=`<div class="im">
+    <div class="kpis">
+      <div class="kpi"><div class="l">Booked revenue</div><div class="v ${d.deals?'ok':'hot'}">${usd(0)}</div><div class="h">${n(d.deals)} deals · ${n(d.outcomes)} outcomes logged</div></div>
+      <div class="kpi"><div class="l">Top-tier sellers</div><div class="v">${n(d.tier_a)}</div><div class="h">${n(d.new_a_30d)} first seen in 30 days</div></div>
+      <div class="kpi"><div class="l">Lien owners who sold</div><div class="v ok">${d.lien_rate}%</div><div class="h">of ${n(d.lien_owners)} tracked, measured</div></div>
+      <div class="kpi"><div class="l">Phone numbers</div><div class="v ${d.phones?'ok':'hot'}">${n(d.phones)}</div><div class="h">${d.phones?'reachable':'skip tracing unfunded'}</div></div>
+      <div class="kpi"><div class="l">Receiving agents</div><div class="v ${d.agents>1?'ok':'hot'}">${n(d.agents)}</div><div class="h">active accounts</div></div>
+      <div class="kpi"><div class="l">Just-sold buyers</div><div class="v">${n(d.just_sold)}</div><div class="h">${n(d.just_sold_30d)} in last 30 days</div></div>
+    </div>
+    <p class="muted small" style="margin:8px 0 26px">Live inputs refreshed ${asOf} MDT, hourly. Market prices checked Oct 8 2026.</p>
+
+    <div class="stack"><div class="sec">The income map</div>
+    <div class="panel">
+      <div class="tabs" role="group" aria-label="Scenario"><button type="button" data-s="cons">Conservative</button><button type="button" data-s="base">Base</button><button type="button" data-s="strong">Strong</button></div>
+      <div class="ctrls">
+        ${ctrl('N','New top-tier sellers / month',50,400,10,n(d.new_a_30d)+' first seen in 30 days, inflated by newly added source layers')}
+        ${ctrl('R','Share that sell',2,40,0.5,'Measured: '+d.lien_rate+'% of lien owners')}
+        ${ctrl('C','Share your agents win',2,50,1,'Assumption until outcomes are logged')}
+        ${ctrl('P','Typical sale price',350000,900000,10000,'Top-tier median '+usd(d.median_value||0)+' ('+n(d.valued)+' valued)')}
+        ${ctrl('F','Seller referral share',15,40,1,'Market: 33–40% on sellers')}
+        ${ctrl('B','Just-sold buyers / month',50,400,10,n(d.just_sold_30d)+' in the last 30 days')}
+        ${ctrl('BR','Share that buy again',5,60,1,'Assumption')}
+        ${ctrl('BC','Share your agents win (buyers)',2,40,1,'After Kelvin takes his picks')}
+        ${ctrl('BF','Buyer referral share',15,40,1,'Market: 25–40%')}
+        ${ctrl('S','Territory seats sold',0,20,1,'Each seat carries ~20 leads; seats ≤ new sellers ÷ 20')}
+        ${ctrl('SP','Seat price / month',99,999,10,'KeyLeads $199, Offrs $399–$999')}
+      </div>
+      <div class="sec" style="margin:0">Sellers, per month</div><div class="flow" id="flowS"></div>
+      <div class="sec" style="margin:0">Buyers, per month</div><div class="flow" id="flowB"></div>
+      <div class="sec" style="margin:0">Territory seats, per month</div><div class="flow" id="flowT"></div>
+      <div class="total"><div><span class="eb">Monthly income</span><span class="big" id="tMo"></span></div><div><span class="eb">Annualized</span><span class="big" id="tYr"></span></div><div><span class="eb">Agent commission / yr</span><span class="big muted" id="tG"></span></div><div><span class="eb" id="tStockL"></span><span class="big" id="tStock"></span></div></div>
+    </div>
+    <p class="muted small">Utah averages: 2.98% listing side, 2.73% buyer side. Referral lines assume the slider share on every closing; seat holders pay 20%, so income runs slightly lower as seats sell.</p></div>
+
+    <div class="stack"><div class="sec">What Utah agents pay for leads today</div>
+    <p class="muted">No vendor publishes Utah-specific prices; these national rates apply here. Utah has 22,988 active licensees and 2,409 brokerages competing for about 45,000 closings a year.</p>
+    ${MARKET}
+    <div class="callout"><p><b>The gap.</b> The cheap tier sells the same raw filings to everyone. The expensive tier sells inquiries, mostly buyers, and charges its highest rate on sellers. Nobody in Utah sells scored, property-confirmed, multi-signal seller leads exclusively by territory.</p></div></div>
+
+    <div class="stack"><div class="sec">How a lead stacks up</div>
+    <div class="tw"><table class="t"><thead><tr><th>Lead</th><th class="n">Cost to agent</th><th class="n">Close rate</th><th class="n">Agent cost per closing</th></tr></thead><tbody>
+      <tr><td>Zillow Premier Agent</td><td class="n">$20–$60</td><td class="n">3–5%</td><td class="n">~$400–$2,000</td></tr>
+      <tr><td>Generic online lead</td><td class="n">$25–$60</td><td class="n">0.4–1.2%</td><td class="n">~$2,000–$15,000</td></tr>
+      <tr><td>Zillow / Realtor.com seller referral</td><td class="n">$0 up front</td><td class="n">—</td><td class="n">40% of commission</td></tr>
+      <tr class="us"><td><b>Premier Prospect Partner Referral</b></td><td class="n">$0 up front</td><td class="n">~${(d.lien_rate*0.2).toFixed(1)}%*</td><td class="n">30% of commission</td></tr>
+    </tbody></table></div>
+    <p class="muted small">*Measured lien sale rate times a 20% agent win rate (assumed). This claim is defensible once 30 days of worked bundles prove the win rate.</p></div>
+
+    <div class="stack"><div class="sec">The offer ladder</div>${LADDER}
+    <div class="callout"><p><b>Why an agent says yes.</b> Less than Zillow on every seller, nothing up front, the only agent with that homeowner, and the reason the owner is likely to sell — property, value and paper trail — which no portal lead carries.</p></div></div>
+
+    <div class="stack"><div class="sec">Where the top-tier seller value sits</div>
+    <div class="tw"><table class="t"><thead><tr><th>Group</th><th class="n">Leads</th><th>Counties</th><th class="n">Median value</th></tr></thead><tbody>${segs}</tbody></table></div>
+    <p class="muted small">Below the top tier: ${n(d.tier_b)} at 70–84, ${n(d.tier_c)} at 55–69, ${n(d.tier_d)} under 55 — the County Signal Feed.</p></div>
+
+    <div class="stack"><div class="sec">What turns the model into cash</div>
+    <ol class="steps"><li><b>Fund skip tracing.</b> Every competitor ships phones; at 2–10¢ a hit the whole top tier costs under $100.</li><li><b>Sign three receiving agents</b> on the 30% Partner Referral, one per county.</li><li><b>Log every outcome for 30 days</b> so the win rate becomes a measured number.</li><li><b>Let divorce, default and probate leads age a quarter</b> so their sale rates are measured.</li></ol></div>
+
+    <div class="foot"><span class="eb">What this page does not claim</span><p>No referral has closed and no seat has sold; every dollar is a projection. Only the lien sale rate is measured. Competitor prices are national and several sources sell competing products.</p>
+    <span class="eb" style="margin-top:6px">Sources</span><p><a href="https://www.zillow.com/preferred/faq" target="_blank" rel="noopener">Zillow Preferred</a> · <a href="https://listwithclever.com" target="_blank" rel="noopener">Clever lead cost reviews</a> · <a href="https://partneragents.redfin.com" target="_blank" rel="noopener">Redfin Partner</a> · <a href="https://keyleads.com" target="_blank" rel="noopener">KeyLeads</a> · <a href="https://www.offrs.com/pricing" target="_blank" rel="noopener">Offrs</a> · <a href="https://www.mojosells.com/pricing" target="_blank" rel="noopener">Mojo</a> · <a href="https://www.landvoice.com/pricing" target="_blank" rel="noopener">Landvoice</a> · <a href="https://www.propstream.com/news/how-much-does-propstream-cost" target="_blank" rel="noopener">PropStream</a> · <a href="https://www.tracerfy.com/pricing" target="_blank" rel="noopener">Tracerfy</a> · <a href="https://followupace.com/learn/zillow-leads-playbook/zillow-vs-other-sources/" target="_blank" rel="noopener">Follow Up Ace close rates</a> · <a href="https://www.jamilacademy.com/blog/real-estate-isa-cost-and-worth" target="_blank" rel="noopener">Appointment pricing</a> · <a href="https://www.utah.gov/pmn/files/1420457.pdf" target="_blank" rel="noopener">Utah Division of Real Estate</a> · <a href="https://www.realestatewitch.com/average-real-estate-commission-in-utah-t/" target="_blank" rel="noopener">Utah commissions</a></p></div>
+    </div>`;
+    IDS.forEach(k=>$('s'+k).addEventListener('input',()=>{document.querySelectorAll('.im .tabs button').forEach(x=>x.setAttribute('aria-pressed','false'));calc();}));
+    document.querySelectorAll('.im .tabs button').forEach(x=>x.addEventListener('click',()=>setS(x.dataset.s)));
+    setS('base');
+  }catch(e){ b.innerHTML=PP.err('Could not load the income map: '+e.message); }
+}
+load();
+</script></body></html>
