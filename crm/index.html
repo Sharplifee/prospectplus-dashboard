@@ -20,6 +20,8 @@ async function load(){
   const b=document.getElementById('body'); b.innerHTML=PP.loading();
   try{
     const [o,st,bo,dn]=await Promise.all([PP.rpc('pp_app_overview'),PP.rpc('pp_app_stage_breakdown'),PP.rpc('pp_app_buyer_overview_cached'),donna()]);
+    // after donna(): on a brand-new device its pp_ensure_agent call is what registers the session
+    const jobs=J(await PP.rpc('pp_app_job_events',{p_days:365}).catch(()=>[]))||[];
     const stages=J(st)||[], fc=(stages.find(s=>s.stage>=4)||{n:0}).n, rep=bo?(bo.repeat??bo.repeat_count):null;
     b.innerHTML=`
       <div class="kpis">
@@ -44,6 +46,7 @@ async function load(){
           <div class="muted" style="margin-top:10px">${fmt(o.queue)} owners ranked · ${fmt(o.multi_doc)} backed by two or more filings</div>
         </div>
       </div>
+      ${jobs&&jobs.length?`<div class="sec">Jobs moving in and out</div><div class="card"><p class="muted" style="margin-bottom:8px">Companies the state announced are adding jobs (new people arriving who need homes) and layoff notices (people who may sell or move). From the last 12 months, in our four counties.</p>${jobs.slice(0,10).map(j=>`<div class="kv"><span><b>${esc(j.company)}</b><div class="muted" style="font-size:11.5px">${esc(j.city||j.county+' County')} · ${esc(j.event_date)}</div></span><span style="font-weight:600;color:var(${j.direction==='in'?'--good':'--urgent'})">${j.direction==='in'?'+':'−'}${j.jobs!=null?fmt(j.jobs):'?'} jobs</span></div>`).join('')}</div>`:''}
       <div class="sec">System at a glance</div>
       <div class="card"><p>${fmt(o.signals)} live public records from ${fmt(o.sources)} sources across ${fmt(o.counties)} counties. ${fmt(o.auto_removed)} leads removed themselves after the owner sold, so nobody calls a house that already closed. Pipeline ${o.failed_24h===0?'healthy':'degraded — '+o.failed_24h+' failed runs'}; last refreshed ${esc(PP.ago(o.last_refresh))}.</p></div>
       ${dn?'<div class="sec">Your chief of staff</div>'+dn:''}`;
