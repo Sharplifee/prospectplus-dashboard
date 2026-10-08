@@ -27,7 +27,7 @@ async function load(){
         <a class="kpi" href="leads.html?auction=1&scope=all"><div class="l">Foreclosure filed</div><div class="v hot">${fmt(fc)}</div><div class="h">notice of default recorded</div></a>
         <a class="kpi" href="leads.html?docs=3&scope=all"><div class="l">Three or more filings</div><div class="v">${fmt(o.multi_doc_3plus)}</div><div class="h">independent documents, one owner</div></a>
         <a class="kpi" href="leads.html?equity=1&scope=all"><div class="l">Likely high equity</div><div class="v ok">${fmt(o.high_equity)}</div><div class="h">old mortgage, room to sell</div></a>
-        <a class="kpi" href="buyers.html"><div class="l">Buyers in the market</div><div class="v">${bo?fmt(bo.total):'—'}</div><div class="h">${rep!=null?fmt(rep)+' repeat buyers':'from recorded deeds'}</div></a>
+        <a class="kpi" href="buyers.html"><div class="l">Buyers in the market</div><div class="v">${bo?fmt(bo.total):'—'}</div><div class="h">${bo&&bo.by_county?Object.entries(bo.by_county).map(([c,n])=>c+' '+fmt(n)).join(' · '):'from deeds and court cases'}</div></a>
         <a class="kpi" href="activity.html"><div class="l">Worked today</div><div class="v dim">${fmt(o.worked_today)}</div><div class="h">${fmt(o.in_progress)} in progress</div></a>
       </div>
       <div class="grid2">
@@ -35,7 +35,9 @@ async function load(){
           <a href="leads.html?auction=1&scope=all"><span class="t">Foreclosure filed<span class="s">A notice of default is on record. The clock is running.</span></span><span class="n hot">${fmt(fc)}</span></a>
           <a href="leads.html?docs=3&scope=all"><span class="t">Three or more county filings<span class="s">Separate documents converging on one owner.</span></span><span class="n">${fmt(o.multi_doc_3plus)}</span></a>
           <a href="leads.html?equity=1&scope=all"><span class="t">Likely high equity<span class="s">Oldest loan is decades old. Selling leaves money on the table for them.</span></span><span class="n">${fmt(o.high_equity)}</span></a>
-          <a href="buyers.html"><span class="t">Repeat buyers acquiring now<span class="s">Two or more recorded purchases. Call them about a specific house.</span></span><span class="n">${rep!=null?fmt(rep):'—'}</span></a>
+          <a href="buyers.html?f=exchange"><span class="t">Investors on a 1031 clock<span class="s">Sold an investment, bought nothing yet. ${bo&&bo.exchange_due_45!=null?fmt(bo.exchange_due_45)+' must name a property within 45 days.':'Day 45 and day 180 deadlines.'}</span></span><span class="n hot">${bo&&bo.exchange_window!=null?fmt(bo.exchange_window):'—'}</span></a>
+          <a href="buyers.html?f=divorce"><span class="t">Divorcing homeowners<span class="s">A home on title and a case in court. Both spouses need a new place.</span></span><span class="n hot">${bo&&bo.divorce!=null?fmt(bo.divorce):'—'}</span></a>
+          <a href="buyers.html?f=investors"><span class="t">Repeat buyers acquiring now<span class="s">Two or more recorded purchases. Call them about a specific house.</span></span><span class="n">${rep!=null?fmt(rep):'—'}</span></a>
         </div></div>
         <div class="card"><h3>Queue by foreclosure stage</h3>
           ${stages.map(s=>PP.bar(s.label,s.n,o.queue,s.stage>=4?'hot':'')).join('')}
