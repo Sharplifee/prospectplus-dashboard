@@ -65,7 +65,7 @@ const $=id=>document.getElementById(id);
 const IDS=['N','R','C','P','F','B','BC','BF','S','SP'];
 
 function scen(d){
-  const r=Number(d.lien_rate)||10, p=Math.round((Number(d.median_value)||550000)/10000)*10000;
+  const r=12, p=Math.round((Number(d.median_value)||550000)/10000)*10000;
   return {cons:{N:120,R:Math.max(2,Math.round(r)/2),C:10,P:p,F:30,B:200,BC:1,BF:25,S:2,SP:299},
           base:{N:200,R:r,C:20,P:p,F:30,B:300,BC:2,BF:25,S:4,SP:299},
           strong:{N:250,R:Math.min(40,r+5),C:30,P:p,F:35,B:400,BC:4,BF:30,S:6,SP:399}};
@@ -132,7 +132,7 @@ async function load(){
         <p class="muted small">A <b>motivated seller</b> is a homeowner the system scores 85 or higher out of 100: a recorded lien or judgment, notice of default, death or probate, or divorce, on a home they are confirmed to own. Score reflects how likely they are to sell, not how much the home is worth.</p>
         <div class="ctrls">
           ${ctrl('N','Motivated sellers handed to agents each month',50,400,10,`${n(d.new_a_30d)} new in the last 30 days, partly a one-time catch-up from newly added sources. ${n(d.tier_a)} on file today.`)}
-          ${ctrl('R','Of those, how many sell',2,40,0.5,`Measured: ${lr}% of ${n(d.lien_owners)} lien-holding owners sold within about 4 months.`)}
+          ${ctrl('R','Of those, how many sell within a year',2,40,0.5,`Not measured yet: only ${lr}% of ${n(d.lien_owners)} lien-holding owners have sold in the 1–4 months tracked. Pre-foreclosure benchmark ~15% (Vulcan7).`)}
           ${ctrl('C','Share your agents win',2,50,1,'Of the homes that sell, how many your agents list and close. Not measured yet.')}
           ${ctrl('P','Average sale price',350000,900000,10000,`Average home value of motivated sellers on file: ${usd(d.median_value||0)}. Utah median sale: $525,000.`)}
           ${ctrl('F','Your cut of each seller deal',15,40,1,"Percent of the agent's commission paid to you at closing. Zillow and Realtor.com take 40%, Redfin 35%, HomeLight 33%.")}

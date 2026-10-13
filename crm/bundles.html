@@ -1,0 +1,165 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#0f1f3d"><link rel="stylesheet" href="pp.css"><script src="pp.js"></script><title>Seller bundles — Premier Prospect</title>
+<style>
+.sb p{max-width:74ch;margin:0}
+.sb .stack{display:flex;flex-direction:column;gap:14px;margin-bottom:34px}
+.sb .small{font-size:13px}
+.sb .eb{font:500 11px/1.3 var(--mono);letter-spacing:.09em;text-transform:uppercase;color:var(--mute)}
+.sb .deal{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,2fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--r2);overflow:hidden}
+.sb .deal>div{background:var(--card);padding:18px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.sb .deal .big{font:600 34px/1.05 var(--mono);font-variant-numeric:tabular-nums;color:var(--good)}
+.sb .deal h3{margin:0;font:600 17px var(--sans)}
+.sb .lines{display:flex;flex-direction:column;gap:9px}
+.sb .line{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:3px 14px;align-items:baseline;border-bottom:1px dashed var(--line);padding-bottom:8px}
+.sb .line:last-child{border-bottom:0;padding-bottom:0}
+.sb .line .amt{font:600 17px var(--mono);font-variant-numeric:tabular-nums;text-align:right}
+.sb .line .sub{grid-column:1/-1;font-size:12.5px;color:var(--mute)}
+.sb .check{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px}
+.sb .ck{border:1px solid var(--line);background:var(--card);border-radius:var(--r);padding:12px 14px;display:flex;flex-direction:column;gap:4px}
+.sb .ck .v{font:600 22px var(--mono);font-variant-numeric:tabular-nums}
+.sb .ok{color:var(--good)}.sb .warn{color:var(--warn)}.sb .bad{color:var(--urgent)}
+.sb .tw{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r);background:var(--card)}
+.sb table.t{border-collapse:collapse;width:100%;font-size:13.5px;min-width:900px}
+.sb table.t th,.sb table.t td{padding:9px 12px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+.sb table.t th{font:500 11px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--mute)}
+.sb table.t td.n,.sb table.t th.n{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+.sb table.t tr:last-child td{border-bottom:0}
+.sb table.t tr.tot td{font-weight:600;background:var(--card2)}
+.sb table.t tr.off td{color:var(--mute)}
+.sb .cities{font-size:12px;color:var(--mute);margin-top:3px}
+.sb .ctrls{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px 22px}
+.sb .ctrl{display:flex;flex-direction:column;gap:4px;min-width:0}
+.sb .ctrl label{font-size:13.5px;font-weight:500;display:flex;justify-content:space-between;gap:8px}
+.sb .ctrl output{font-family:var(--mono);font-weight:600}
+.sb .ctrl small{color:var(--mute);font-size:12px;line-height:1.4}
+.sb input[type=range]{width:100%;accent-color:var(--seal)}
+.sb input:focus-visible{outline:2px solid var(--seal);outline-offset:2px}
+.sb .cmp{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+.sb .opt{border:1px solid var(--line);background:var(--card);border-radius:var(--r2);padding:16px;display:flex;flex-direction:column;gap:8px}
+.sb .opt.pick{border-color:var(--seal);box-shadow:inset 0 3px 0 var(--seal)}
+.sb .opt h3{margin:0;font:600 15px var(--sans)}
+.sb .opt .amt{font:600 20px var(--mono)}
+.sb .opt ul{margin:0;padding-left:18px;font-size:13.5px;display:flex;flex-direction:column;gap:3px}
+.sb .callout{border-left:3px solid var(--seal);padding:4px 0 4px 14px;display:flex;flex-direction:column;gap:6px}
+.sb ol.steps{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:8px;max-width:74ch}
+.sb .foot{font-size:13px;color:var(--mute)}
+.sb .foot a{color:var(--seal)}
+@media (max-width:720px){.sb .deal{grid-template-columns:1fr}}
+</style></head><body><script>
+PP.shell('Seller bundles','Motivated sellers grouped by area, ready to hand to one agent per area, with what each area is worth to you.','<button class="btn" onclick="load()">Refresh</button>');
+const LC=.0298;
+// Values the system has not loaded yet: 2024 county medians (Kem C. Gardner Policy Institute via KPCW, Jul 2025)
+const COUNTY_MEDIAN={'Park City':1640000,'Summit County Towns':1640000,'Heber Valley':993000};
+const usd=v=>'$'+Math.round(v).toLocaleString('en-US');
+const n=v=>Number(v||0).toLocaleString('en-US');
+const n1=v=>Number(v||0).toLocaleString('en-US',{maximumFractionDigits:1});
+const $=id=>document.getElementById(id);
+let D=null;
+const IDS=['L','W','C','P'];
+const ctrl=(id,label,min,max,step,val,hint)=>`<div class="ctrl"><label for="s${id}">${label} <output id="o${id}"></output></label><input id="s${id}" type="range" min="${min}" max="${max}" step="${step}" value="${val}"><small>${hint}</small></div>`;
+
+function priceOf(b){ return b.median ? Number(b.median) : (COUNTY_MEDIAN[b.bundle]||0); }
+function handable(b){ return (b.ready||0)+(b.parcel||0); }
+function calc(){
+  const L=+$('sL').value/100, W=+$('sW').value/100, C=+$('sC').value/100, P=+$('sP').value;
+  $('oL').textContent=Math.round(L*100)+'%'; $('oW').textContent=Math.round(W*100)+'%'; $('oC').textContent=Math.round(C*100)+'%'; $('oP').textContent=usd(P)+'/mo';
+  let tot={h:0,new:0,cl:0,ref:0,sub:0,n:0}; const rows=[];
+  (D.bundles||[]).filter(b=>b.bundle!=='Unassigned').forEach(b=>{
+    const h=handable(b), price=priceOf(b), live=h>=20;
+    const share = b.leads? h/b.leads : 0;
+    const yearLeads = h;   // leads on file today only; new ones are upside, not counted
+    const closings = yearLeads*L*W;
+    const gci = closings*price*LC;
+    const ref = gci*C, sub = live? P*12 : 0, agentNet = price*LC*(1-C);
+    if(live){ tot.h+=h; tot.new+=(b.new30||0)*share; tot.cl+=closings; tot.ref+=ref; tot.sub+=sub; tot.n++; }
+    rows.push(`<tr class="${live?'':'off'}"><td><b>${PP.esc(b.bundle)}</b><div class="cities">${PP.esc(b.cities||'Properties not matched yet')}</div></td>
+      <td class="n">${n(h)}<div class="cities">${n(b.ready)} address · ${n(b.parcel)} parcel</div></td>
+      <td class="n">${n1((b.new30||0)*share)}</td>
+      <td class="n">${price?usd(price):'—'}${b.median?'':(price?'<div class="cities">county median</div>':'')}</td>
+      <td class="n">${live?n1(closings):'—'}</td>
+      <td class="n">${live?usd(sub):'—'}</td>
+      <td class="n">${live?usd(ref):'—'}</td>
+      <td class="n"><b>${live?usd(sub+ref):'Not ready'}</b></td>
+      <td class="n">${price?usd(agentNet):'—'}</td></tr>`);
+  });
+  rows.push(`<tr class="tot"><td>${tot.n} bundles ready to sell</td><td class="n">${n(tot.h)}</td><td class="n">${n1(tot.new)}</td><td></td><td class="n">${n1(tot.cl)}</td><td class="n">${usd(tot.sub)}</td><td class="n">${usd(tot.ref)}</td><td class="n">${usd(tot.sub+tot.ref)}</td><td></td></tr>`);
+  $('rows').innerHTML=rows.join('');
+  // the deal card
+  $('dNow').textContent=usd(tot.n*P)+' a month';
+  $('dNowS').textContent=`${tot.n} bundles × ${usd(P)}, paid from the day each agent signs`;
+  $('dRef').textContent=usd(tot.ref)+' a year';
+  $('dRefS').textContent=`About ${n1(tot.cl)} closings a year across all bundles at ${Math.round(C*100)}%. First checks arrive 3–5 months after hand-off (list, contract, close).`;
+  $('dYr').textContent=usd(tot.sub+tot.ref);
+  // commission-only comparison at 30%
+  const commOnly = tot.ref/C*0.30;
+  $('cA').textContent=usd(commOnly)+' / yr'; $('cB').textContent=usd(tot.sub+tot.ref)+' / yr'; $('cBnow').textContent=usd(tot.n*P)+' in month one';
+}
+
+async function load(){
+  const b=document.getElementById('body'); b.innerHTML=PP.loading();
+  try{
+    let d=await PP.rpc('pp_app_seller_bundles'); if(typeof d==='string') d=JSON.parse(d); if(!d||!d.bundles) throw new Error('bundles have not been computed yet');
+    D=d;
+    const asOf=new Date(d.as_of).toLocaleString('en-US',{timeZone:'America/Denver',month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});
+    const rate=t=>{ const r=(d.rates||[]).find(x=>x.signal_type===t); return r?`${r.sold_pct}% of ${n(r.owners)}`:'—'; };
+    b.innerHTML=`<div class="sb">
+
+    <div class="stack">
+      <div class="deal">
+        <div><span class="eb">Recommended deal</span><h3>Territory bundle</h3><span class="big">$299/mo + 25%</span><span class="muted small">One agent per area. Month to month. The fee starts income on day one; the 25% at closing is where the real money is, and it still leaves the agent more than Zillow's 40%.</span></div>
+        <div class="lines">
+          <div class="line"><b>Income from day one</b><span class="amt" id="dNow"></span><span class="sub" id="dNowS"></span></div>
+          <div class="line"><b>Referral income</b><span class="amt" id="dRef"></span><span class="sub" id="dRefS"></span></div>
+          <div class="line"><b>Year one total</b><span class="amt" id="dYr"></span><span class="sub">Bundle fees plus referral fees on leads already on file, using the assumptions below. New leads each month add to this.</span></div>
+        </div>
+      </div>
+      <p class="muted small">Live, refreshed ${asOf} MDT.</p>
+    </div>
+
+    <div class="stack"><div class="sec">Are the leads real?</div>
+      <div class="check">
+        <div class="ck"><span class="eb">Motivated sellers (85+)</span><span class="v">${n(d.total)}</span><span class="muted small">Every one tied to a recorded county document on a home the owner holds.</span></div>
+        <div class="ck"><span class="eb">Ready to hand off</span><span class="v ok">${n(d.ready)}</span><span class="muted small">Street address and home value on file.</span></div>
+        <div class="ck"><span class="eb">Need an address</span><span class="v warn">${n(d.parcel)}</span><span class="muted small">Parcel known; a 10¢ parcel trace returns address and phone.</span></div>
+        <div class="ck"><span class="eb">Not handable yet</span><span class="v bad">${n(d.match)}</span><span class="muted small">Name and document only, no property matched. Held back from bundles.</span></div>
+        <div class="ck"><span class="eb">Phone numbers</span><span class="v bad">0</span><span class="muted small">Skip tracing is unfunded. About $25 covers every handable lead.</span></div>
+      </div>
+      <div class="callout"><p><b>Fixed today:</b> 811 records from an old Utah County scraper (May–June) were labelled "judgment lien" but were deeds, quit-claims, easements and death affidavits; 28 of 28 checked on utahcounty.gov. They are retired, the source is blocked, and every seller was rescored. The same records had produced the "16–29% of lien owners sold" figure, because a deed was matching itself as a later sale.</p>
+      <p><b>How often these owners really sell, measured honestly:</b> death affidavits ${rate('death_affidavit')}, liens ${rate('lien_judgment')}, tax delinquency ${rate('tax_delinquency')}, notices of default ${rate('nod')}. Most of these have been tracked for one to four months, far shorter than a typical sale cycle, so they are a floor, not a forecast. Outside benchmarks: about 15% of pre-foreclosure owners relist (Vulcan7 2026), and KeyLeads says 30–40% of its pre-foreclosure leads list within 12 months.</p></div>
+    </div>
+
+    <div class="stack"><div class="sec">Bundles by area</div>
+      <div class="ctrls">
+        ${ctrl('L','Owners who list within a year',3,40,1,12,'Not yet measured here. Pre-foreclosure benchmark ~15%; KeyLeads claims 30–40%.')}
+        ${ctrl('W','Share your agent wins',5,60,1,25,'Of the owners who list, how many list with your agent.')}
+        ${ctrl('C','Your cut at closing',10,40,1,25,"Percent of the agent's listing commission. Zillow takes 40%.")}
+        ${ctrl('P','Monthly bundle price',0,999,25,299,'KeyLeads $199 per zip for 20 single-signal leads; Offrs.com ~$600 for an exclusive zip.')}
+      </div>
+      <div class="tw"><table class="t"><thead><tr><th>Bundle</th><th class="n">Handable leads</th><th class="n">Fresh signal, last 30 days</th><th class="n">Average home value</th><th class="n">Closings from leads on file</th><th class="n">Bundle fees / yr</th><th class="n">Referral fees / yr</th><th class="n">Your income / yr</th><th class="n">Agent keeps per closing</th></tr></thead><tbody id="rows"></tbody></table></div>
+      <p class="muted small">A bundle needs at least 20 handable leads to sell. Closings = leads on file today × owners who list within a year × share your agent wins. New leads each month are extra and not counted. Listing commission 2.98% (Utah average). Summit and Wasatch home values are not loaded yet, so those bundles use 2024 county medians: Summit $1,640,000, Wasatch $993,000.</p>
+    </div>
+
+    <div class="stack"><div class="sec">Commission only, or a small fee up front?</div>
+      <div class="cmp">
+        <div class="opt"><span class="eb">Option A</span><h3>Commission only, 30%</h3><span class="amt" id="cA"></span><ul><li>Easiest yes for an agent</li><li>$0 until the first closing, 3–5 months out</li><li>Agents with nothing at stake work leads less</li></ul></div>
+        <div class="opt pick"><span class="eb">Option B · recommended</span><h3>$299 a month + 25%</h3><span class="amt" id="cB"></span><ul><li><b id="cBnow"></b></li><li>Fee pays for skip tracing and keeps agents working the list</li><li>One closing at an average Utah price leaves the agent about $12,500 after your cut, more than three years of fees</li></ul></div>
+        <div class="opt"><span class="eb">Option C</span><h3>Sell the list outright</h3><span class="amt">~$10 a lead</span><ul><li>What KeyLeads charges for exclusive pre-foreclosures</li><li>Cash now, but you give up every referral fee</li><li>Only worth it for areas no agent will take</li></ul></div>
+      </div>
+    </div>
+
+    <div class="stack"><div class="sec">To start earning this week</div>
+      <ol class="steps">
+        <li><b>Fund skip tracing, about $25.</b> 2¢ per address trace and 10¢ per parcel trace on Tracerfy; the key is already in the pipeline.</li>
+        <li><b>Pick the first three bundles:</b> Provo–Orem, Alpine Corridor and North Utah County have the most ready leads and loaded home values.</li>
+        <li><b>Sign one agent per bundle</b> on $299 a month + 25%, with a referral agreement that names the fee and a 12-month window per lead.</li>
+        <li><b>Log every call and outcome</b> so "owners who list" and "share your agent wins" become measured numbers within 60 days.</li>
+      </ol>
+    </div>
+
+    <p class="foot">Sources: <a href="https://www.vulcan7.com/state-of-real-estate-prospecting/" target="_blank" rel="noopener">Vulcan7 State of Prospecting 2026</a> · <a href="https://keyleads.com" target="_blank" rel="noopener">KeyLeads</a> · <a href="https://www.zillow.com/preferred/pricing/" target="_blank" rel="noopener">Zillow Preferred pricing</a> · <a href="https://www.kpcw.org/state-regional/2025-07-18/report-price-of-summit-county-homes-drops-slightly-still-most-expensive-in-utah" target="_blank" rel="noopener">Summit and Wasatch medians (KPCW)</a> · <a href="https://www.tracerfy.com/pricing" target="_blank" rel="noopener">Tracerfy</a> · <a href="https://www.realestatewitch.com/average-real-estate-commission-in-utah-t/" target="_blank" rel="noopener">Utah commissions</a>.</p>
+    </div>`;
+    IDS.forEach(k=>$('s'+k).addEventListener('input',calc));
+    calc();
+  }catch(e){ b.innerHTML=PP.err('Could not load seller bundles: '+e.message); }
+}
+load();
+</script></body></html>
