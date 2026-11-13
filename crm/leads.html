@@ -8,7 +8,7 @@ async function load(){
   b.innerHTML=`<div class="controls">
     <input id="s" placeholder="Search owner…" value="${PP.esc(F.search)}" style="min-width:220px">
     <select id="docs"><option value="1">Any documents</option><option value="2">2+ documents</option><option value="3">3+ documents</option></select>
-    <select id="conv"><option value="0">Any conviction</option><option value="60">60+</option><option value="75">75+</option><option value="85">85+</option><option value="95">95+</option></select>
+    <select id="conv"><option value="0">Any score</option><option value="60">60+</option><option value="75">75+</option><option value="85">85+</option><option value="95">95+</option></select>
     <select id="scope"><option value="mine">My territory</option><option value="all">Everything</option></select>
     <select id="county"><option value="">All counties</option></select>
     <label class="btn"><input type="checkbox" id="auction" style="width:auto"> Default or lawsuit filed</label>
@@ -60,7 +60,7 @@ async function load(){
 }
 function rowsHtml(rows,start){ return rows.map((x,k)=>{ const i=start+k; return `<tr class="row" onclick="PP.openLead(window._rows[${i}])"><td><span class="score ${PP.cls(x.conviction_score)}">${x.conviction_score}</span><div class="muted" style="font-size:10px">${PP.tier(x.conviction_score)}</div></td>
         <td><b>${PP.esc(x.owner_display||'—')}</b><div class="muted" style="font-size:11px">${PP.esc(x.city||x.county||'')} · ${PP.esc((x.property_ref||'').slice(0,40))}${x.assigned_agent?' · → '+PP.esc(x.assigned_agent)+(x.split_pct&&x.split_pct<100?' '+x.split_pct+'%':''):''}</div></td>
-        <td><span class="${x.max_stage>=4?'s-hot':'muted'}" style="font-size:12px">${PP.stage(x.max_stage)}</span></td>
+        <td><span class="${x.max_stage>=4?'s-hot':'muted'}" style="font-size:12px">${PP.stage(x.max_stage, x.situation)}</span></td>
         <td class="why">${PP.esc(x.why||'')}</td><td class="xs-hide mono">${x.signal_count??'—'}</td><td>${PP.pill(x.lifecycle_state)}</td></tr>`; }).join(''); }
 function render(rows, more){
       document.getElementById('cnt').textContent=rows.length+' leads'+(more?' — loading more…':'');
@@ -80,7 +80,7 @@ async function saveFile(text,name,type){
 }
 function exportCSV(){
   const rows=window._rows||[]; if(!rows.length){alert('Nothing to export — apply filters that return leads first.');return;}
-  const cols=[['owner','owner_display'],['conviction',r=>r.conviction_score],['tier',r=>PP.tier(r.conviction_score)],['stage',r=>PP.stage(r.max_stage)],
+  const cols=[['owner','owner_display'],['conviction',r=>r.conviction_score],['tier',r=>PP.tier(r.conviction_score)],['stage',r=>PP.stage(r.max_stage, r.situation)],
     ['county','county'],['property_ref','property_ref'],['county_entries','county_entries'],['documents','signal_count'],['signal_types',r=>(r.signal_types||[]).join('|')],
     ['equity_proxy_pct',r=>r.equity_proxy==null?'':Math.round(r.equity_proxy)],['oldest_loan_years',r=>r.oldest_loan_years==null?'':Math.round(r.oldest_loan_years)],
     ['tax_owed',r=>r.total_tax_debt==null?'':Math.round(r.total_tax_debt)],['why','why'],['status','lifecycle_state'],['entity_key','entity_key']];

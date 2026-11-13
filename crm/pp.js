@@ -152,7 +152,11 @@ const PP = (() => {
 
   const cls = s => s>=95?'s-hot':s>=85?'s-warm':s>=70?'s-mid':'s-low';
   const tier = s => s>=88?'Top rank':s>=75?'High rank':s>=60?'Mid rank':s>=45?'Low rank':'Watch';   // a ranking, not a measured urgency
-  const stage = n => ({5:'Auction scheduled',4:'Default or lawsuit filed',3:'Lender preparing',2:'Creditor action',1:'Financial pressure'})[n]||'Watch';
+  // Nov 13 2026: the label says what the county record is, not a forecast. The old ladder called a divorce or probate
+  // filing "Financial pressure", a trustee change "Creditor action", and every death record "Watch".
+  const SITUATION = {auction:'Trustee sale noticed', default:'Notice of default', estate:'Death or probate record', lawsuit:'Lawsuit on record',
+                     preparing:'Trustee substituted', divorce:'Divorce record', tax:'Tax delinquent', lien:'Lien or judgment', general:'County record'};
+  const stage = (n, sit) => SITUATION[sit] || ({5:'Trustee sale noticed',4:'Default or lawsuit filed',2:'Lien, judgment or trustee change',1:'Tax, divorce or probate record'})[n] || 'County record';
   const pill = st => {
     if(!st||st==='new') return '<span class="pill p-new">new</span>';
     if(['listed_with_us','sold','appointment'].includes(st)) return `<span class="pill p-won">${st.replace(/_/g,' ')}</span>`;
@@ -167,7 +171,7 @@ const PP = (() => {
     const eq = r.equity_proxy;
     dr.innerHTML = `
       <div class="hd"><div><h2>${esc(r.owner_display||'—')}</h2>
-        <div class="muted" style="margin-top:3px"><span class="score ${cls(r.conviction_score)}">${r.conviction_score}</span> · ${tier(r.conviction_score)} · ${stage(r.max_stage)}</div></div>
+        <div class="muted" style="margin-top:3px"><span class="score ${cls(r.conviction_score)}">${r.conviction_score}</span> · ${tier(r.conviction_score)} · ${stage(r.max_stage, r.situation)}</div></div>
         <button class="btn sm" onclick="PP.closeDrawer()" aria-label="Close">Close</button></div>
       <div class="bd">
         ${r.why?`<div class="why-lead">${esc(r.why)}</div>`:''}
@@ -223,7 +227,7 @@ const PP = (() => {
       if(typeof d==='string') d=JSON.parse(d);
       const el=document.getElementById('pp-timeline'); if(!el) return;
       if(!d||!d.length){ el.textContent='No filings on record.'; return; }
-      const stageName={5:'Auction scheduled',4:'Default or lawsuit filed',3:'Lender preparing',2:'Creditor action',1:'Financial pressure',0:''};
+      const stageName={5:'Trustee sale noticed',4:'Default or lawsuit filed',2:'Lien, judgment or trustee change',1:'Tax, divorce or probate record',0:''};
       el.innerHTML=d.map(x=>`<div style="display:grid;grid-template-columns:82px 1fr auto;gap:8px;padding:6px 0;border-bottom:1px solid var(--line)">
         <span class="mono">${esc(x.recorded||'')}</span>
         <span><b style="color:${x.stage>=4?'var(--hot)':x.stage>=1?'var(--gold2)':'var(--ink2)'}">${esc((x.signal_type||'').replace(/_/g,' '))}</b>

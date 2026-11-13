@@ -56,7 +56,7 @@
 @media (max-width:720px){.im .hero{grid-template-columns:1fr}}
 </style><script src="../event-log.js" defer data-url="https://lbvaosyfikkpvcwksiph.supabase.co" data-key="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxidmFvc3lmaWtrcHZjd2tzaXBoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwMDg0MDksImV4cCI6MjA5MDU4NDQwOX0.Gh9whjmUPz4rdKYr5yo8ZHS0nSNpkQUOwdIladX6mG4" data-project="prospectplus"></script>
 </head><body><script>
-PP.shell('Income map','What the motivated sellers and buyers in the system are worth to you once agents work them, and how that compares with what agents pay for leads today.','<button class="btn" onclick="load()">Refresh</button>');
+PP.shell('Income map','What the top-ranked seller leads and buyers in the system are worth to you once agents work them, and how that compares with what agents pay for leads today.','<button class="btn" onclick="load()">Refresh</button>');
 const LC=.0298,BC=.0273,SEAT_LEADS=20,SEAT_SHARE=.20;
 let D=null,S=null;
 const usd=v=>'$'+Math.round(v).toLocaleString('en-US');
@@ -96,9 +96,9 @@ function calc(){
   $('lBs').textContent=`${n1(bClosed)} purchases a month closed by your agents · ${usd(bGci)} in agent commission`;
   $('lTs').textContent=`${Sn} territor${Sn===1?'y':'ies'} at ${usd(SP)} a month`;
   $('gS').textContent=usd(sFee)+'/mo'; $('gB').textContent=usd(bFee)+'/mo'; $('gT').textContent=usd(seats)+'/mo';
-  $('chS').innerHTML=`<b>${n(N)}</b> motivated sellers <i>→</i> <b>${n1(willSell)}</b> expected to sell <i>→</i> <b>${n1(closed)}</b> sold by your agents <i>→</i> <b>${usd(sGci)}</b> agent commission <i>→</i> <b>${usd(sFee)}</b> to you`;
+  $('chS').innerHTML=`<b>${n(N)}</b> top-ranked seller leads <i>→</i> <b>${n1(willSell)}</b> expected to sell <i>→</i> <b>${n1(closed)}</b> sold by your agents <i>→</i> <b>${usd(sGci)}</b> agent commission <i>→</i> <b>${usd(sFee)}</b> to you`;
   $('chB').innerHTML=`<b>${n(B)}</b> active buyers <i>→</i> <b>${n1(bClosed)}</b> closed by your agents <i>→</i> <b>${usd(bGci)}</b> agent commission <i>→</i> <b>${usd(bFee)}</b> to you`;
-  $('chT').innerHTML=Sn?`<b>${Sn}</b> agents each pay <b>${usd(SP)}</b> for the only rights to about ${SEAT_LEADS} motivated sellers a month. Those ${n(Math.min(N,Sn*SEAT_LEADS))} sellers then pay you ${Math.round(SEAT_SHARE*100)}% at closing instead of ${Math.round(F*100)}%, which is already counted in seller income above.`:'No territories sold: every seller deal pays your full referral cut.';
+  $('chT').innerHTML=Sn?`<b>${Sn}</b> agents each pay <b>${usd(SP)}</b> for the only rights to about ${SEAT_LEADS} top-ranked seller leads a month. Those ${n(Math.min(N,Sn*SEAT_LEADS))} sellers then pay you ${Math.round(SEAT_SHARE*100)}% at closing instead of ${Math.round(F*100)}%, which is already counted in seller income above.`:'No territories sold: every seller deal pays your full referral cut.';
   const stock=(D.tier_a||0)*R*C*P*LC*F;
   $('stock').textContent=usd(stock);
 }
@@ -130,12 +130,12 @@ async function load(){
     <div class="stack"><div class="panel">
       <div class="group">
         <h3>Sellers <span id="gS"></span></h3>
-        <p class="muted small">A <b>motivated seller</b> is a homeowner the system scores 85 or higher out of 100: a recorded lien or judgment, notice of default, death or probate, or divorce, tied to a county record of the property. Score reflects how likely they are to sell, not how much the home is worth.</p>
+        <p class="muted small">A <b>top-ranked seller lead</b> is a homeowner the system scores 85 or higher out of 100: a recorded lien or judgment, notice of default, death or probate, or divorce, tied to a county record of the property. Score reflects how likely they are to sell, not how much the home is worth.</p>
         <div class="ctrls">
-          ${ctrl('N','Motivated sellers handed to agents each month',50,400,10,`${n(d.new_a_30d)} new in the last 30 days, partly a one-time catch-up from newly added sources. ${n(d.tier_a)} on file today.`)}
+          ${ctrl('N','Top-ranked seller leads handed to agents each month',50,400,10,`${n(d.new_a_30d)} new in the last 30 days, partly a one-time catch-up from newly added sources. ${n(d.tier_a)} on file today.`)}
           ${ctrl('R','Of those, how many sell within a year',2,40,0.5,`Not measured yet: only ${lr}% of ${n(d.lien_owners)} lien-holding owners have sold in the 1–4 months tracked. Pre-foreclosure benchmark ~15% (Vulcan7).`)}
           ${ctrl('C','Share your agents win',2,50,1,'Of the homes that sell, how many your agents list and close. Not measured yet.')}
-          ${ctrl('P','Average sale price',350000,900000,10000,`Average home value of motivated sellers on file: ${usd(d.median_value||0)}. Utah median sale: $525,000.`)}
+          ${ctrl('P','Average sale price',350000,900000,10000,`Average home value of top-ranked seller leads on file: ${usd(d.median_value||0)}. Utah median sale: $525,000.`)}
           ${ctrl('F','Your cut of each seller deal',15,40,1,"Percent of the agent's commission paid to you at closing. Zillow and Realtor.com take 40%, Redfin 35%, HomeLight 33%.")}
         </div>
         <div class="chain" id="chS"></div>
@@ -154,7 +154,7 @@ async function load(){
       <hr>
       <div class="group">
         <h3>Exclusive territories <span id="gT"></span></h3>
-        <p class="muted small">An agent pays a monthly fee to be the only agent who receives the motivated sellers in an area, about ${SEAT_LEADS} a month, and pays you a smaller ${Math.round(SEAT_SHARE*100)}% cut when one closes. Selling territories brings guaranteed monthly cash but lowers the cut on those sellers. You can sell up to <b id="sSmax"></b> at the current seller volume.</p>
+        <p class="muted small">An agent pays a monthly fee to be the only agent who receives the top-ranked seller leads in an area, about ${SEAT_LEADS} a month, and pays you a smaller ${Math.round(SEAT_SHARE*100)}% cut when one closes. Selling territories brings guaranteed monthly cash but lowers the cut on those sellers. You can sell up to <b id="sSmax"></b> at the current seller volume.</p>
         <div class="ctrls">
           ${ctrl('S','Territories sold',0,20,1,'Limited by sellers per month ÷ 20.')}
           ${ctrl('SP','Monthly price per territory',99,999,10,'KeyLeads charges $199 per zip for 20 pre-foreclosures. Offrs.com charges about $600 for an exclusive zip.')}
@@ -162,7 +162,7 @@ async function load(){
         <div class="chain" id="chT"></div>
       </div>
       <hr>
-      <div class="line" style="border:0"><b>Value of the ${n(d.tier_a)} motivated sellers already on file</b><span class="amt" id="stock"></span><span class="sub">What you would expect to earn if every seller the system holds today were handed to agents now, using the seller sliders above. One time, on top of the monthly income.</span></div>
+      <div class="line" style="border:0"><b>Value of the ${n(d.tier_a)} top-ranked seller leads already on file</b><span class="amt" id="stock"></span><span class="sub">What you would expect to earn if every seller the system holds today were handed to agents now, using the seller sliders above. One time, on top of the monthly income.</span></div>
     </div>
     <p class="muted small">Utah average commissions: 2.98% listing side, 2.73% buyer side.</p></div>
 
@@ -202,12 +202,12 @@ async function load(){
     <div class="stack"><div class="sec">The offers</div>
     <div class="ladder">
       <div class="offer"><span class="eb">Entry · shared</span><h3>County Signal Feed</h3><span class="price">$99/mo per county</span><ul><li>Every scored homeowner below the top tier, deduped and confirmed</li><li>Map and plain-English reason for each lead</li></ul><span class="vs">Against Mojo $49 and PropStream $99: same price, scored instead of raw</span></div>
-      <div class="offer"><span class="eb">Territory · exclusive</span><h3>Exclusive Territory</h3><span class="price">$299/mo per territory</span><ul><li>About 20 motivated sellers a month, one agent only</li><li>20% at closing instead of 30%</li></ul><span class="vs">Against KeyLeads $199 for one signal and Offrs.com ~$600 for an exclusive zip</span></div>
-      <div class="offer core"><span class="eb">Core · pay at closing</span><h3>Partner Referral</h3><span class="price">30% sellers · 25% buyers</span><ul><li>Nothing up front</li><li>Motivated sellers and active buyers routed by territory</li><li>Assistant explains every lead and preps the call</li></ul><span class="vs">Against Zillow at 40%, Realtor.com 30–40%, Redfin 35%: about $1,600 more per seller deal stays with the agent</span></div>
+      <div class="offer"><span class="eb">Territory · exclusive</span><h3>Exclusive Territory</h3><span class="price">$299/mo per territory</span><ul><li>About 20 top-ranked seller leads a month, one agent only</li><li>20% at closing instead of 30%</li></ul><span class="vs">Against KeyLeads $199 for one signal and Offrs.com ~$600 for an exclusive zip</span></div>
+      <div class="offer core"><span class="eb">Core · pay at closing</span><h3>Partner Referral</h3><span class="price">30% sellers · 25% buyers</span><ul><li>Nothing up front</li><li>Top-ranked seller leads and active buyers routed by territory</li><li>Assistant explains every lead and preps the call</li></ul><span class="vs">Against Zillow at 40%, Realtor.com 30–40%, Redfin 35%: about $1,600 more per seller deal stays with the agent</span></div>
       <div class="offer"><span class="eb">Premium · done for you</span><h3>Set Appointment</h3><span class="price">$400 each or 35% at closing</span><ul><li>The system calls, qualifies and books the seller</li><li>Agent shows up to the listing appointment</li></ul><span class="vs">Against $500–$1,000 per appointment and $1,600–$3,000 a month for a calling assistant</span></div>
     </div></div>
 
-    <div class="stack"><div class="sec">Motivated sellers on file by reason</div>
+    <div class="stack"><div class="sec">Top-ranked seller leads on file by reason</div>
     <div class="tw"><table class="t" style="min-width:560px"><thead><tr><th>Reason</th><th class="n">Sellers</th><th>Counties</th><th class="n">Average home value</th></tr></thead><tbody>${segs}</tbody></table></div>
     <p class="muted small">Below the top tier: ${n(d.tier_b)} scoring 70–84, ${n(d.tier_c)} scoring 55–69 and ${n(d.tier_d)} under 55. These make up the County Signal Feed.</p></div>
 
