@@ -180,7 +180,7 @@ const PP = (() => {
         <button class="btn sm" onclick="PP.closeDrawer()" aria-label="Close">Close</button></div>
       <div class="bd">
         ${r.why?`<div class="why-lead">${esc(r.why)}</div>`:''}
-        <h4>Verify before you call</h4>
+        <h4>Check the record first</h4>
         <div class="kv"><span>Property</span><span class="mono">${esc(r.property_ref||'—')}</span></div>
         <div class="kv"><span>County entries</span><span class="mono">${esc(r.county_entries||'—')}</span></div>
         <div class="kv"><span>County</span><span>${esc(r.county||'—')}</span></div>

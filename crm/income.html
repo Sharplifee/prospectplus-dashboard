@@ -154,7 +154,7 @@ async function load(){
       <hr>
       <div class="group">
         <h3>Exclusive territories <span id="gT"></span></h3>
-        <p class="muted small">An agent pays a monthly fee to be the only agent who receives the top-ranked seller leads in an area, about ${SEAT_LEADS} a month, and pays you a smaller ${Math.round(SEAT_SHARE*100)}% cut when one closes. Selling territories brings guaranteed monthly cash but lowers the cut on those sellers. You can sell up to <b id="sSmax"></b> at the current seller volume.</p>
+        <p class="muted small">An agent pays a monthly fee to be the only agent who receives the top-ranked seller leads in an area, about ${SEAT_LEADS} a month, and pays you a smaller ${Math.round(SEAT_SHARE*100)}% cut when one closes. Selling territories brings a monthly fee but lowers the cut on those sellers. You can sell up to <b id="sSmax"></b> at the current seller volume.</p>
         <div class="ctrls">
           ${ctrl('S','Territories sold',0,20,1,'Limited by sellers per month ÷ 20.')}
           ${ctrl('SP','Monthly price per territory',99,999,10,'KeyLeads charges $199 per zip for 20 pre-foreclosures. Offrs.com charges about $600 for an exclusive zip.')}
@@ -195,13 +195,13 @@ async function load(){
       <tr><td>Offrs.com</td><td class="c y">Yes</td><td class="c y">Yes</td><td class="c no">No, behavior and life-event model</td><td class="c y">Yes</td><td class="c no">No</td><td class="c pt">Unconfirmed</td><td class="c no">No</td></tr>
       <tr><td>Landvoice Distressed</td><td class="c y">Yes</td><td class="c no">No score shown</td><td class="c y">Yes</td><td class="c y">Yes</td><td class="c no">No</td><td class="c y">Likely</td><td class="c no">No</td></tr>
       <tr><td>KeyLeads</td><td class="c y">Yes</td><td class="c no">No</td><td class="c no">Pre-foreclosure only</td><td class="c y">Yes</td><td class="c no">No</td><td class="c pt">Unconfirmed</td><td class="c no">No</td></tr>
-      <tr class="us"><td><b>Premier Prospect</b></td><td class="c y">Yes</td><td class="c y">Yes</td><td class="c y">Yes</td><td class="c y">Yes</td><td class="c y">Yes</td><td class="c y">Yes</td><td class="c y">Yes</td></tr>
+      <tr class="us"><td><b>Premier Prospect</b></td><td class="c y">Yes</td><td class="c y">Yes</td><td class="c y">Yes</td><td class="c pt">Mostly — about 91% of the top tier matched to an assessor parcel</td><td class="c y">Yes</td><td class="c y">Yes</td><td class="c y">Yes</td></tr>
     </tbody></table></div>
     <p class="muted small">Say "we found no provider that…" rather than "nobody": Offrs and KeyLeads could cover Utah zips or add signals at any time.</p></div>
 
     <div class="stack"><div class="sec">The offers</div>
     <div class="ladder">
-      <div class="offer"><span class="eb">Entry · shared</span><h3>County Signal Feed</h3><span class="price">$99/mo per county</span><ul><li>Every scored homeowner below the top tier, deduped and confirmed</li><li>Map and plain-English reason for each lead</li></ul><span class="vs">Against Mojo $49 and PropStream $99: same price, scored instead of raw</span></div>
+      <div class="offer"><span class="eb">Entry · shared</span><h3>County Signal Feed</h3><span class="price">$99/mo per county</span><ul><li>Every scored homeowner below the top tier</li><li>Map and plain-English reason for each lead</li></ul><span class="vs">Against Mojo $49 and PropStream $99: same price, scored instead of raw</span></div>
       <div class="offer"><span class="eb">Territory · exclusive</span><h3>Exclusive Territory</h3><span class="price">$299/mo per territory</span><ul><li>About 20 top-ranked seller leads a month, one agent only</li><li>20% at closing instead of 30%</li></ul><span class="vs">Against KeyLeads $199 for one signal and Offrs.com ~$600 for an exclusive zip</span></div>
       <div class="offer core"><span class="eb">Core · pay at closing</span><h3>Partner Referral</h3><span class="price">30% sellers · 25% buyers</span><ul><li>Nothing up front</li><li>Top-ranked seller leads and active buyers routed by territory</li><li>Assistant explains every lead and preps the call</li></ul><span class="vs">Against Zillow at 40%, Realtor.com 30–40%, Redfin 35%: about $1,600 more per seller deal stays with the agent</span></div>
       <div class="offer"><span class="eb">Premium · done for you</span><h3>Set Appointment</h3><span class="price">$400 each or 35% at closing</span><ul><li>The system calls, qualifies and books the seller</li><li>Agent shows up to the listing appointment</li></ul><span class="vs">Against $500–$1,000 per appointment and $1,600–$3,000 a month for a calling assistant</span></div>
