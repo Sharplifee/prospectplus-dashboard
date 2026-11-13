@@ -164,8 +164,8 @@ const PP = (() => {
   function more(open){ const m=document.getElementById('pp-more'), s=document.getElementById('scrim'); if(!m) return; m.classList.toggle('open',!!open); if(s) s.classList.toggle('open',!!open || document.getElementById('drawer').classList.contains('open')); }
 
   const cls = s => s>=95?'s-hot':s>=85?'s-warm':s>=70?'s-mid':'s-low';
-  const tier = s => s>=88?'Act now':s>=75?'This week':s>=60?'Qualify':s>=45?'Nurture':'Watch';
-  const stage = n => ({5:'Auction scheduled',4:'Foreclosure filed',3:'Lender preparing',2:'Creditor action',1:'Financial pressure'})[n]||'Watch';
+  const tier = s => s>=88?'Top rank':s>=75?'High rank':s>=60?'Mid rank':s>=45?'Low rank':'Watch';   // a ranking, not a measured urgency
+  const stage = n => ({5:'Auction scheduled',4:'Default or lawsuit filed',3:'Lender preparing',2:'Creditor action',1:'Financial pressure'})[n]||'Watch';
   const pill = st => {
     if(!st||st==='new') return '<span class="pill p-new">new</span>';
     if(['listed_with_us','sold','appointment'].includes(st)) return `<span class="pill p-won">${st.replace(/_/g,' ')}</span>`;
@@ -201,7 +201,7 @@ const PP = (() => {
         <div class="kv"><span>Proxy</span><span>${Math.round(eq)}%</span></div>
         ${r.oldest_loan_years?`<div class="kv"><span>Oldest loan</span><span>${Math.round(r.oldest_loan_years)} years old</span></div>`:''}
         <div class="note">Inferred from mortgage vintage, not verified title. Confirm before relying on it.</div>`:''}
-        ${(r.scarcity_score||0)>=0.9?`<h4>Competitive edge</h4><div class="note" style="color:var(--amber)">Low-competition signal — this distress sits in raw recorder filings most agents never read.</div>`:''}
+        
         <h4>Document timeline</h4>
         <div id="pp-timeline" class="muted" style="font-size:12px">Loading filings…</div>
         <h4>Buyers active in this county</h4>
@@ -236,7 +236,7 @@ const PP = (() => {
       if(typeof d==='string') d=JSON.parse(d);
       const el=document.getElementById('pp-timeline'); if(!el) return;
       if(!d||!d.length){ el.textContent='No filings on record.'; return; }
-      const stageName={5:'Auction scheduled',4:'Foreclosure filed',3:'Lender preparing',2:'Creditor action',1:'Financial pressure',0:''};
+      const stageName={5:'Auction scheduled',4:'Default or lawsuit filed',3:'Lender preparing',2:'Creditor action',1:'Financial pressure',0:''};
       el.innerHTML=d.map(x=>`<div style="display:grid;grid-template-columns:82px 1fr auto;gap:8px;padding:6px 0;border-bottom:1px solid var(--line)">
         <span class="mono">${esc(x.recorded||'')}</span>
         <span><b style="color:${x.stage>=4?'var(--hot)':x.stage>=1?'var(--gold2)':'var(--ink2)'}">${esc((x.signal_type||'').replace(/_/g,' '))}</b>

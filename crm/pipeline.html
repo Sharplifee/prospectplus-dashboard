@@ -11,7 +11,7 @@ async function load(){
     b.innerHTML=`<div class="grid2">
       <div class="card"><h3>Lead funnel</h3>
         ${PP.bar('In queue',o.queue,o.queue)}${PP.bar('Conviction 85+',o.conv85,o.queue)}${PP.bar('2+ documents',o.multi_doc,o.queue)}
-        ${PP.bar('3+ documents',o.multi_doc_3plus,o.queue,'hot')}${PP.bar('Foreclosure filed',fc,o.queue,'hot')}</div>
+        ${PP.bar('3+ documents',o.multi_doc_3plus,o.queue,'hot')}${PP.bar('Default or lawsuit filed',fc,o.queue,'hot')}</div>
       <div class="card"><h3>Your pipeline</h3>
         ${PP.bar('Worked today',o.worked_today,Math.max(o.queue,1))}${PP.bar('In progress',o.in_progress,Math.max(o.queue,1))}
         ${PP.bar('Appointments',o.appointments,Math.max(o.queue,1),'ok')}${PP.bar('Listings won',o.listings_won,Math.max(o.queue,1),'ok')}

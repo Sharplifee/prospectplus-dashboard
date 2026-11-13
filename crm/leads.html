@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#0f1f3d"><link rel="stylesheet" href="pp.css"><script src="pp.js"></script><title>Seller leads — Premier Prospect</title><script src="../event-log.js" defer data-url="https://lbvaosyfikkpvcwksiph.supabase.co" data-key="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxidmFvc3lmaWtrcHZjd2tzaXBoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwMDg0MDksImV4cCI6MjA5MDU4NDQwOX0.Gh9whjmUPz4rdKYr5yo8ZHS0nSNpkQUOwdIladX6mG4" data-project="prospectplus"></script>
 </head><body><script>
-PP.shell('Seller leads','Homeowners ranked by how strongly independent county filings converge. Click any row for the evidence and to record an outcome.');
+PP.shell('Seller leads','Homeowners ranked by the county records filed on them. Click any row for the evidence, the contact path, and to record an outcome.');
 const q=new URLSearchParams(location.search);
 const F={docs:+(q.get('docs')||1),conv:+(q.get('conv')||0),auction:q.get('auction')==='1',equity:q.get('equity')==='1',county:q.get('county')||'',search:'',scope:q.get('scope')||'mine'};
 async function load(){
@@ -11,8 +11,8 @@ async function load(){
     <select id="conv"><option value="0">Any conviction</option><option value="60">60+</option><option value="75">75+</option><option value="85">85+</option><option value="95">95+</option></select>
     <select id="scope"><option value="mine">My territory</option><option value="all">Everything</option></select>
     <select id="county"><option value="">All counties</option></select>
-    <label class="btn"><input type="checkbox" id="auction" style="width:auto"> Foreclosure filed</label>
-    <label class="btn"><input type="checkbox" id="equity" style="width:auto"> Likely high equity</label>
+    <label class="btn"><input type="checkbox" id="auction" style="width:auto"> Default or lawsuit filed</label>
+    <label class="btn"><input type="checkbox" id="equity" style="width:auto"> Old open loan (18+ yrs)</label>
     <button class="btn pri" onclick="apply()">Apply</button>
     <button class="btn" onclick="Object.assign(F,{docs:1,conv:0,auction:false,equity:false,county:'',search:'',scope:'mine'});load()">Reset</button>
     <button class="btn" onclick="exportCSV()" title="Download the current filtered list">Export CSV</button>
@@ -105,16 +105,20 @@ async function mailExport(){
 const SENDER={name:'[Your name]',brokerage:'[Brokerage]',phone:'[Phone]',email:'[Email]'};
 function letterFor(r){
   const first=(r.owner||'').split(',')[1]?.trim().split(' ')[0]||'';
-  const greet=first?`Dear ${first.charAt(0)+first.slice(1).toLowerCase()},`:'Hello,';
+  // estate records sometimes name the person who died, so estate letters never greet by that name
+  const greet=(first && r.situation!=='estate')?`Dear ${first.charAt(0)+first.slice(1).toLowerCase()},`:'Hello,';
   const prop=r.property_address||'your property';
   const eq=r.real_equity_pct!=null?` Based on the county's assessed value, you may have meaningful equity in it — which changes what your options are.`:'';
   const body={
-    'Auction scheduled':`I'm writing because a notice of trustee sale has been recorded against ${prop}. That means a sale date has been set, and once it passes, the decision is out of your hands.\n\nI help homeowners in exactly this position understand what they can still do before that date — including selling on their own terms, which usually leaves them in a far better spot than the auction does.${eq}\n\nThere's no obligation. If you'd like to know what your options actually look like, call me.`,
-    'Foreclosure filed':`I'm writing because a notice of default has been recorded against ${prop}. There is still time to take control of how this ends.\n\nI work with homeowners at this stage. Sometimes the answer is to sell before the process goes further; sometimes it isn't. Either way, knowing your options early is worth a great deal.${eq}\n\nIf you'd like a straight conversation about where things stand, call me.`,
-    'Lender preparing':`I'm writing because your lender recently substituted the trustee on your loan for ${prop}. That step usually comes shortly before a foreclosure filing.\n\nI'd rather talk with you now, while you have the most options, than after a notice is recorded.${eq}\n\nIf that's a conversation you'd like to have, call me.`,
-    'Creditor action':`I'm writing because a lien has been recorded against ${prop}. Sometimes a sale clears everything cleanly and leaves money in your pocket; sometimes there are better routes.${eq}\n\nI can walk you through what a sale would actually look like, with no obligation. Call me if that's useful.`,
-    'Financial pressure':`I work with homeowners in ${r.county||'this'} County who are dealing with property-tax pressure. I'm not a collector and I'm not here to pressure you — I help people decide whether selling makes sense, and what it would mean for them.${eq}\n\nIf you'd like to talk it through, call me.`,
-  }[r.situation]||`I noticed recent activity on ${prop} at the county recorder and wanted to reach out before anyone else does.${eq}\n\nIf it's useful to talk through your options, call me.`;
+    'auction':`I'm writing because a notice of trustee sale has been recorded against ${prop}. That means a sale date has been set, and once it passes, the decision is out of your hands.\n\nI help homeowners in this position understand what they can still do before that date — including selling on their own terms.${eq}\n\nIf you'd like a straight conversation about your options, call me.`,
+    'default':`I'm writing because a notice of default has been recorded against ${prop}. There is still time to take control of how this ends.\n\nI work with homeowners at this stage. Sometimes the answer is to sell before the process goes further; sometimes it isn't. Either way, knowing your options early is worth a great deal.${eq}\n\nIf you'd like a straight conversation about where you stand, call me.`,
+    'preparing':`I'm writing because your lender recorded a change of trustee on the loan for ${prop}. Sometimes that is routine paperwork; sometimes it is an early step before a default.\n\nEither way, you lose nothing by knowing what your home is worth and what your options are.${eq}\n\nIf that's useful, call me.`,
+    'lawsuit':`I'm writing because a notice of a pending lawsuit was recorded on ${prop}. I'm not involved in the case — I help owners understand their options while something like that is open, since it can make refinancing or selling harder later.${eq}\n\nIf it would help to know what the property would sell for, call me.`,
+    'estate':`I'm sorry for your loss. When you're ready, I help families with the property side of an estate — including ${prop} — with no pressure and no rush.\n\nThe house is often the biggest and hardest part of an estate to deal with. If it would help to talk through the options, call me whenever the time is right.`,
+    'divorce':`I help families when a household is changing and the house needs a plan — keeping it, refinancing it, or selling it. I'm not writing about anything legal.\n\nIf it would help to have a clear, no-obligation value and net sheet for ${prop} that everyone can look at, call me.${eq}`,
+    'lien':`I'm writing because a lien has been recorded against ${prop}. Sometimes a sale clears everything cleanly and leaves money in your pocket; sometimes there are better routes.${eq}\n\nI can walk you through what a sale would actually look like, with no obligation. Call me if that's useful.`,
+    'tax':`I work with homeowners in ${r.county||'this'} County who are dealing with property-tax pressure. I'm not a collector and I'm not here to pressure you — I help people decide whether selling makes sense, and what it would mean for them.${eq}\n\nIf you'd like to talk it through, call me.`,
+  }[r.situation]||`I work with property owners in ${r.county||'your'} County and saw a recent county record on ${prop}. I wanted to introduce myself in case selling is ever on your mind.${eq}\n\nIf it's useful to talk through your options, call me.`;
   const absentee=r.absentee_verified?`\n\nI'm sending this to your mailing address rather than the property, since it looks like you may not live there.`:'';
   return `${SENDER.name}\n${SENDER.brokerage}\n${SENDER.phone} · ${SENDER.email}\n\n${new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'})}\n\n${r.owner}\n${r.mail_street||''}\n${[r.mail_city,r.mail_state,r.mail_zip].filter(Boolean).join(' ')}\n\n${greet}\n\n${body}${absentee}\n\nSincerely,\n${SENDER.name}\n${SENDER.phone}`;
 }

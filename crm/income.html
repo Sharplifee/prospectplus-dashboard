@@ -130,7 +130,7 @@ async function load(){
     <div class="stack"><div class="panel">
       <div class="group">
         <h3>Sellers <span id="gS"></span></h3>
-        <p class="muted small">A <b>motivated seller</b> is a homeowner the system scores 85 or higher out of 100: a recorded lien or judgment, notice of default, death or probate, or divorce, on a home they are confirmed to own. Score reflects how likely they are to sell, not how much the home is worth.</p>
+        <p class="muted small">A <b>motivated seller</b> is a homeowner the system scores 85 or higher out of 100: a recorded lien or judgment, notice of default, death or probate, or divorce, tied to a county record of the property. Score reflects how likely they are to sell, not how much the home is worth.</p>
         <div class="ctrls">
           ${ctrl('N','Motivated sellers handed to agents each month',50,400,10,`${n(d.new_a_30d)} new in the last 30 days, partly a one-time catch-up from newly added sources. ${n(d.tier_a)} on file today.`)}
           ${ctrl('R','Of those, how many sell within a year',2,40,0.5,`Not measured yet: only ${lr}% of ${n(d.lien_owners)} lien-holding owners have sold in the 1–4 months tracked. Pre-foreclosure benchmark ~15% (Vulcan7).`)}
@@ -213,7 +213,7 @@ async function load(){
 
     <div class="stack"><div class="sec">What turns this into cash</div>
     <ol class="steps">
-      <li><b>Phone numbers: ${n(d.phones)} on file.</b> Tracing the ${n(d.tier_a)} motivated sellers costs about $15–$75 at 2–10¢ a hit. Every competitor above ships phones.</li>
+      <li><b>Phone numbers: ${n(d.phones)} on file.</b> Skip tracing is not turned on yet; when it is, only Do-Not-Call-clean numbers are kept.</li>
       <li><b>Receiving agents: ${n(d.agents)} account.</b> Sign one per county on the Partner Referral.</li>
       <li><b>Log every outcome for 30 days</b> so "share your agents win" becomes a measured number.</li>
     </ol></div>

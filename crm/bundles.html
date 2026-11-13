@@ -118,11 +118,11 @@ async function load(){
 
     <div class="stack"><div class="sec">Are the leads real?</div>
       <div class="check">
-        <div class="ck"><span class="eb">Motivated sellers (85+)</span><span class="v">${n(d.total)}</span><span class="muted small">Every one tied to a recorded county document on a home the owner holds.</span></div>
+        <div class="ck"><span class="eb">Motivated sellers (85+)</span><span class="v">${n(d.total)}</span><span class="muted small">Each tied to a county record; see the next three rows for how many can be reached.</span></div>
         <div class="ck"><span class="eb">Ready to hand off</span><span class="v ok">${n(d.ready)}</span><span class="muted small">Street address and home value on file.</span></div>
-        <div class="ck"><span class="eb">Need an address</span><span class="v warn">${n(d.parcel)}</span><span class="muted small">Parcel known; a 10¢ parcel trace returns address and phone.</span></div>
+        <div class="ck"><span class="eb">Need an address</span><span class="v warn">${n(d.parcel)}</span><span class="muted small">Parcel known; the county parcel record supplies the mailing address (not a phone).</span></div>
         <div class="ck"><span class="eb">Not handable yet</span><span class="v bad">${n(d.match)}</span><span class="muted small">Name and document only, no property matched. Held back from bundles.</span></div>
-        <div class="ck"><span class="eb">Phone numbers</span><span class="v bad">0</span><span class="muted small">Skip tracing is unfunded. About $25 covers every handable lead.</span></div>
+        <div class="ck"><span class="eb">Phone numbers</span><span class="v bad">0</span><span class="muted small">Skip tracing is not turned on yet; only Do-Not-Call-clean numbers will be kept.</span></div>
       </div>
       <div class="callout"><p><b>Fixed today:</b> 811 records from an old Utah County scraper (May–June) were labelled "judgment lien" but were deeds, quit-claims, easements and death affidavits; 28 of 28 checked on utahcounty.gov. They are retired, the source is blocked, and every seller was rescored. The same records had produced the "16–29% of lien owners sold" figure, because a deed was matching itself as a later sale.</p>
       <p><b>How often these owners really sell, measured honestly:</b> death affidavits ${rate('death_affidavit')}, liens ${rate('lien_judgment')}, tax delinquency ${rate('tax_delinquency')}, notices of default ${rate('nod')}. Most of these have been tracked for one to four months, far shorter than a typical sale cycle, so they are a floor, not a forecast. Outside benchmarks: about 15% of pre-foreclosure owners relist (Vulcan7 2026), and KeyLeads says 30–40% of its pre-foreclosure leads list within 12 months.</p></div>
@@ -149,7 +149,7 @@ async function load(){
 
     <div class="stack"><div class="sec">To start earning this week</div>
       <ol class="steps">
-        <li><b>Fund skip tracing, about $25.</b> 2¢ per address trace and 10¢ per parcel trace on Tracerfy; the key is already in the pipeline.</li>
+        <li><b>Turn on skip tracing.</b> Add the Tracerfy key and approve the spend; numbers flagged Do-Not-Call, TCPA-risk or litigator are discarded automatically.</li>
         <li><b>Pick the first three bundles:</b> Provo–Orem, Alpine Corridor and North Utah County have the most ready leads and loaded home values.</li>
         <li><b>Sign one agent per bundle</b> on $299 a month + 25%, with a referral agreement that names the fee and a 12-month window per lead.</li>
         <li><b>Log every call and outcome</b> so "owners who list" and "share your agent wins" become measured numbers within 60 days.</li>
