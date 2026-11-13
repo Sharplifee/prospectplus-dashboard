@@ -54,7 +54,12 @@ const PP = (() => {
   }
   // Nov 13 2026 (Connor): no login wall or invite gate. With no session a device session (Supabase anonymous auth)
   // is created silently; signing in with email stays optional. Row-level security still scopes each agent's own data.
-  async function deviceSession(){
+  // single-flight: the page shell and the auth check both ask for a device session on first load; before this they
+  // raced and every first visit created TWO anonymous users
+  let _dev=null;
+  function deviceSession(){ if(!_dev) _dev=_deviceSession().finally(()=>{ setTimeout(()=>{_dev=null;},0); }); return _dev; }
+  async function _deviceSession(){
+    if(sess()) return sess();
     const r=await fetch(SB+'/auth/v1/signup',{method:'POST',headers:{apikey:KEY,'Content-Type':'application/json'},body:'{}'});
     if(!r.ok) return null; const j=await r.json();
     const s={access_token:j.access_token,refresh_token:j.refresh_token,email:null,anonymous:true,expires_at:Date.now()+((j.expires_in||3600)*1000)};
