@@ -52,32 +52,20 @@ const PP = (() => {
     localStorage.setItem('pp.session', JSON.stringify({...s, access_token:d.access_token, refresh_token:d.refresh_token, expires_at:Date.now()+(d.expires_in||3600)*1000}));
     return true;
   }
-  // Access follows the server switch pp_public_config().invite_only (set by pp_set_invite_only, admin only).
-  // invite_only=false: with no session a device session (Supabase anonymous auth) is created silently, as before.
-  // invite_only=true: no anonymous sessions — anyone not signed in to an invited/activated account goes to login.html.
-  let _cfg=null;
-  async function config(){
-    if(_cfg) return _cfg;
-    try{ const r=await fetch(SB+'/rest/v1/rpc/pp_public_config',{method:'POST',headers:{apikey:KEY,Authorization:'Bearer '+KEY,'Content-Type':'application/json'},body:'{}'});
-         _cfg = r.ok ? await r.json() : {invite_only:true}; }catch(e){ _cfg={invite_only:true}; }   // fail closed
-    return _cfg;
-  }
-  const onLogin = () => /login\.html|reset\.html|set-password\.html/.test(location.pathname);
-  function toLogin(){ localStorage.removeItem('pp.session'); if(!onLogin()) location.href='login.html'; }
+  // Nov 13 2026 (Connor): no login wall or invite gate. With no session a device session (Supabase anonymous auth)
+  // is created silently; signing in with email stays optional. Row-level security still scopes each agent's own data.
   async function deviceSession(){
-    if((await config()).invite_only){ localStorage.setItem('pp.inactive','device'); toLogin(); return null; }
     const r=await fetch(SB+'/auth/v1/signup',{method:'POST',headers:{apikey:KEY,'Content-Type':'application/json'},body:'{}'});
     if(!r.ok) return null; const j=await r.json();
     const s={access_token:j.access_token,refresh_token:j.refresh_token,email:null,anonymous:true,expires_at:Date.now()+((j.expires_in||3600)*1000)};
     localStorage.setItem('pp.session',JSON.stringify(s)); return s;
   }
-  async function signOut(){ localStorage.removeItem('pp.session'); if((await config()).invite_only) toLogin(); else location.reload(); }
+  async function signOut(){ localStorage.removeItem('pp.session'); location.reload(); }
   let _authing=null;
   function requireAuth(){ if(!_authing) _authing=_requireAuth().finally(()=>{ setTimeout(()=>{_authing=null;},0); }); return _authing; }
   async function _requireAuth(){
     let s=sess();
     if(!s){ s=await deviceSession(); return !!s; }
-    if(s.anonymous && (await config()).invite_only){ toLogin(); return false; }
     if(Date.now() > (s.expires_at||0) - 60000){ if(!(await refresh())){ localStorage.removeItem('pp.session'); s=await deviceSession(); return !!s; } }
     return true;
   }
@@ -113,9 +101,8 @@ const PP = (() => {
 
   function shell(title, desc, actionsHtml=''){
     requireAuth().then(ok=>{ if(ok) rpc('pp_ensure_agent',{p_display_name:null}).then(a=>{ try{ window.PP_me = typeof a==='string'?JSON.parse(a):a; }catch(e){}
-      // a session that is not an active agent (anonymous device after the switch, or an email account not yet
-      // invited/activated) sees no data: send it to sign-in with the reason instead of a broken page
-      if(window.PP_me && window.PP_me.active===false){ localStorage.setItem('pp.inactive', window.PP_me.is_anonymous?'device':'account'); toLogin(); } }).catch(()=>{}); });
+      // a retired device session (an old test device switched off by an admin) is replaced with a fresh one, never a wall
+      if(window.PP_me && window.PP_me.is_anonymous && window.PP_me.active===false){ localStorage.removeItem('pp.session'); deviceSession().then(s=>{ if(s) location.reload(); }); } }).catch(()=>{}); });
     const here = location.pathname.split('/').pop() || 'index.html';
     const links = NAV.filter(n=>!n.grp);
     const nav = NAV.map(n => n.grp
@@ -159,7 +146,7 @@ const PP = (() => {
       ['pp-dot','pp-dot-m'].forEach(id=>{ const d=document.getElementById(id); if(d&&bad) d.classList.add('bad'); });
     }).catch(()=>{ const h=document.getElementById('pp-health'); if(h) h.textContent='Status unavailable'; });
     rpc('pp_app_buyer_overview_cached').then(b=>{ const e=document.querySelector('[data-ct="buyers"]'); if(e&&b) e.textContent=Number(b.total).toLocaleString(); }).catch(()=>{});
-    if(!sess()){ deviceSession().then(s=>{ if(s) location.reload(); else location.href='login.html'; }); }
+    if(!sess()){ deviceSession().then(s=>{ if(s) location.reload(); }); }
   }
   function more(open){ const m=document.getElementById('pp-more'), s=document.getElementById('scrim'); if(!m) return; m.classList.toggle('open',!!open); if(s) s.classList.toggle('open',!!open || document.getElementById('drawer').classList.contains('open')); }
 

@@ -15,15 +15,12 @@
   <label>Password</label><input id="p" type="password" autocomplete="current-password">
   <button class="btn pri" id="go" onclick="go()">Sign in</button>
   <div class="e" id="err"></div>
-  <div style="display:flex;justify-content:space-between;margin-top:12px;font-size:12px"><span class="muted">Invite-only — ask your admin for a link</span><a href="#" onclick="forgot();return false" class="muted">Forgot password</a></div>
+  <div style="display:flex;justify-content:space-between;margin-top:12px;font-size:12px"><a href="index.html" class="muted">Continue without signing in</a><a href="#" onclick="forgot();return false" class="muted">Forgot password</a></div>
   <p class="muted" style="margin-top:18px;font-size:11.5px">The first account on a new system becomes its admin. This system contains public-record information about homeowners; treat it accordingly.</p>
 </div>
 <script>
 if(PP.sess()) location.href='index.html';
-(function(){ const why=localStorage.getItem('pp.inactive'); if(!why) return; localStorage.removeItem('pp.inactive');
-  document.getElementById('err').textContent = why==='device'
-    ? 'Premier Prospect is invite-only. Sign in with the account from your invite email.'
-    : 'Your account is not active yet. Ask your admin to invite or activate it.'; })();
+localStorage.removeItem('pp.inactive');
 async function go(){ const b=document.getElementById('go'); b.disabled=true; document.getElementById('err').textContent='';
   try{ await PP.signIn(document.getElementById('e').value.trim(), document.getElementById('p').value); location.href='index.html'; }
   catch(x){ document.getElementById('err').textContent=x.message; b.disabled=false; } }
