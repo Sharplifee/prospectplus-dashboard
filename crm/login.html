@@ -20,6 +20,10 @@
 </div>
 <script>
 if(PP.sess()) location.href='index.html';
+(function(){ const why=localStorage.getItem('pp.inactive'); if(!why) return; localStorage.removeItem('pp.inactive');
+  document.getElementById('err').textContent = why==='device'
+    ? 'Premier Prospect is invite-only. Sign in with the account from your invite email.'
+    : 'Your account is not active yet. Ask your admin to invite or activate it.'; })();
 async function go(){ const b=document.getElementById('go'); b.disabled=true; document.getElementById('err').textContent='';
   try{ await PP.signIn(document.getElementById('e').value.trim(), document.getElementById('p').value); location.href='index.html'; }
   catch(x){ document.getElementById('err').textContent=x.message; b.disabled=false; } }

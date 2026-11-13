@@ -52,20 +52,32 @@ const PP = (() => {
     localStorage.setItem('pp.session', JSON.stringify({...s, access_token:d.access_token, refresh_token:d.refresh_token, expires_at:Date.now()+(d.expires_in||3600)*1000}));
     return true;
   }
-  // No login gate. With no session, a device session (Supabase anonymous auth) is created silently — a real agent
-  // with its own territory, contacts and deals. Signing in to an invited account is optional (sidebar link).
+  // Access follows the server switch pp_public_config().invite_only (set by pp_set_invite_only, admin only).
+  // invite_only=false: with no session a device session (Supabase anonymous auth) is created silently, as before.
+  // invite_only=true: no anonymous sessions — anyone not signed in to an invited/activated account goes to login.html.
+  let _cfg=null;
+  async function config(){
+    if(_cfg) return _cfg;
+    try{ const r=await fetch(SB+'/rest/v1/rpc/pp_public_config',{method:'POST',headers:{apikey:KEY,Authorization:'Bearer '+KEY,'Content-Type':'application/json'},body:'{}'});
+         _cfg = r.ok ? await r.json() : {invite_only:true}; }catch(e){ _cfg={invite_only:true}; }   // fail closed
+    return _cfg;
+  }
+  const onLogin = () => /login\.html|reset\.html|set-password\.html/.test(location.pathname);
+  function toLogin(){ localStorage.removeItem('pp.session'); if(!onLogin()) location.href='login.html'; }
   async function deviceSession(){
+    if((await config()).invite_only){ localStorage.setItem('pp.inactive','device'); toLogin(); return null; }
     const r=await fetch(SB+'/auth/v1/signup',{method:'POST',headers:{apikey:KEY,'Content-Type':'application/json'},body:'{}'});
     if(!r.ok) return null; const j=await r.json();
     const s={access_token:j.access_token,refresh_token:j.refresh_token,email:null,anonymous:true,expires_at:Date.now()+((j.expires_in||3600)*1000)};
     localStorage.setItem('pp.session',JSON.stringify(s)); return s;
   }
-  function signOut(){ localStorage.removeItem('pp.session'); location.reload(); }   // reload → fresh device session, not a wall
+  async function signOut(){ localStorage.removeItem('pp.session'); if((await config()).invite_only) toLogin(); else location.reload(); }
   let _authing=null;
   function requireAuth(){ if(!_authing) _authing=_requireAuth().finally(()=>{ setTimeout(()=>{_authing=null;},0); }); return _authing; }
   async function _requireAuth(){
     let s=sess();
     if(!s){ s=await deviceSession(); return !!s; }
+    if(s.anonymous && (await config()).invite_only){ toLogin(); return false; }
     if(Date.now() > (s.expires_at||0) - 60000){ if(!(await refresh())){ localStorage.removeItem('pp.session'); s=await deviceSession(); return !!s; } }
     return true;
   }
@@ -100,7 +112,10 @@ const PP = (() => {
   ];
 
   function shell(title, desc, actionsHtml=''){
-    requireAuth().then(ok=>{ if(ok) rpc('pp_ensure_agent',{p_display_name:null}).then(a=>{ try{ window.PP_me = typeof a==='string'?JSON.parse(a):a; }catch(e){} }).catch(()=>{}); });
+    requireAuth().then(ok=>{ if(ok) rpc('pp_ensure_agent',{p_display_name:null}).then(a=>{ try{ window.PP_me = typeof a==='string'?JSON.parse(a):a; }catch(e){}
+      // a session that is not an active agent (anonymous device after the switch, or an email account not yet
+      // invited/activated) sees no data: send it to sign-in with the reason instead of a broken page
+      if(window.PP_me && window.PP_me.active===false){ localStorage.setItem('pp.inactive', window.PP_me.is_anonymous?'device':'account'); toLogin(); } }).catch(()=>{}); });
     const here = location.pathname.split('/').pop() || 'index.html';
     const links = NAV.filter(n=>!n.grp);
     const nav = NAV.map(n => n.grp
