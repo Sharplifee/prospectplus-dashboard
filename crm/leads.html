@@ -120,7 +120,7 @@ function letterFor(r){
     'tax':`I work with homeowners in ${r.county||'this'} County who are dealing with property-tax pressure. I'm not a collector and I'm not here to pressure you — I help people decide whether selling makes sense, and what it would mean for them.${eq}\n\nIf you'd like to talk it through, call me.`,
   }[r.situation]||`I work with property owners in ${r.county||'your'} County and saw a recent county record on ${prop}. I wanted to introduce myself in case selling is ever on your mind.${eq}\n\nIf it's useful to talk through your options, call me.`;
   const absentee=r.absentee_verified?`\n\nI'm sending this to your mailing address rather than the property, since it looks like you may not live there.`:'';
-  return `${SENDER.name}\n${SENDER.brokerage}\n${SENDER.phone} · ${SENDER.email}\n\n${new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'})}\n\n${r.owner}\n${r.mail_street||''}\n${[r.mail_city,r.mail_state,r.mail_zip].filter(Boolean).join(' ')}\n\n${greet}\n\n${body}${absentee}\n\nSincerely,\n${SENDER.name}\n${SENDER.phone}`;
+  return `${SENDER.name}\n${SENDER.brokerage}\n${SENDER.phone} · ${SENDER.email}\n\n${new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'})}\n\n${r.owner}\n${(r.mail_street||'').split(/,\s*/).filter(Boolean).join('\n')}\n${[r.mail_city,r.mail_state,r.mail_zip].filter(Boolean).join(' ')}\n\n${greet}\n\n${body}${absentee}\n\nSincerely,\n${SENDER.name}\n${SENDER.phone}`;
 }
 async function letterBatch(){
   const absOnly=confirm('Absentee owners only?\n\nOK = only owners whose mail goes somewhere other than the property.\nCancel = every owner with a county-assessor mailing address.');
