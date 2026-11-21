@@ -23,33 +23,33 @@ async function load(){
     const [o,st,bo,dn]=await Promise.all([PP.rpc('pp_app_overview'),PP.rpc('pp_app_stage_breakdown'),PP.rpc('pp_app_buyer_overview_cached'),donna()]);
     // after donna(): on a brand-new device its pp_ensure_agent call is what registers the session
     const jobs=J(await PP.rpc('pp_app_job_events',{p_days:365}).catch(()=>[]))||[];
-    const stages=J(st)||[], fc=(stages.find(s=>s.stage>=4)||{n:0}).n, rep=bo?(bo.repeat??bo.repeat_count):null;
+    const stages=J(st)||[], fc=stages.filter(s=>s.stage>=4).reduce((a,s)=>a+s.n,0), rep=bo?(bo.repeat??bo.repeat_count):null;
     b.innerHTML=`
       <div class="kpis">
-        <a class="kpi" href="leads.html?conv=85&scope=all"><div class="l">Top-ranked (85+)</div><div class="v hot">${fmt(o.conv85)}</div><div class="h">score 85+ — check each lead's contact path</div></a>
+        <a class="kpi" href="leads.html?conv=85&scope=all"><div class="l">Top-ranked (85+)</div><div class="v hot">${fmt(o.conv85)}</div><div class="h">score 85+, each with a confirmed mailing address or a phone on file</div></a>
         <a class="kpi" href="leads.html?auction=1&scope=all"><div class="l">Default or lawsuit filed</div><div class="v hot">${fmt(fc)}</div><div class="h">notice of default, trustee sale or lis pendens</div></a>
         <a class="kpi" href="leads.html?docs=3&scope=all"><div class="l">Three or more records</div><div class="v">${fmt(o.multi_doc_3plus)}</div><div class="h">county records on one owner, incl. ordinary deeds</div></a>
-        <a class="kpi" href="leads.html?equity=1&scope=all"><div class="l">Old open loan</div><div class="v ok">${fmt(o.high_equity)}</div><div class="h">oldest recorded loan 18+ yrs — equity likely, not measured</div></a>
-        <a class="kpi" href="buyers.html"><div class="l">Buyers in the market</div><div class="v">${bo?fmt(bo.total):'—'}</div><div class="h">${bo&&bo.by_county?Object.entries(bo.by_county).map(([c,n])=>c+' '+fmt(n)).join(' · '):'from deeds and court cases'}</div></a>
+        <a class="kpi" href="leads.html?equity=1&scope=all"><div class="l">Equity likely</div><div class="v ok">${fmt(o.high_equity)}</div><div class="h">estimated 60%+ from the age of recorded loans — not measured</div></a>
+        <a class="kpi" href="buyers.html"><div class="l">Buyers on record</div><div class="v">${bo?fmt(bo.total):'—'}</div><div class="h">${bo&&bo.by_county?Object.entries(bo.by_county).map(([c,n])=>c+' '+fmt(n)).join(' · '):'from deeds and court cases'}</div></a>
         <a class="kpi" href="activity.html"><div class="l">Worked today</div><div class="v dim">${fmt(o.worked_today)}</div><div class="h">${fmt(o.in_progress)} in progress</div></a>
       </div>
       <div class="grid2">
         <div class="card"><h3>Work these first</h3><div class="wl">
           <a href="leads.html?auction=1&scope=all"><span class="t">Default or lawsuit filed<span class="s">A notice of default, trustee sale or lis pendens is on record.</span></span><span class="n hot">${fmt(fc)}</span></a>
           <a href="leads.html?docs=3&scope=all"><span class="t">Three or more county records<span class="s">Several records on one owner — may include ordinary deeds and loans.</span></span><span class="n">${fmt(o.multi_doc_3plus)}</span></a>
-          <a href="leads.html?equity=1&scope=all"><span class="t">Old open loan<span class="s">Oldest recorded open loan is 18+ years old — equity is likely but not measured.</span></span><span class="n">${fmt(o.high_equity)}</span></a>
-          <a href="buyers.html?f=exchange"><span class="t">Investors on a 1031 clock<span class="s">Sold an investment, bought nothing yet. ${bo&&bo.exchange_due_45!=null?fmt(bo.exchange_due_45)+' must name a property within 45 days.':'Day 45 and day 180 deadlines.'}</span></span><span class="n hot">${bo&&bo.exchange_window!=null?fmt(bo.exchange_window):'—'}</span></a>
-          <a href="buyers.html?f=divorce"><span class="t">Divorcing homeowners<span class="s">A home on title and a case in court. Both spouses need a new place.</span></span><span class="n hot">${bo&&bo.divorce!=null?fmt(bo.divorce):'—'}</span></a>
-          <a href="buyers.html?f=investors"><span class="t">Repeat buyers acquiring now<span class="s">Two or more recorded purchases. Call them about a specific house.</span></span><span class="n">${rep!=null?fmt(rep):'—'}</span></a>
+          <a href="leads.html?equity=1&scope=all"><span class="t">Equity likely<span class="s">Estimated at 60% or more from the age of the recorded loans — not measured. Confirm before relying on it.</span></span><span class="n">${fmt(o.high_equity)}</span></a>
+          <a href="buyers.html?f=exchange"><span class="t">Investors who sold, no purchase since<span class="s">Possible 1031 exchange. ${bo&&bo.exchange_due_45!=null?'If they are exchanging, '+fmt(bo.exchange_due_45)+' would need to name a property within 45 days.':'If exchanging, day 45 and day 180 deadlines apply.'}</span></span><span class="n hot">${bo&&bo.exchange_window!=null?fmt(bo.exchange_window):'—'}</span></a>
+          <a href="buyers.html?f=divorce"><span class="t">Divorcing homeowners<span class="s">A home on title and a divorce case in court. Either spouse may need a new place.</span></span><span class="n hot">${bo&&bo.divorce!=null?fmt(bo.divorce):'—'}</span></a>
+          <a href="buyers.html?f=investors"><span class="t">Repeat buyers<span class="s">Two or more recorded purchases. Call them about a specific house.</span></span><span class="n">${rep!=null?fmt(rep):'—'}</span></a>
         </div></div>
-        <div class="card"><h3>Queue by foreclosure stage</h3>
+        <div class="card"><h3>Queue by record type</h3>
           ${stages.map(s=>PP.bar(s.label,s.n,o.queue,s.stage>=4?'hot':'')).join('')}
           <div class="muted" style="margin-top:10px">${fmt(o.queue)} owners ranked · ${fmt(o.multi_doc)} backed by two or more filings</div>
         </div>
       </div>
-      ${jobs&&jobs.length?`<div class="sec">Jobs moving in and out</div><div class="card"><p class="muted" style="margin-bottom:8px">Companies the state announced are adding jobs (new people arriving who need homes) and layoff notices (people who may sell or move). From the last 12 months, in our four counties.</p>${jobs.slice(0,10).map(j=>`<div class="kv"><span><b>${esc(j.company)}</b><div class="muted" style="font-size:11.5px">${esc(j.city||j.county+' County')} · ${esc(j.event_date)}</div></span><span style="font-weight:600;color:var(${j.direction==='in'?'--good':'--urgent'})">${j.direction==='in'?'+':'−'}${j.jobs!=null?fmt(j.jobs):'?'} jobs</span></div>`).join('')}</div>`:''}
+      ${jobs&&jobs.length?`<div class="sec">Jobs moving in and out</div><div class="card"><p class="muted" style="margin-bottom:8px">Companies the state announced are adding jobs (people who may need homes) and layoff notices (people who may sell or move). From the last 12 months, in our four counties.</p>${jobs.slice(0,10).map(j=>`<div class="kv"><span><b>${esc(j.company)}</b><div class="muted" style="font-size:11.5px">${esc(j.city||j.county+' County')} · ${esc(j.event_date)}</div></span><span style="font-weight:600;color:var(${j.direction==='in'?'--good':'--urgent'})">${j.direction==='in'?'+':'−'}${j.jobs!=null?fmt(j.jobs):'?'} jobs</span></div>`).join('')}</div>`:''}
       <div class="sec">System at a glance</div>
-      <div class="card"><p>${fmt(o.signals)} live public records from ${fmt(o.sources)} sources across ${fmt(o.counties)} counties. ${fmt(o.auto_removed)} leads removed themselves after the owner sold, so nobody calls a house that already closed. Pipeline ${o.failed_24h===0?'healthy':'degraded — '+o.failed_24h+' failed runs'}; last refreshed ${esc(PP.ago(o.last_refresh))}.</p></div>
+      <div class="card"><p>${fmt(o.signals)} live public records from ${fmt(o.sources)} sources across ${fmt(o.counties)} counties. ${fmt(o.auto_removed)} leads were taken out of the queue after a recorded sale, a completed foreclosure or a change of owner on the county record. A sale can take days to reach the record, so check before you call. Pipeline ${o.failed_24h===0?'healthy':'degraded — '+o.failed_24h+' failed runs'}; last refreshed ${esc(PP.ago(o.last_refresh))}.</p></div>
       ${dn?'<div class="sec">Your chief of staff</div>'+dn:''}`;
   }catch(e){ b.innerHTML=PP.err('Could not load today: '+e.message); }
 }

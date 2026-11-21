@@ -156,12 +156,15 @@ const PP = (() => {
   function more(open){ const m=document.getElementById('pp-more'), s=document.getElementById('scrim'); if(!m) return; m.classList.toggle('open',!!open); if(s) s.classList.toggle('open',!!open || document.getElementById('drawer').classList.contains('open')); }
 
   const cls = s => s>=95?'s-hot':s>=85?'s-warm':s>=70?'s-mid':'s-low';
-  const tier = s => s>=88?'Top rank':s>=75?'High rank':s>=60?'Mid rank':s>=45?'Low rank':'Watch';   // a ranking, not a measured urgency
+  const tier = s => s>=85?'Top rank':s>=75?'High rank':s>=60?'Mid rank':s>=45?'Low rank':'Watch';   // a ranking, not a measured urgency
   // Nov 13 2026: the label says what the county record is, not a forecast. The old ladder called a divorce or probate
   // filing "Financial pressure", a trustee change "Creditor action", and every death record "Watch".
   const SITUATION = {auction:'Trustee sale noticed', default:'Notice of default', estate:'Death or probate record', lawsuit:'Lawsuit on record',
                      preparing:'Trustee substituted', divorce:'Divorce record', tax:'Tax delinquent', lien:'Lien or judgment', general:'County record'};
   const stage = (n, sit) => SITUATION[sit] || ({5:'Trustee sale noticed',4:'Default or lawsuit filed',2:'Lien, judgment or trustee change',1:'Tax, divorce or probate record'})[n] || 'County record';
+  // Nov 20 2026: a deed that drops one name from title is often a trust or family transfer, not a divorce
+  const SIGLBL = {divorce_transfer:'name removed from title (deed)'};
+  const sig = t => SIGLBL[t] || (t||'').replace(/_/g,' ');
   const pill = st => {
     if(!st||st==='new') return '<span class="pill p-new">new</span>';
     if(['listed_with_us','sold','appointment'].includes(st)) return `<span class="pill p-won">${st.replace(/_/g,' ')}</span>`;
@@ -184,7 +187,11 @@ const PP = (() => {
         <div class="kv"><span>Property</span><span class="mono">${esc(r.property_ref||'—')}</span></div>
         <div class="kv"><span>County entries</span><span class="mono">${esc(r.county_entries||'—')}</span></div>
         <div class="kv"><span>County</span><span>${esc(r.county||'—')}</span></div>
-        <div class="note">Every figure traces to a public county filing. Look it up at the recorder — you're citing a record, not a hunch.</div>
+        <h4>Contact</h4>
+        <div class="kv"><span>Mailing address</span><span>${r.mailing_address?esc(r.mailing_address):'—'}</span></div>
+        <div class="kv"><span>Address status</span><span>${r.mailing_confirmed?'Confirmed on the county assessor record':r.mailing_address?'Not confirmed — check the assessor record before mailing':'None on file'}</span></div>
+        <div class="kv"><span>Phone</span><span>${r.has_phone?'On file':'None on file'}</span></div>
+        <div class="note">These facts come from public county records — recorder, assessor and court. Look the entry up before you call; you're citing a record, not a hunch.</div>
         <h4>Evidence</h4>
         <div class="kv"><span>Distinct documents</span><span>${r.signal_count??'—'}</span></div>
         <div class="kv"><span>Signal types</span><span>${r.distinct_types??'—'}</span></div>
@@ -192,7 +199,7 @@ const PP = (() => {
         ${r.cluster_flag?`<div class="kv"><span>Timing</span><span>Clustered in 30 days</span></div>`:''}
         ${r.escalation_ratio>1.1?`<div class="kv"><span>Debt growth</span><span>${Number(r.escalation_ratio).toFixed(1)}×</span></div>`:''}
         ${r.total_tax_debt>0?`<div class="kv"><span>Tax owed</span><span>${money(r.total_tax_debt)}</span></div>`:''}
-        ${(r.signal_types||[]).length?`<div class="kv"><span>Signals</span><span style="font-size:12px">${(r.signal_types||[]).map(s=>s.replace(/_/g,' ')).join(', ')}</span></div>`:''}
+        ${(r.signal_types||[]).length?`<div class="kv"><span>Signals</span><span style="font-size:12px">${(r.signal_types||[]).map(sig).join(', ')}</span></div>`:''}
         ${eq!=null?`<h4>Equity indication</h4>
         <div class="kv"><span>Proxy</span><span>${Math.round(eq)}%</span></div>
         ${r.oldest_loan_years?`<div class="kv"><span>Oldest loan</span><span>${Math.round(r.oldest_loan_years)} years old</span></div>`:''}
@@ -235,7 +242,7 @@ const PP = (() => {
       const stageName={5:'Trustee sale noticed',4:'Default or lawsuit filed',2:'Lien, judgment or trustee change',1:'Tax, divorce or probate record',0:''};
       el.innerHTML=d.map(x=>`<div style="display:grid;grid-template-columns:82px 1fr auto;gap:8px;padding:6px 0;border-bottom:1px solid var(--line)">
         <span class="mono">${esc(x.recorded||'')}</span>
-        <span><b style="color:${x.stage>=4?'var(--hot)':x.stage>=1?'var(--gold2)':'var(--ink2)'}">${esc((x.signal_type||'').replace(/_/g,' '))}</b>
+        <span><b style="color:${x.stage>=4?'var(--hot)':x.stage>=1?'var(--gold2)':'var(--ink2)'}">${esc(sig(x.signal_type))}</b>
           ${x.stage?`<span class="muted"> · ${stageName[x.stage]}</span>`:''}
           ${x.lender_name?`<div class="muted" style="font-size:11px">${esc(x.lender_name)}${x.loan_amount?' · $'+Math.round(x.loan_amount).toLocaleString():''}</div>`:''}
           ${x.grantor&&x.grantee?`<div class="muted" style="font-size:11px">${esc(x.grantor.slice(0,28))} → ${esc(x.grantee.slice(0,28))}</div>`:''}</span>
@@ -255,5 +262,5 @@ const PP = (() => {
   const bar = (label,v,total,cls='') => `<div class="fbar ${cls}"><div class="t"><span>${label}</span><b>${v.toLocaleString()}</b></div><div class="b"><i style="width:${Math.max(1,100*v/Math.max(total,1))}%"></i></div></div>`;
   const ago = iso => { if(!iso) return '—'; const m=(Date.now()-new Date(iso))/60000; return m<60?Math.round(m)+'m ago':m<1440?Math.round(m/60)+'h ago':Math.round(m/1440)+'d ago'; };
 
-  return {get, post, patch, del, rpc, claim, shell, more, loading, signIn, signOut, requireAuth, sess, cls, tier, stage, pill, money, esc, openLead, openLeadByKey, closeDrawer, rec, empty, err, bar, ago};
+  return {get, post, patch, del, rpc, claim, shell, more, loading, signIn, signOut, requireAuth, sess, cls, tier, stage, sig, pill, money, esc, openLead, openLeadByKey, closeDrawer, rec, empty, err, bar, ago};
 })();

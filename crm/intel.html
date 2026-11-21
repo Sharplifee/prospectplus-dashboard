@@ -5,18 +5,18 @@ async function load(){
   const b=document.getElementById('body');
   const ex=(t,p)=>`<div class="card" style="margin-bottom:12px"><h3>${t}</h3><p>${p}</p></div>`;
   b.innerHTML=`<div class="grid2"><div>
-    ${ex('One signal is noise','Measured against deeds later recorded for the same owner, a single weak signal almost never precedes a sale, while a recorded lien does far more often. The live numbers are in the table beside this, recomputed nightly. The court and estate layers are too new to measure yet, and are shown as such rather than hidden.')}
+    ${ex('One signal is noise','Measured against deeds later recorded for the same owner, most single filing types are followed by a sale less than 3% of the time, so no one record makes a seller. The live numbers are in the table beside this, recomputed nightly. The court and estate layers are too new to measure yet, and are shown as such rather than hidden.')}
     ${ex('Scored on documents, not mentions','The same county filing gets captured by several sources under different labels. Counting those separately would manufacture fake convergence, so every score collapses to one row per distinct document.')}
-    ${ex('Escalation beats volume','An owner moving from tax pressure, to a lender substituting the trustee, to a recorded notice of default is on a deadline. One sitting at a single stage for months is not — even with the same number of filings.')}
+    ${ex('Escalation beats volume','An owner moving from tax pressure, to a lender substituting the trustee, to a recorded notice of default is further along. One sitting at a single stage for months is not — even with the same number of filings.')}
     ${ex('Rarity is an assumption','Some filings (a trustee substitution in raw recorder codes) are read by fewer people than a downloaded tax roll. That is a working assumption, not a measured edge, and it no longer raises any score label.')}
-    ${ex('Dead leads remove themselves','When a property sells at arm\'s length or a foreclosure completes, the lead drops out automatically. You never call someone who already sold.')}
+    ${ex('Sold leads drop out','When an arm\'s-length sale, a completed foreclosure or a new owner shows up on the county record, the lead leaves the queue at the next nightly run. A sale can take days to be recorded, so check before you call.')}
   </div><div>
     <div class="card"><h3>Measured conversion by signal</h3>
       <div id="bt" class="muted">Loading…</div>
       <p class="muted" style="margin-top:10px;font-size:12px">Owners observed since collection began, and how many later recorded a sale. Live, from the county record.</p></div>
     <div class="card" style="margin-top:12px"><h3>Score tiers</h3>
-      <div class="kv" style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--line)"><b class="s-hot">88–100</b><span>Top rank</span></div>
-      <div class="kv" style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--line)"><b class="s-warm">75–87</b><span>High rank</span></div>
+      <div class="kv" style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--line)"><b class="s-hot">85–100</b><span>Top rank</span></div>
+      <div class="kv" style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--line)"><b class="s-warm">75–84</b><span>High rank</span></div>
       <div class="kv" style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--line)"><b class="s-mid">60–74</b><span>Mid rank</span></div>
       <div class="kv" style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--line)"><b class="s-low">45–59</b><span>Low rank</span></div>
       <div class="kv" style="display:flex;justify-content:space-between;padding:6px 0"><b class="s-low">&lt;45</b><span>Watch</span></div></div>
@@ -26,7 +26,7 @@ async function load(){
     document.getElementById('bt').innerHTML=bt.length?'<table class="tbl" style="border:none"><tr><th>Signal</th><th>Owners</th><th>Later sold</th></tr>'+bt.filter(x=>x.owners>=10).map(x=>`<tr><td>${PP.esc(x.signal_type.replace(/_/g,' '))}</td><td>${x.owners}</td><td class="${x.sold_pct>=10?'s-hot':x.sold_pct>=2?'s-warm':'s-low'}">${x.later_sold?x.sold_pct+'% ('+x.later_sold+')':'none yet'}</td></tr>`).join('')+'</table>':'<div class="muted">No backtest yet.</div>';
   }catch(e){ document.getElementById('bt').textContent='Could not load the backtest.'; }
   try{ const m=await PP.rpc('pp_app_signal_mix');
-    document.getElementById('mix').innerHTML='<h3>What\'s flowing in</h3>'+m.map(s=>`<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--line);font-size:13px"><span>${PP.esc(s.signal_type.replace(/_/g,' '))}<span class="muted" style="font-size:11px"> · ${s.owners} owners</span></span><span class="s-warm">score ${s.score}</span></div>`).join('');
+    document.getElementById('mix').innerHTML='<h3>What\'s flowing in</h3>'+m.map(s=>`<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--line);font-size:13px"><span>${PP.esc(PP.sig(s.signal_type))}<span class="muted" style="font-size:11px"> · ${s.owners} owners</span></span><span class="s-warm">score ${s.score}</span></div>`).join('');
   }catch(e){}
 }
 load();

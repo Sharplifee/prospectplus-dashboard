@@ -15,7 +15,7 @@ async function load(){
       <div class="card"><h3>Your pipeline</h3>
         ${PP.bar('Worked today',o.worked_today,Math.max(o.queue,1))}${PP.bar('In progress',o.in_progress,Math.max(o.queue,1))}
         ${PP.bar('Appointments',o.appointments,Math.max(o.queue,1),'ok')}${PP.bar('Listings won',o.listings_won,Math.max(o.queue,1),'ok')}
-        ${o.worked_today===0&&o.in_progress===0?'<p class="muted" style="margin-top:12px">Nothing worked yet. Every outcome you record trains the scoring — the system learns which signal combinations actually convert.</p>':''}</div></div>
+        ${o.worked_today===0&&o.in_progress===0?'<p class="muted" style="margin-top:12px">Nothing worked yet. Every outcome you record is kept with the lead. Scores come from the county records only; outcomes do not change them.</p>':''}</div></div>
       <div class="sec">Board — leads by status</div>
       <div class="grid3">${states.map(s=>{const x=bm[s]||{n:0,leads:[]};return `<div class="card"><h3>${s.replace(/_/g,' ')} <span style="color:var(--gold2)">${x.n}</span></h3>
         ${x.leads.length?x.leads.slice(0,8).map(l=>`<div class="kv" style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--line);font-size:12.5px"><span>${PP.esc(l.owner||'—')}</span><span class="muted">${l.conviction} · ${l.touches}t</span></div>`).join(''):'<div class="muted" style="font-size:12px">No leads in this state</div>'}</div>`}).join('')}</div>

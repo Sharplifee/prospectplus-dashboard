@@ -143,7 +143,7 @@ async function load(){
       <hr>
       <div class="group">
         <h3>Buyers <span id="gB"></span></h3>
-        <p class="muted small">An <b>active buyer</b> is someone county records show is about to buy: an investor who just sold and must reinvest within 180 days to defer taxes (1031 exchange), a homeowner going through a divorce who needs a new place, a landlord, or a repeat or cash buyer. ${n(d.buyers_active)} on file: ${n(d.buyers_1031)} on a 1031 clock, ${n(d.buyers_divorce)} divorcing, ${n(d.buyers_investor)} investors. Kelvin picks first; the rest go to other agents.</p>
+        <p class="muted small">An <b>active buyer</b> is someone county records suggest may buy soon: an investor who just sold with no purchase since (if it is a 1031 exchange, they must reinvest within 180 days), a homeowner going through a divorce who may need a new place, a landlord, or a repeat or cash buyer. ${n(d.buyers_active)} on file: ${n(d.buyers_1031)} possible 1031, ${n(d.buyers_divorce)} divorcing, ${n(d.buyers_investor)} investors. Kelvin picks first; the rest go to other agents.</p>
         <div class="ctrls">
           ${ctrl('B','Active buyers handed to agents each month',50,800,10,`${n(d.buyers_30d)} new in the last 30 days, partly one-time from layers added this week.`)}
           ${ctrl('BC','Buyers your agents close',0.5,10,0.5,'Of those buyers, how many buy a home through your agents. Zillow buyer leads close at 3–5%.')}
