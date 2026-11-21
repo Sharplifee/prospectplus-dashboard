@@ -59,7 +59,7 @@ async function load(){
   }catch(e){ document.getElementById('rows').innerHTML=PP.err('Query failed: '+e.message); }
 }
 function rowsHtml(rows,start){ return rows.map((x,k)=>{ const i=start+k; return `<tr class="row" onclick="PP.openLead(window._rows[${i}])"><td><span class="score ${PP.cls(x.conviction_score)}">${x.conviction_score}</span><div class="muted" style="font-size:10px">${PP.tier(x.conviction_score)}</div></td>
-        <td><b>${PP.esc(x.owner_display||'—')}</b><div class="muted" style="font-size:11px">${PP.esc(x.city||x.county||'')} · ${PP.esc((x.property_ref||'').slice(0,40))}${x.assigned_agent?' · → '+PP.esc(x.assigned_agent)+(x.split_pct&&x.split_pct<100?' '+x.split_pct+'%':''):''}</div></td>
+        <td><b>${PP.esc(x.owner_display||'—')}</b>${x.lead_label?` <span class="pill p-live">${PP.esc(x.lead_label)}</span>`:''}<div class="muted" style="font-size:11px">${PP.esc(x.city||x.county||'')} · ${PP.esc((x.property_ref||'').slice(0,40))}${x.assigned_agent?' · → '+PP.esc(x.assigned_agent)+(x.split_pct&&x.split_pct<100?' '+x.split_pct+'%':''):''}</div></td>
         <td><span class="${x.max_stage>=4?'s-hot':'muted'}" style="font-size:12px">${PP.stage(x.max_stage, x.situation)}</span></td>
         <td class="why">${PP.esc(x.why||'')}</td><td class="xs-hide mono">${x.signal_count??'—'}</td><td>${PP.pill(x.lifecycle_state)}</td></tr>`; }).join(''); }
 function render(rows, more){
@@ -81,7 +81,7 @@ async function saveFile(text,name,type){
 function exportCSV(){
   const rows=window._rows||[]; if(!rows.length){alert('Nothing to export — apply filters that return leads first.');return;}
   const cols=[['owner','owner_display'],['conviction',r=>r.conviction_score],['tier',r=>PP.tier(r.conviction_score)],['stage',r=>PP.stage(r.max_stage, r.situation)],
-    ['county','county'],['property_ref','property_ref'],['county_entries','county_entries'],['documents','signal_count'],['signal_types',r=>(r.signal_types||[]).map(PP.sig).join('|')],
+    ['county','county'],['label','lead_label'],['successor','successor'],['county_value',r=>r.assessed_value!=null?Math.round(r.assessed_value):(r.value_label||'No home value on file')],['property_ref','property_ref'],['county_entries','county_entries'],['documents','signal_count'],['signal_types',r=>(r.signal_types||[]).map(PP.sig).join('|')],
     ['equity_proxy_pct',r=>r.equity_proxy==null?'':Math.round(r.equity_proxy)],['oldest_loan_years',r=>r.oldest_loan_years==null?'':Math.round(r.oldest_loan_years)],
     ['tax_owed',r=>r.total_tax_debt==null?'':Math.round(r.total_tax_debt)],['why','why'],['status','lifecycle_state'],['entity_key','entity_key']];
   const q=v=>{v=(v??'').toString();return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v};

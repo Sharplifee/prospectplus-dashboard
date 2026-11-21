@@ -179,12 +179,18 @@ const PP = (() => {
     const eq = r.equity_proxy;
     dr.innerHTML = `
       <div class="hd"><div><h2>${esc(r.owner_display||'—')}</h2>
-        <div class="muted" style="margin-top:3px"><span class="score ${cls(r.conviction_score)}">${r.conviction_score}</span> · ${tier(r.conviction_score)} · ${stage(r.max_stage, r.situation)}</div></div>
+        <div class="muted" style="margin-top:3px"><span class="score ${cls(r.conviction_score)}">${r.conviction_score}</span> · ${tier(r.conviction_score)} · ${stage(r.max_stage, r.situation)}${r.lead_label?` · <b style="color:var(--gold2)">${esc(r.lead_label)}</b>`:''}</div></div>
         <button class="btn sm" onclick="PP.closeDrawer()" aria-label="Close">Close</button></div>
       <div class="bd">
         ${r.why?`<div class="why-lead">${esc(r.why)}</div>`:''}
+        ${r.lead_label?`<h4>${esc(r.lead_label)}</h4>
+        ${r.successor?`<div class="kv"><span>Successor on county title</span><span>${esc(r.successor)}</span></div>
+        ${r.successor_mailing?`<div class="kv"><span>Successor mailing</span><span>${esc(r.successor_mailing)}</span></div>`:''}`
+          :`<div class="kv"><span>Successor</span><span>Not confirmed yet</span></div>`}
+        ${r.successor_evidence?`<div class="note">${esc(r.successor_evidence)}</div>`:''}`:''}
         <h4>Check the record first</h4>
         <div class="kv"><span>Property</span><span class="mono">${esc(r.property_ref||'—')}</span></div>
+        <div class="kv"><span>County value</span><span>${r.assessed_value!=null?money(r.assessed_value):esc(r.value_label||'No home value on file')}</span></div>
         <div class="kv"><span>County entries</span><span class="mono">${esc(r.county_entries||'—')}</span></div>
         <div class="kv"><span>County</span><span>${esc(r.county||'—')}</span></div>
         <h4>Contact</h4>
