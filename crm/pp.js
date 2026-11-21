@@ -196,6 +196,7 @@ const PP = (() => {
         <h4>Contact</h4>
         <div class="kv"><span>Mailing address</span><span>${r.mailing_address?esc(r.mailing_address):'—'}</span></div>
         <div class="kv"><span>Address status</span><span>${r.mailing_confirmed?'Confirmed on the county assessor record':r.mailing_address?'Not confirmed — check the assessor record before mailing':'None on file'}</span></div>
+        ${r.parcel_match==='name_only'?'<div class="kv"><span>Property match</span><span>Name match only — no document ties this person to the parcel. Verify before contacting.</span></div>':r.parcel_match==='document'?'<div class="kv"><span>Property match</span><span>Tied to the parcel by a county document</span></div>':''}
         <div class="kv"><span>Phone</span><span>${r.has_phone?'On file':'None on file'}</span></div>
         <div class="note">These facts come from public county records — recorder, assessor and court. Look the entry up before you call; you're citing a record, not a hunch.</div>
         <h4>Evidence</h4>
