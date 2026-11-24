@@ -19,17 +19,30 @@ const PP = (() => {
   async function openLeadByKey(key){ const rows=await get('pp_conviction_queue?select=*&entity_key=eq.'+encodeURIComponent(key)+'&limit=1'); if(rows&&rows[0]) openLead(rows[0]); }
   let _ready=null;
   function ready(){ if(!_ready) _ready=requireAuth().catch(()=>false); return _ready; }
+  // Nov 24 2026: a read that hits a database hiccup (5xx, statement timeout, dropped connection) is retried twice,
+  // 1.5s then 4s later, instead of leaving the page empty. Writes are never retried (they could land twice).
+  const pause = ms => new Promise(res => setTimeout(res, ms));
+  async function readFetch(url, opts){
+    for(const wait of [0, 1500, 4000]){
+      if(wait) await pause(wait);
+      try{ const r = await fetch(url, opts()); if(r.status < 500 || wait === 4000) return r; }
+      catch(e){ if(wait === 4000) throw e; }
+    }
+  }
+  const READ_RPC = n => /^pp_app_/.test(n) && !/(add|update|set|save|log|record|claim|enqueue)/.test(n);
   async function get(path){
     await ready();
-    let r = await fetch(SB+'/rest/v1/'+path, {headers:H()});
-    if(r.status===401 && await refresh()) r = await fetch(SB+'/rest/v1/'+path, {headers:H()});
+    let r = await readFetch(SB+'/rest/v1/'+path, ()=>({headers:H()}));
+    if(r.status===401 && await refresh()) r = await readFetch(SB+'/rest/v1/'+path, ()=>({headers:H()}));
     if(!r.ok) throw new Error('HTTP '+r.status+' — '+(await r.text()).slice(0,140));
     return r.json();
   }
   async function rpc(name, body={}){
     await ready();
-    let r = await fetch(SB+'/rest/v1/rpc/'+name, {method:'POST', headers:H(), body:JSON.stringify(body)});
-    if(r.status===401 && await refresh()) r = await fetch(SB+'/rest/v1/rpc/'+name, {method:'POST', headers:H(), body:JSON.stringify(body)});
+    const go = () => READ_RPC(name) ? readFetch(SB+'/rest/v1/rpc/'+name, ()=>({method:'POST', headers:H(), body:JSON.stringify(body)}))
+                                    : fetch(SB+'/rest/v1/rpc/'+name, {method:'POST', headers:H(), body:JSON.stringify(body)});
+    let r = await go();
+    if(r.status===401 && await refresh()) r = await go();
 
     if(!r.ok) throw new Error('HTTP '+r.status+' — '+(await r.text()).slice(0,140));
     const t = await r.text(); return t ? JSON.parse(t) : null;
